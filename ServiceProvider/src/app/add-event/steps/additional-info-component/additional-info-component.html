@@ -1,0 +1,34 @@
+<div class="additional-info-container">
+  <div class="info-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </svg>
+    <p>Add any additional details that visitors should know</p>
+  </div>
+
+  <form class="form-container">
+    <div class="form-group">
+      <label for="additionalDescription">Description <span class="required">*</span></label>
+      <textarea 
+        id="additionalDescription"
+        [(ngModel)]="localData.additionalDescription"
+        (ngModelChange)="emitChange()"
+        name="additionalDescription"
+        rows="8"
+        placeholder="Include details like parking information, dress code, age restriction, accessibility features, amenities e.t.c."
+        class="form-textarea"></textarea>
+    </div>
+
+    <div class="examples">
+      <p class="examples-title">Examples:</p>
+      <ul class="examples-list">
+        <li>"Free parking available"</li>
+        <li>"Smart casual dress code"</li>
+        <li>"Wheelchair accessible"</li>
+        <li>"18+ only"</li>
+      </ul>
+    </div>
+  </form>
+</div>

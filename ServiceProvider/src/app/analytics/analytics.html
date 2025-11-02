@@ -1,0 +1,314 @@
+<div class="analytics-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [organizerName]="organizerName"
+      [location]="location"
+      [userAvatar]="userAvatar"
+      [notificationCount]="notificationCount"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Analytics Content -->
+    <div class="analytics-content">
+      <!-- Header Section -->
+      <div class="analytics-header">
+        <h1 class="page-title">Analytics Dashboard</h1>
+        
+        <div class="header-controls">
+          <div class="time-period-selector">
+            <label>Time Period:</label>
+            <select [(ngModel)]="timePeriod" class="period-select">
+              <option *ngFor="let option of timePeriodOptions" [value]="option">
+                {{ option }}
+              </option>
+            </select>
+          </div>
+          
+          <div class="export-buttons">
+            <button class="btn-export btn-pdf" (click)="exportAsPDF()">
+              Export as PDF
+            </button>
+            <button class="btn-export btn-csv" (click)="exportAsCSV()">
+              Export as CSV
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Metrics Grid -->
+      <div class="metrics-grid">
+        <div class="metric-card" *ngFor="let metric of metrics">
+          <div class="metric-header">
+            <h3>{{ metric.title }}</h3>
+            <svg class="icon-calendar" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="metric-value">{{ metric.value }}</div>
+          <div class="metric-change" [ngClass]="metric.changeType">
+            {{ metric.change }}
+          </div>
+        </div>
+      </div>
+
+      <!-- AI-Powered Insights -->
+      <div class="ai-insights-section">
+        <div class="ai-insights-header">
+          <h2>AI-Powered Insights</h2>
+          <p>Get personalized recommendations to boost your event performance</p>
+        </div>
+        
+        <div class="insights-grid">
+          <div class="insight-card" *ngFor="let insight of insights">
+            <h3>{{ insight.title }}</h3>
+            <p>{{ insight.description }}</p>
+            <a href="javascript:void(0)" class="insight-action" (click)="handleInsightAction(insight.actionText)">
+              {{ insight.actionText }}
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Charts Section -->
+      <div class="charts-section">
+        <!-- Event Views & RSVPs Chart -->
+        <div class="chart-card chart-wide">
+          <h3>Event Views & RSVPs Over Time</h3>
+          <div class="chart-legend">
+            <span class="legend-item">
+              <span class="legend-color" style="background: #2196F3;"></span>
+              Views
+            </span>
+            <span class="legend-item">
+              <span class="legend-color" style="background: #4CAF50;"></span>
+              RSVPs
+            </span>
+          </div>
+          <div class="line-chart-container">
+            <svg class="line-chart" viewBox="0 0 700 300">
+              <!-- Grid lines -->
+              <line x1="50" y1="250" x2="650" y2="250" stroke="#e0e0e0" stroke-width="1"/>
+              <line x1="50" y1="200" x2="650" y2="200" stroke="#e0e0e0" stroke-width="1"/>
+              <line x1="50" y1="150" x2="650" y2="150" stroke="#e0e0e0" stroke-width="1"/>
+              <line x1="50" y1="100" x2="650" y2="100" stroke="#e0e0e0" stroke-width="1"/>
+              <line x1="50" y1="50" x2="650" y2="50" stroke="#e0e0e0" stroke-width="1"/>
+              
+              <!-- Y-axis labels -->
+              <text x="30" y="255" font-size="12" fill="#666">0</text>
+              <text x="20" y="205" font-size="12" fill="#666">1,000</text>
+              <text x="20" y="155" font-size="12" fill="#666">2,500</text>
+              <text x="20" y="105" font-size="12" fill="#666">3,000</text>
+              <text x="20" y="55" font-size="12" fill="#666">4,000</text>
+              <text x="20" y="15" font-size="12" fill="#666">5,000</text>
+              
+              <!-- X-axis labels -->
+              <text x="50" y="275" font-size="12" fill="#666">Jan</text>
+              <text x="150" y="275" font-size="12" fill="#666">Feb</text>
+              <text x="250" y="275" font-size="12" fill="#666">Mar</text>
+              <text x="350" y="275" font-size="12" fill="#666">Apr</text>
+              <text x="450" y="275" font-size="12" fill="#666">May</text>
+              <text x="550" y="275" font-size="12" fill="#666">Jun</text>
+              <text x="640" y="275" font-size="12" fill="#666">Jul</text>
+              
+              <!-- Views line (blue) -->
+              <polyline
+                points="50,225 150,190 250,125 350,135 450,90 550,65 650,30"
+                fill="none"
+                stroke="#2196F3"
+                stroke-width="3"/>
+              
+              <!-- RSVPs line (green) -->
+              <polyline
+                points="50,245 150,240 250,235 350,238 450,230 550,225 650,220"
+                fill="none"
+                stroke="#4CAF50"
+                stroke-width="3"/>
+            </svg>
+          </div>
+        </div>
+      </div>
+
+      <!-- Second Charts Row -->
+      <div class="charts-section">
+        <!-- Event Categories Performance -->
+        <div class="chart-card">
+          <h3>Event Categories Performance</h3>
+          <div class="pie-chart-container">
+            <svg class="pie-chart" viewBox="0 0 200 200">
+              <!-- Corporate - 45% (blue) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#2196F3" stroke-width="40"
+                stroke-dasharray="226 377" transform="rotate(-90 100 100)"/>
+              <!-- Wedding - 25% (green) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#4CAF50" stroke-width="40"
+                stroke-dasharray="157 377" stroke-dashoffset="-226" transform="rotate(-90 100 100)"/>
+              <!-- Social - 15% (yellow) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#FFC107" stroke-width="40"
+                stroke-dasharray="94 377" stroke-dashoffset="-383" transform="rotate(-90 100 100)"/>
+              <!-- Entertainment - 10% (red) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#F44336" stroke-width="40"
+                stroke-dasharray="63 377" stroke-dashoffset="-477" transform="rotate(-90 100 100)"/>
+              <!-- Other - 5% (gray) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#9E9E9E" stroke-width="40"
+                stroke-dasharray="31 377" stroke-dashoffset="-540" transform="rotate(-90 100 100)"/>
+              
+              <!-- Center circle for donut effect -->
+              <circle cx="100" cy="100" r="50" fill="white"/>
+            </svg>
+          </div>
+          <div class="chart-legend-vertical">
+            <div class="legend-item" *ngFor="let category of eventCategories">
+              <span class="legend-color" [style.background]="category.color"></span>
+              <span class="legend-text">{{ category.name }}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Event Status Distribution -->
+        <div class="chart-card">
+          <h3>Event Status Distribution</h3>
+          <div class="status-stats">
+            <div class="total-events">
+              <span class="total-number">{{ totalEvents }}</span>
+              <span class="total-label">Total Events</span>
+            </div>
+          </div>
+          <div class="status-list">
+            <div class="status-item" *ngFor="let status of eventStatus">
+              <div class="status-info">
+                <div class="status-header">
+                  <span class="status-dot" [style.background]="status.color"></span>
+                  <span class="status-name">{{ status.status }}</span>
+                </div>
+                <span class="status-count">{{ status.count }} events</span>
+              </div>
+              <div class="status-bar-wrapper">
+                <div class="status-bar">
+                  <div class="status-bar-fill" 
+                    [style.width.%]="status.percentage"
+                    [style.background]="status.color">
+                  </div>
+                </div>
+                <span class="status-percentage">{{ status.percentage }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Third Charts Row -->
+      <div class="charts-section">
+        <!-- Budget Category Distribution -->
+        <div class="chart-card">
+          <h3>Budget Category Distribution</h3>
+          <div class="bar-chart-container">
+            <svg class="bar-chart" viewBox="0 0 400 250">
+              <!-- Y-axis labels -->
+              <text x="10" y="25" font-size="12" fill="#666">45</text>
+              <text x="10" y="65" font-size="12" fill="#666">40</text>
+              <text x="10" y="105" font-size="12" fill="#666">35</text>
+              <text x="10" y="145" font-size="12" fill="#666">30</text>
+              <text x="10" y="185" font-size="12" fill="#666">25</text>
+              <text x="10" y="225" font-size="12" fill="#666">20</text>
+              
+              <!-- Bars -->
+              <rect x="60" y="20" width="80" height="200" fill="#FFC107" rx="4"/>
+              <rect x="160" y="45" width="80" height="175" fill="#2196F3" rx="4"/>
+              <rect x="260" y="115" width="80" height="105" fill="#F44336" rx="4"/>
+              
+              <!-- X-axis labels -->
+              <text x="70" y="245" font-size="12" fill="#666">Low Budget</text>
+              <text x="165" y="245" font-size="12" fill="#666">Mid Budget</text>
+              <text x="280" y="245" font-size="12" fill="#666">Luxury</text>
+            </svg>
+          </div>
+        </div>
+
+        <!-- Geographic Distribution -->
+        <div class="chart-card">
+          <h3>Geographic Distribution</h3>
+          <div class="pie-chart-container">
+            <svg class="pie-chart" viewBox="0 0 200 200">
+              <!-- Nairobi - 55% (blue) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#2196F3" stroke-width="40"
+                stroke-dasharray="346 377" transform="rotate(-90 100 100)"/>
+              <!-- Mombasa - 20% (green) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#4CAF50" stroke-width="40"
+                stroke-dasharray="126 377" stroke-dashoffset="-346" transform="rotate(-90 100 100)"/>
+              <!-- Kisumu - 10% (yellow) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#FFC107" stroke-width="40"
+                stroke-dasharray="63 377" stroke-dashoffset="-472" transform="rotate(-90 100 100)"/>
+              <!-- Nakuru - 8% (red) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#F44336" stroke-width="40"
+                stroke-dasharray="50 377" stroke-dashoffset="-535" transform="rotate(-90 100 100)"/>
+              <!-- Other - 7% (gray) -->
+              <circle cx="100" cy="100" r="80" fill="none" stroke="#9E9E9E" stroke-width="40"
+                stroke-dasharray="44 377" stroke-dashoffset="-585" transform="rotate(-90 100 100)"/>
+              
+              <!-- Center circle for donut effect -->
+              <circle cx="100" cy="100" r="50" fill="white"/>
+            </svg>
+          </div>
+          <div class="chart-legend-vertical">
+            <div class="legend-item" *ngFor="let location of geographicData">
+              <span class="legend-color" [style.background]="location.color"></span>
+              <span class="legend-text">{{ location.location }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Bottom Section -->
+      <div class="bottom-section">
+        <!-- Top Events by RSVPs -->
+        <div class="data-card">
+          <h3>Top Events By RSVPS</h3>
+          <div class="events-list">
+            <div class="event-item" *ngFor="let event of topEvents">
+              <div class="event-info">
+                <h4>{{ event.category }}</h4>
+                <p>{{ event.subcategory }}</p>
+              </div>
+              <div class="event-rsvps">{{ event.rsvps }}</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Organizer Performance -->
+        <div class="data-card">
+          <h3>Top Organizer Performance</h3>
+          <div class="organizers-list">
+            <div class="organizer-item" *ngFor="let organizer of organizers">
+              <div class="organizer-avatar" [style.background]="organizer.color">
+                {{ organizer.initials }}
+              </div>
+              <div class="organizer-info">
+                <h4>{{ organizer.name }}</h4>
+                <p>{{ organizer.events }} events</p>
+              </div>
+              <div class="organizer-performance">
+                <div class="performance-bar">
+                  <div class="performance-fill" 
+                    [style.width.%]="organizer.performance"
+                    [style.background]="getPerformanceColor(organizer.performance)">
+                  </div>
+                </div>
+                <span class="performance-text">{{ organizer.performance }}%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

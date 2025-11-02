@@ -1,0 +1,66 @@
+<div class="select-sections-container">
+  <div class="info-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <line x1="12" y1="16" x2="12" y2="12"></line>
+      <line x1="12" y1="8" x2="12.01" y2="8"></line>
+    </svg>
+    <p>Choose which sections you want to include in your event listing. You can always skip sections that don't apply.</p>
+  </div>
+
+  <div class="sections-grid">
+    <div 
+      *ngFor="let section of sections" 
+      class="section-card"
+      [class.selected]="selectedSections[section.key]"
+      [class.required]="section.required"
+      (click)="toggleSection(section.key)">
+      
+      <div class="section-icon">
+        <svg *ngIf="section.icon === 'info'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+        <svg *ngIf="section.icon === 'calendar'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+          <line x1="16" y1="2" x2="16" y2="6"></line>
+          <line x1="8" y1="2" x2="8" y2="6"></line>
+          <line x1="3" y1="10" x2="21" y2="10"></line>
+        </svg>
+        <svg *ngIf="section.icon === 'dollar'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="1" x2="12" y2="23"></line>
+          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+        </svg>
+        <svg *ngIf="section.icon === 'image'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+          <circle cx="8.5" cy="8.5" r="1.5"></circle>
+          <polyline points="21 15 16 10 5 21"></polyline>
+        </svg>
+        <svg *ngIf="section.icon === 'info-circle'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="16" x2="12" y2="12"></line>
+          <line x1="12" y1="8" x2="12.01" y2="8"></line>
+        </svg>
+      </div>
+
+      <div class="section-content">
+        <div class="section-header">
+          <h3>{{ section.title }}</h3>
+          <span class="required-badge" *ngIf="section.required">Required</span>
+          <svg class="checkmark" *ngIf="selectedSections[section.key]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+        </div>
+        <p>{{ section.description }}</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="selected-summary" *ngIf="selectedSectionsList.length > 0">
+    <p><strong>Selected Sections Summary:</strong></p>
+    <div class="badge-list">
+      <span class="badge" *ngFor="let section of selectedSectionsList">{{ section }}</span>
+    </div>
+  </div>
+</div>

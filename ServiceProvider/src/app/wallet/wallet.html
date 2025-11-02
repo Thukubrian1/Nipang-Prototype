@@ -1,0 +1,308 @@
+<div class="wallet-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [organizerName]="organizerName"
+      [location]="location"
+      [userAvatar]="userAvatar"
+      [notificationCount]="notificationCount"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Wallet Content -->
+    <div class="wallet-content">
+      <!-- Main Tabs -->
+      <div class="main-tabs">
+        <button 
+          class="tab-btn" 
+          [class.active]="activeMainTab === 'wallet'"
+          (click)="switchMainTab('wallet')">
+          Wallet
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeMainTab === 'settings'"
+          (click)="switchMainTab('settings')">
+          Wallet Settings
+        </button>
+      </div>
+
+      <!-- Wallet Tab Content -->
+      <div *ngIf="activeMainTab === 'wallet'" class="wallet-tab-content">
+        <!-- Balance Cards -->
+        <div class="balance-cards">
+          <!-- Available for Withdrawal -->
+          <div class="balance-card highlight">
+            <h3>Available for Withdrawal</h3>
+            <div class="balance-amount green">KSh {{availableBalance | number:'1.0-0'}}</div>
+            <button class="btn-withdraw" (click)="withdrawNow()">Withdraw Now</button>
+          </div>
+
+          <!-- Pending Balance -->
+          <div class="balance-card">
+            <h3>Pending (Post-Event)</h3>
+            <div class="balance-amount red">KSh {{pendingBalance | number:'1.0-0'}}</div>
+            <p class="balance-note">Available after event completion</p>
+          </div>
+
+          <!-- Total Lifetime Earnings -->
+          <div class="balance-card">
+            <h3>Total Lifetime Earnings</h3>
+            <div class="balance-amount blue">KSh {{totalEarnings | number:'1.0-0'}}</div>
+            <p class="balance-note">Less commission ({{commissionRate}}%)</p>
+          </div>
+        </div>
+
+        <!-- Sub Tabs -->
+        <div class="sub-tabs">
+          <button 
+            class="sub-tab-btn" 
+            [class.active]="activeSubTab === 'overview'"
+            (click)="switchSubTab('overview')">
+            Overview
+          </button>
+          <button 
+            class="sub-tab-btn" 
+            [class.active]="activeSubTab === 'withdrawals'"
+            (click)="switchSubTab('withdrawals')">
+            Withdrawals
+          </button>
+          <button 
+            class="sub-tab-btn" 
+            [class.active]="activeSubTab === 'invoices'"
+            (click)="switchSubTab('invoices')">
+            Invoices
+          </button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div *ngIf="activeSubTab === 'overview'" class="sub-tab-content">
+          <div class="section-header">
+            <h2>Transaction History</h2>
+            <button class="btn-export" (click)="exportReport()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export Full Report
+            </button>
+          </div>
+
+          <div class="transactions-list">
+            <div class="transaction-card" *ngFor="let transaction of transactions">
+              <div class="transaction-main">
+                <h4>{{transaction.eventName}}</h4>
+                <p class="transaction-status">{{transaction.status}}</p>
+              </div>
+              <div class="transaction-meta">
+                <div class="transaction-amount green">KSH {{transaction.amount | number:'1.0-0'}}</div>
+                <div class="transaction-date" *ngIf="transaction.date">{{transaction.date}}</div>
+                <span class="transaction-badge" *ngIf="!transaction.date">Pending</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Withdrawals Tab -->
+        <div *ngIf="activeSubTab === 'withdrawals'" class="sub-tab-content">
+          <div class="section-header">
+            <h2>Recent Withdrawals</h2>
+            <button class="btn-export" (click)="exportReport()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export Full Report
+            </button>
+          </div>
+
+          <div class="withdrawals-list">
+            <div class="withdrawal-card" *ngFor="let withdrawal of withdrawals">
+              <div class="withdrawal-header-row">
+                <h4 class="withdrawal-event-name">{{withdrawal.eventName}}</h4>
+                <div class="withdrawal-amount">-KSH {{withdrawal.amount | number:'1.0-0'}}</div>
+              </div>
+              
+              <div class="withdrawal-bottom-row">
+                <div class="withdrawal-info">
+                  <div class="info-group">
+                    <span class="info-label">Date</span>
+                    <span class="info-value">{{withdrawal.date}}</span>
+                  </div>
+                  <div class="info-group">
+                    <span class="info-label">Method</span>
+                    <span class="info-value">{{withdrawal.method}}</span>
+                  </div>
+                </div>
+                <button class="btn-details" (click)="viewWithdrawalDetails(withdrawal.id)">Details</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoices Tab -->
+        <div *ngIf="activeSubTab === 'invoices'" class="sub-tab-content">
+          <div class="section-header">
+            <h2>Invoices</h2>
+            <button class="btn-export" (click)="exportReport()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Export Full Report
+            </button>
+          </div>
+
+          <div class="invoices-list">
+            <div class="invoice-card" *ngFor="let invoice of invoices">
+              <div class="invoice-top">
+                <div class="invoice-left">
+                  <h4 class="invoice-number">Invoice {{invoice.id}}</h4>
+                  <p class="invoice-event-name">{{invoice.eventName}}</p>
+                </div>
+                <div class="invoice-right">
+                  <div class="invoice-amount">KSH {{invoice.amount | number:'1.0-0'}}</div>
+                  <span class="invoice-status" [ngClass]="getStatusClass(invoice.status)">{{invoice.status}}</span>
+                </div>
+              </div>
+              
+              <div class="invoice-dates-row">
+                <div class="date-column">
+                  <span class="date-label">Issue Date</span>
+                  <span class="date-value">{{invoice.issueDate}}</span>
+                </div>
+                <div class="date-column">
+                  <span class="date-label">Due Date</span>
+                  <span class="date-value">{{invoice.dueDate}}</span>
+                </div>
+                <div class="invoice-actions">
+                  <button class="btn-preview" (click)="previewInvoice(invoice.id)">Preview</button>
+                  <button class="btn-download" (click)="downloadInvoice(invoice.id)">Download</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallet Settings Tab Content -->
+      <div *ngIf="activeMainTab === 'settings'" class="settings-tab-content">
+        <!-- Saved Accounts -->
+        <div class="settings-section">
+          <div class="section-header">
+            <h2>Saved Accounts ({{savedAccounts.length}})</h2>
+            <button class="btn-add" (click)="addNewAccount()">Add new Account</button>
+          </div>
+
+          <div class="accounts-list">
+            <div class="account-card" *ngFor="let account of savedAccounts">
+              <div class="account-icon">{{account.icon}}</div>
+              <div class="account-info">
+                <h4>{{account.type}}</h4>
+                <p>{{account.name}} - {{account.accountNumber}}</p>
+                <span class="default-badge" *ngIf="account.isDefault">Default</span>
+                <button 
+                  class="btn-set-default" 
+                  *ngIf="!account.isDefault"
+                  (click)="setDefaultAccount(account.id)">
+                  Set Default
+                </button>
+              </div>
+              <div class="account-actions">
+                <button class="action-icon" (click)="editAccount(account.id)" title="Edit">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                  </svg>
+                </button>
+                <button class="action-icon delete" (click)="deleteAccount(account.id)" title="Delete">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3 6 5 6 21 6"></polyline>
+                    <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Security Settings -->
+        <div class="settings-section">
+          <h2>Security Settings</h2>
+
+          <div class="security-options">
+            <button class="security-option" (click)="changeWalletPin()">
+              <span>Change Wallet PIN</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+
+            <button class="security-option" (click)="enableTwoFactor()">
+              <span>Enable Two-Factor Authentication</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+
+            <button class="security-option" (click)="viewActivityLog()">
+              <span>View Activity Log</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+
+            <button class="security-option" (click)="configureWithdrawalLimits()">
+              <span>Withdrawal Limits & Notifications</span>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PIN Modal -->
+  <div class="modal-overlay" *ngIf="isPinModalOpen" (click)="closePinModal()">
+    <div class="pin-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Enter your pin</h3>
+        <button class="btn-close" (click)="closePinModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p>Enter your PIN to access Wallet Settings</p>
+        <input 
+          type="password" 
+          maxlength="4"
+          placeholder="Enter 4-digit pin"
+          [(ngModel)]="pinInput"
+          class="pin-input"
+          (keyup.enter)="submitPin()">
+        <p class="error-message" *ngIf="pinError">{{pinError}}</p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closePinModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitPin()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>

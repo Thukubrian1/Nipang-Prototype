@@ -1,0 +1,82 @@
+<div class="users-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [organizerName]="organizerName"
+      [location]="location"
+      [userAvatar]="userAvatar"
+      [notificationCount]="notificationCount"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Users Content -->
+    <div class="users-content">
+      <!-- Header -->
+      <div class="users-header">
+        <h1>Admins</h1>
+        <button class="btn-add-admin" (click)="addAdmin()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Admin
+        </button>
+      </div>
+
+      <!-- Users Table -->
+      <div class="table-container">
+        <table class="users-table">
+          <thead>
+            <tr>
+              <th>Name</th>
+              <th>Email</th>
+              <th>Last Login</th>
+              <th>Role</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let user of filteredUsers" class="table-row">
+              <td class="user-name">{{ user.name }}</td>
+              <td class="user-email">{{ user.email }}</td>
+              <td class="last-login">{{ user.lastLogin }}</td>
+              <td>
+                <span class="role-badge" [ngClass]="getRoleClass(user.role)">
+                  {{ user.role }}
+                </span>
+              </td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(user.status)">
+                  {{ user.status }}
+                </span>
+              </td>
+              <td class="actions-cell">
+                <button class="action-link edit" (click)="editUser(user.id)">Edit</button>
+                <button class="action-link delete" (click)="deleteUser(user.id)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="filteredUsers.length === 0">
+              <td colspan="6" class="no-results">
+                <div class="no-results-content">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <p>No users found</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>

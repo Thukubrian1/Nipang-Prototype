@@ -1,0 +1,214 @@
+<div class="events-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [organizerName]="organizerName"
+      [location]="location"
+      [userAvatar]="userAvatar"
+      [notificationCount]="notificationCount"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Events Content -->
+    <div class="events-content">
+      
+      <!-- Stats Cards Grid -->
+      <div class="stats-grid">
+        <!-- Live Events Card -->
+        <div class="stat-card clickable" (click)="viewLiveEvents()">
+          <div class="stat-header">
+            <h3>Live Events</h3>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-value">{{ liveEvents }}</div>
+          <div class="stat-footer positive">
+            <span>+{{ liveEventsChange }} this week</span>
+          </div>
+        </div>
+
+        <!-- Pending Approval Card -->
+        <div class="stat-card clickable" (click)="viewPendingApproval()">
+          <div class="stat-header">
+            <h3>Pending Approval</h3>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-value">{{ pendingApproval }}</div>
+          <div class="stat-footer warning">
+            <span>Requires Review</span>
+          </div>
+        </div>
+
+        <!-- Sponsored Events Card -->
+        <div class="stat-card clickable" (click)="viewSponsoredEvents()">
+          <div class="stat-header">
+            <h3>Sponsored Events</h3>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-value">{{ sponsoredEvents }}</div>
+          <div class="stat-footer positive">
+            <span>{{ sponsoredEventsNew }} new today</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Draft Events Card (Full Width) -->
+      <div class="draft-card clickable" (click)="viewDraftEvents()">
+        <div class="stat-header">
+          <h3>Draft Events</h3>
+          <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+        </div>
+        <div class="stat-value">{{ draftEvents }}</div>
+        <div class="stat-footer warning">
+          <span>Requires Review</span>
+        </div>
+      </div>
+
+      <!-- Search and Actions Bar -->
+      <div class="search-actions-bar">
+        <div class="search-section">
+          <!-- Filter Dropdown -->
+          <div class="filter-dropdown">
+            <select [(ngModel)]="selectedFilter" (change)="onSearchChange()">
+              <option *ngFor="let option of filterOptions" [value]="option">{{ option }}</option>
+            </select>
+            <svg class="dropdown-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+          </div>
+
+          <!-- Search Input -->
+          <div class="search-input-wrapper">
+            <svg class="search-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"></circle>
+              <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+            </svg>
+            <input 
+              type="text" 
+              placeholder="Search by event, provider..." 
+              [(ngModel)]="searchQuery"
+              (input)="onSearchChange()"
+              class="search-input">
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn-add-event" (click)="addEvent()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="5" x2="12" y2="19"></line>
+              <line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add Event
+          </button>
+          <button class="btn-sponsor-event" (click)="sponsorEvent()">
+            Sponsor Event
+          </button>
+        </div>
+      </div>
+
+      <!-- Events Table -->
+      <div class="table-container">
+        <table class="events-table">
+          <thead>
+            <tr>
+              <th>Event</th>
+              <th>Category</th>
+              <th>Sub-Category</th>
+              <th>Date</th>
+              <th>Bookings</th>
+              <th>Revenue</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let event of filteredEvents" class="table-row">
+              <td class="event-name">{{ event.name }}</td>
+              <td>{{ event.category }}</td>
+              <td>{{ event.subCategory }}</td>
+              <td>{{ event.date }} at {{ event.time }}</td>
+              <td>
+                <div class="bookings-cell">
+                  <svg class="bookings-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  <span>{{ event.bookings }}/{{ event.capacity }}</span>
+                </div>
+              </td>
+              <td class="revenue">Ksh {{ event.revenue | number:'1.0-0' }}</td>
+              <td>
+                <span class="status-badge" [ngClass]="getStatusClass(event.status)">
+                  {{ event.status }}
+                </span>
+              </td>
+              <td>
+                <div class="action-icons">
+                  <button class="action-btn edit-btn" (click)="editEvent(event.id)" title="Edit">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                      <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                    </svg>
+                  </button>
+                  <button class="action-btn analytics-btn" (click)="viewAnalytics(event.id)" title="Analytics">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="18" y1="20" x2="18" y2="10"></line>
+                      <line x1="12" y1="20" x2="12" y2="4"></line>
+                      <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                  </button>
+                  <button class="action-btn delete-btn" (click)="deleteEvent(event.id)" title="Delete">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <polyline points="3 6 5 6 21 6"></polyline>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+            <tr *ngIf="filteredEvents.length === 0">
+              <td colspan="8" class="no-results">
+                <div class="no-results-content">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                  </svg>
+                  <p>No events found</p>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+</div>

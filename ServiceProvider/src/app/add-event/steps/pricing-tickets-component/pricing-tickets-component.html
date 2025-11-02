@@ -1,0 +1,216 @@
+<div class="pricing-tickets-container">
+  <div class="info-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <line x1="12" y1="1" x2="12" y2="23"></line>
+      <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+    </svg>
+    <p>Add pricing information and ticket purchase details</p>
+  </div>
+
+  <form class="form-container">
+    <!-- Price Type -->
+    <div class="form-group">
+      <label>Price Type <span class="required">*</span></label>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input 
+            type="radio" 
+            name="priceType" 
+            value="free" 
+            [(ngModel)]="localData.priceType"
+            (change)="onPriceTypeChange()">
+          <span>Free</span>
+        </label>
+        <label class="radio-option">
+          <input 
+            type="radio" 
+            name="priceType" 
+            value="fixed" 
+            [(ngModel)]="localData.priceType"
+            (change)="onPriceTypeChange()">
+          <span>Fixed</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Free Event Fields -->
+    <div class="free-event-fields" *ngIf="localData.priceType === 'free'">
+      <!-- Total Tickets -->
+      <div class="form-group">
+        <label for="totalTickets">Total Tickets</label>
+        <input 
+          type="number" 
+          id="totalTickets"
+          [(ngModel)]="localData.totalTickets"
+          (ngModelChange)="emitChange()"
+          name="totalTickets"
+          placeholder="Enter number of tickets available for this event"
+          class="form-input">
+      </div>
+
+      <div class="form-row">
+        <!-- Ticket URL -->
+        <div class="form-group">
+          <label for="ticketUrl">Ticket URL</label>
+          <input 
+            type="url" 
+            id="ticketUrl"
+            [(ngModel)]="localData.ticketUrl"
+            (ngModelChange)="emitChange()"
+            name="ticketUrl"
+            placeholder="https://mytickets.com"
+            class="form-input">
+        </div>
+
+        <!-- Available From -->
+        <div class="form-group">
+          <label for="availableFrom">Available From</label>
+          <input 
+            type="date" 
+            id="availableFrom"
+            [(ngModel)]="localData.availableFrom"
+            (ngModelChange)="emitChange()"
+            name="availableFrom"
+            class="form-input">
+        </div>
+      </div>
+
+      <!-- Available To -->
+      <div class="form-group">
+        <label for="availableTo">Available To</label>
+        <input 
+          type="date" 
+          id="availableTo"
+          [(ngModel)]="localData.availableTo"
+          (ngModelChange)="emitChange()"
+          name="availableTo"
+          class="form-input">
+      </div>
+    </div>
+
+    <!-- Fixed Price Fields -->
+    <div class="fixed-price-fields" *ngIf="localData.priceType === 'fixed'">
+      <div class="prices-header">
+        <h3>Price Tiers</h3>
+        <button type="button" class="btn-add-price" (click)="addPrice()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Add Price
+        </button>
+      </div>
+
+      <!-- Price Items -->
+      <div class="price-list" *ngIf="localData.prices.length > 0">
+        <div *ngFor="let price of localData.prices; let i = index" class="price-item">
+          <div class="price-item-header">
+            <h4>Price {{ i + 1 }}</h4>
+            <button type="button" class="btn-remove" (click)="removePrice(i)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"></line>
+                <line x1="6" y1="6" x2="18" y2="18"></line>
+              </svg>
+            </button>
+          </div>
+
+          <div class="price-item-fields">
+            <div class="form-row">
+              <!-- Price Name -->
+              <div class="form-group">
+                <label>Price Name</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="price.name"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="emitChange()"
+                  placeholder="e.g Regular, VIP"
+                  class="form-input">
+              </div>
+
+              <!-- Price -->
+              <div class="form-group">
+                <label>Price</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="price.price"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="emitChange()"
+                  placeholder="Enter price"
+                  class="form-input">
+              </div>
+            </div>
+
+            <div class="form-row">
+              <!-- Available Tickets -->
+              <div class="form-group">
+                <label>Available Tickets</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="price.availableTickets"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="emitChange()"
+                  placeholder="Enter available tickets for this price"
+                  class="form-input">
+              </div>
+
+              <!-- Ticket Type -->
+              <div class="form-group">
+                <label>Ticket Type</label>
+                <select 
+                  [(ngModel)]="price.ticketType"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="emitChange()"
+                  class="form-select">
+                  <option value="normal">Normal</option>
+                  <option value="vip">VIP</option>
+                  <option value="early-bird">Early Bird</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Ticket URL -->
+            <div class="form-group">
+              <label>Ticket URL</label>
+              <input 
+                type="url" 
+                [(ngModel)]="price.ticketUrl"
+                [ngModelOptions]="{standalone: true}"
+                (ngModelChange)="emitChange()"
+                placeholder="https://mytickets.com"
+                class="form-input">
+            </div>
+
+            <div class="form-row">
+              <!-- Available From -->
+              <div class="form-group">
+                <label>Available From</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="price.availableFrom"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="emitChange()"
+                  class="form-input">
+              </div>
+
+              <!-- Available To -->
+              <div class="form-group">
+                <label>Available To</label>
+                <input 
+                  type="date" 
+                  [(ngModel)]="price.availableTo"
+                  [ngModelOptions]="{standalone: true}"
+                  (ngModelChange)="emitChange()"
+                  class="form-input">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <p class="empty-state" *ngIf="localData.prices.length === 0">
+        No prices added yet. Click "Add Price" to create your first price tier.
+      </p>
+    </div>
+  </form>
+</div>

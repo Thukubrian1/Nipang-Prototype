@@ -1,0 +1,107 @@
+<div class="basic-info-container">
+  <div class="info-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <circle cx="12" cy="12" r="10"></circle>
+      <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+      <line x1="12" y1="17" x2="12.01" y2="17"></line>
+    </svg>
+    <p><strong>Choose "Event"</strong> for one-time or recurring events, <strong>"Venue"</strong> for permanent locations like restaurants, clubs, churches, etc.</p>
+  </div>
+
+  <form class="form-container">
+    <!-- Type Selection -->
+    <div class="form-group">
+      <label>Type <span class="required">*</span></label>
+      <div class="radio-group">
+        <label class="radio-option">
+          <input type="radio" name="type" value="event" [(ngModel)]="localData.type" (change)="emitChange()">
+          <span>Event</span>
+        </label>
+        <label class="radio-option">
+          <input type="radio" name="type" value="venue" [(ngModel)]="localData.type" (change)="emitChange()">
+          <span>Venue</span>
+        </label>
+      </div>
+    </div>
+
+    <!-- Event/Venue Name -->
+    <div class="form-group">
+      <label for="name">{{ localData.type === 'event' ? 'Event' : 'Venue' }} Name <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="name"
+        [(ngModel)]="localData.name"
+        (ngModelChange)="emitChange()"
+        name="name"
+        placeholder="e.g Album Launch, Concert e.t.c"
+        class="form-input">
+    </div>
+
+    <!-- Description -->
+    <div class="form-group">
+      <label for="description">Description <span class="required">*</span></label>
+      <textarea 
+        id="description"
+        [(ngModel)]="localData.description"
+        (ngModelChange)="emitChange()"
+        name="description"
+        rows="4"
+        placeholder="Provide details about the event"
+        class="form-textarea"></textarea>
+    </div>
+
+    <!-- Category -->
+    <div class="form-group">
+      <label for="category">Category <span class="required">*</span></label>
+      <select 
+        id="category"
+        [(ngModel)]="localData.category"
+        (ngModelChange)="onCategoryChange()"
+        name="category"
+        class="form-select">
+        <option value="">Select a category</option>
+        <option *ngFor="let cat of categories" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+
+    <!-- Sub-Category (conditional) -->
+    <div class="form-group" *ngIf="subCategories.length > 0">
+      <label for="subCategory">Sub-Category <span class="required">*</span></label>
+      <select 
+        id="subCategory"
+        [(ngModel)]="localData.subCategory"
+        (ngModelChange)="emitChange()"
+        name="subCategory"
+        class="form-select">
+        <option value="">Select a sub-category</option>
+        <option *ngFor="let subCat of subCategories" [value]="subCat">{{ subCat }}</option>
+      </select>
+    </div>
+
+    <!-- Location -->
+    <div class="form-group">
+      <label for="location">Location <span class="required">*</span></label>
+      <input 
+        type="text" 
+        id="location"
+        [(ngModel)]="localData.location"
+        (ngModelChange)="emitChange()"
+        name="location"
+        placeholder="e.g Nairobi, Thika, e.t.c"
+        class="form-input">
+    </div>
+
+    <!-- Location URL (Google Maps) -->
+    <div class="form-group">
+      <label for="locationUrl">Location URL (Google maps)</label>
+      <input 
+        type="url" 
+        id="locationUrl"
+        [(ngModel)]="localData.locationUrl"
+        (ngModelChange)="emitChange()"
+        name="locationUrl"
+        placeholder="https://maps.google.com"
+        class="form-input">
+    </div>
+  </form>
+</div>

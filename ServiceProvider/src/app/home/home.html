@@ -1,0 +1,236 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [organizerName]="organizerName"
+      [location]="location"
+      [userAvatar]="userAvatar"
+      [notificationCount]="notificationCount"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-content">
+      <div class="dashboard-header">
+        <h1>Dashboard Overview</h1>
+        <button class="btn-add-event" (click)="addEvent()">
+          <span class="plus-icon">+</span>
+          Add Event
+        </button>
+      </div>
+
+      <!-- Stats Cards Row 1 -->
+      <div class="stats-grid">
+        <!-- Active Events Card -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <h3>Active Events</h3>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-value">{{activeEvents}}</div>
+          <div class="stat-footer positive">
+            <span>+{{eventsThisWeek}} this week</span>
+          </div>
+        </div>
+
+        <!-- Total Bookings Card -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <h3>Total Bookings</h3>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-value">{{totalBookings}}</div>
+          <div class="stat-footer positive">
+            <span>{{bookingsPercentage}}% vs last week</span>
+          </div>
+        </div>
+
+        <!-- Total Revenue Card -->
+        <div class="stat-card">
+          <div class="stat-header">
+            <h3>Total Revenue</h3>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-value">{{totalRevenue}}</div>
+          <div class="stat-footer">
+            <span class="pending">KSh {{pendingRevenue}} pending</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Average Capacity Card -->
+      <div class="capacity-section">
+        <div class="stat-card">
+          <div class="stat-header">
+            <h3>Avg. Capacity</h3>
+            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+          </div>
+          <div class="stat-value">{{avgCapacity}}%</div>
+          <div class="stat-footer negative">
+            <span>{{capacityChange}}% vs last month</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallet Overview -->
+      <div class="wallet-section">
+        <div class="wallet-card">
+          <h2 class="section-title">Wallet Overview</h2>
+          <div class="wallet-stats">
+            <div class="wallet-stat">
+              <p class="wallet-label">Available Balance</p>
+              <p class="wallet-value">KSh {{availableBalance | number:'1.0-0'}}</p>
+            </div>
+            <div class="wallet-stat">
+              <p class="wallet-label">Pending (After Event)</p>
+              <p class="wallet-value">KSh {{pendingBalance | number:'1.0-0'}}</p>
+            </div>
+            <div class="wallet-stat">
+              <p class="wallet-label">Total Earnings</p>
+              <p class="wallet-value">KSh {{totalEarnings | number:'1.0-0'}}</p>
+            </div>
+          </div>
+          <button class="btn-withdrawal" (click)="requestWithdrawal()">Request Withdrawal</button>
+        </div>
+      </div>
+
+      <!-- AI-Powered Insights -->
+      <div class="insights-section">
+        <div class="section-header">
+          <h2 class="section-title">AI-Powered Insights</h2>
+          <button class="link-btn" (click)="viewAllInsights()">View all</button>
+        </div>
+        <div class="insights-grid">
+          <div class="insight-card" *ngFor="let insight of insights">
+            <h3>{{insight.title}}</h3>
+            <p>{{insight.description}}</p>
+            <button class="link-btn" (click)="handleInsightAction(insight.action)">{{insight.actionText}}</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Upcoming Events -->
+      <div class="events-section">
+        <h2 class="section-title">Upcoming Events</h2>
+        <div class="events-list">
+          <div class="event-card" *ngFor="let event of upcomingEvents" (click)="viewEvent(event.id)">
+            <div class="event-main">
+              <h3 class="event-title">{{event.title}}</h3>
+              <div class="event-details">
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  {{event.date}}
+                </span>
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  {{event.time}}
+                </span>
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  {{event.bookings}}/{{event.capacity}} booked
+                </span>
+              </div>
+            </div>
+            <div class="event-meta">
+              <span class="event-price">KSH {{event.price | number:'1.0-0'}}</span>
+              <span class="event-category">{{event.category}}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions-section">
+        <h2 class="section-title">Quick Actions</h2>
+        <div class="quick-actions-grid">
+          <button class="action-card" (click)="createEvent()">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <circle cx="12" cy="16" r="1"></circle>
+              <line x1="12" y1="12" x2="12" y2="14"></line>
+            </svg>
+            <span>Create event</span>
+          </button>
+
+          <button class="action-card" (click)="sponsorEvent()">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <circle cx="12" cy="16" r="1"></circle>
+              <line x1="12" y1="12" x2="12" y2="14"></line>
+            </svg>
+            <span>Sponsor Event</span>
+          </button>
+
+          <button class="action-card" (click)="createSupportTicket()">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+            </svg>
+            <span>Support Ticket</span>
+          </button>
+
+          <button class="action-card" (click)="viewAnalytics()">
+            <svg class="action-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="12" y1="20" x2="12" y2="10"></line>
+              <line x1="18" y1="20" x2="18" y2="4"></line>
+              <line x1="6" y1="20" x2="6" y2="16"></line>
+            </svg>
+            <span>View Analytics</span>
+          </button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Add Event Modal -->
+  <app-add-event
+    [isOpen]="isAddEventModalOpen"
+    (close)="closeAddEventModal()"
+    (submit)="handleEventSubmit($event)">
+  </app-add-event>
+</div>

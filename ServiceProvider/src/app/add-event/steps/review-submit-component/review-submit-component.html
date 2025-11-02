@@ -1,0 +1,83 @@
+<div class="review-submit-container">
+  <div class="success-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <polyline points="20 6 9 17 4 12"></polyline>
+    </svg>
+    <p>Review your event details before submitting</p>
+  </div>
+
+  <div class="preview-card">
+    <h2 class="preview-title">Preview Summary</h2>
+
+    <div class="preview-grid">
+      <!-- Type -->
+      <div class="preview-item">
+        <span class="preview-label">Type :</span>
+        <span class="preview-value">{{ formData.type === 'event' ? 'Event' : 'Venue' }}</span>
+      </div>
+
+      <!-- Name -->
+      <div class="preview-item">
+        <span class="preview-label">Name :</span>
+        <span class="preview-value">{{ formData.name || 'Not provided' }}</span>
+      </div>
+
+      <!-- Category -->
+      <div class="preview-item">
+        <span class="preview-label">Category :</span>
+        <span class="preview-value">{{ formData.category || 'Not provided' }}</span>
+      </div>
+
+      <!-- Sub-Category -->
+      <div class="preview-item" *ngIf="formData.subCategory">
+        <span class="preview-label">Sub-Category :</span>
+        <span class="preview-value">{{ formData.subCategory }}</span>
+      </div>
+
+      <!-- Location -->
+      <div class="preview-item">
+        <span class="preview-label">Location :</span>
+        <span class="preview-value">{{ formData.location || 'Not provided' }}</span>
+      </div>
+
+      <!-- Date & Time (if included) -->
+      <div class="preview-item" *ngIf="selectedSections.dateTime && formData.startDate">
+        <span class="preview-label">Start Date :</span>
+        <span class="preview-value">{{ formData.startDate }} {{ formData.startTime }}</span>
+      </div>
+
+      <div class="preview-item" *ngIf="selectedSections.dateTime && formData.endDate">
+        <span class="preview-label">End Date :</span>
+        <span class="preview-value">{{ formData.endDate }} {{ formData.endTime }}</span>
+      </div>
+
+      <!-- Recurring -->
+      <div class="preview-item" *ngIf="selectedSections.dateTime && formData.isRecurring">
+        <span class="preview-label">Recurring :</span>
+        <span class="preview-value">{{ formData.recurrencePattern }}</span>
+      </div>
+
+      <!-- Price -->
+      <div class="preview-item" *ngIf="selectedSections.pricingTickets">
+        <span class="preview-label">Price :</span>
+        <span class="preview-value">{{ priceDisplay }}</span>
+      </div>
+
+      <!-- Media -->
+      <div class="preview-item" *ngIf="selectedSections.mediaUpload">
+        <span class="preview-label">Media :</span>
+        <span class="preview-value">{{ mediaCount }}</span>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- Sections Included -->
+    <div class="sections-summary">
+      <h3>Sections Included :</h3>
+      <div class="badge-list">
+        <span class="badge" *ngFor="let section of selectedSectionsList">{{ section }}</span>
+      </div>
+    </div>
+  </div>
+</div>

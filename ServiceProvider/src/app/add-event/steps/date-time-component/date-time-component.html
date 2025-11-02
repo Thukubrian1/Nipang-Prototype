@@ -1,0 +1,166 @@
+<div class="date-time-container">
+  <div class="info-banner">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+      <line x1="16" y1="2" x2="16" y2="6"></line>
+      <line x1="8" y1="2" x2="8" y2="6"></line>
+      <line x1="3" y1="10" x2="21" y2="10"></line>
+    </svg>
+    <p>Specify when your event starts and ends</p>
+  </div>
+
+  <form class="form-container">
+    <div class="form-row">
+      <!-- Start Date -->
+      <div class="form-group">
+        <label for="startDate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          Start Date <span class="required">*</span>
+        </label>
+        <input 
+          type="date" 
+          id="startDate"
+          [(ngModel)]="localData.startDate"
+          (ngModelChange)="emitChange()"
+          name="startDate"
+          class="form-input">
+      </div>
+
+      <!-- Start Time -->
+      <div class="form-group">
+        <label for="startTime">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          Start Time <span class="required">*</span>
+        </label>
+        <input 
+          type="time" 
+          id="startTime"
+          [(ngModel)]="localData.startTime"
+          (ngModelChange)="emitChange()"
+          name="startTime"
+          class="form-input">
+      </div>
+    </div>
+
+    <div class="form-row">
+      <!-- End Date -->
+      <div class="form-group">
+        <label for="endDate">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+            <line x1="16" y1="2" x2="16" y2="6"></line>
+            <line x1="8" y1="2" x2="8" y2="6"></line>
+            <line x1="3" y1="10" x2="21" y2="10"></line>
+          </svg>
+          End Date <span class="required">*</span>
+        </label>
+        <input 
+          type="date" 
+          id="endDate"
+          [(ngModel)]="localData.endDate"
+          (ngModelChange)="emitChange()"
+          name="endDate"
+          class="form-input">
+      </div>
+
+      <!-- End Time -->
+      <div class="form-group">
+        <label for="endTime">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polyline points="12 6 12 12 16 14"></polyline>
+          </svg>
+          End Time <span class="required">*</span>
+        </label>
+        <input 
+          type="time" 
+          id="endTime"
+          [(ngModel)]="localData.endTime"
+          (ngModelChange)="emitChange()"
+          name="endTime"
+          class="form-input">
+      </div>
+    </div>
+
+    <!-- Recurring Event Checkbox -->
+    <div class="checkbox-group">
+      <label class="checkbox-label">
+        <input 
+          type="checkbox" 
+          [checked]="localData.isRecurring"
+          (change)="toggleRecurring()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+        <span>This is a recurring event</span>
+      </label>
+    </div>
+
+    <!-- Recurring Options (conditional) -->
+    <div class="recurring-options" *ngIf="localData.isRecurring">
+      <!-- Recurrence Pattern -->
+      <div class="form-group">
+        <label for="recurrencePattern">Recurrence Pattern</label>
+        <select 
+          id="recurrencePattern"
+          [(ngModel)]="localData.recurrencePattern"
+          (ngModelChange)="emitChange()"
+          name="recurrencePattern"
+          class="form-select">
+          <option value="daily">Daily</option>
+          <option value="weekly">Weekly</option>
+          <option value="monthly">Monthly</option>
+        </select>
+      </div>
+
+      <!-- Select Days (for weekly) -->
+      <div class="form-group" *ngIf="localData.recurrencePattern === 'weekly'">
+        <label>Select Days</label>
+        <div class="days-selector">
+          <button 
+            *ngFor="let day of daysOfWeek"
+            type="button"
+            class="day-btn"
+            [class.selected]="isDaySelected(day)"
+            (click)="toggleDay(day)">
+            {{ day }}
+          </button>
+        </div>
+      </div>
+
+      <!-- Recurrence Description -->
+      <div class="form-group">
+        <label for="recurrenceDescription">Recurrence Event Description</label>
+        <input 
+          type="text" 
+          id="recurrenceDescription"
+          [(ngModel)]="localData.recurrenceDescription"
+          (ngModelChange)="emitChange()"
+          name="recurrenceDescription"
+          placeholder="e.g Tuesday : Rnb Night, Mondays: Reggae Night e.t.c."
+          class="form-input">
+      </div>
+
+      <!-- Recurrence End Date -->
+      <div class="form-group">
+        <label for="recurrenceEndDate">Recurrence End Date</label>
+        <input 
+          type="date" 
+          id="recurrenceEndDate"
+          [(ngModel)]="localData.recurrenceEndDate"
+          (ngModelChange)="emitChange()"
+          name="recurrenceEndDate"
+          class="form-input">
+      </div>
+    </div>
+  </form>
+</div>

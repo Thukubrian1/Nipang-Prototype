@@ -1,0 +1,421 @@
+<div class="profile-billing-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [organizerName]="organizerName"
+      [location]="location"
+      [userAvatar]="userAvatar"
+      [notificationCount]="notificationCount"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Profile & Billing Content -->
+    <div class="profile-billing-content">
+      <!-- Tabs -->
+      <div class="tabs">
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'profile'"
+          (click)="switchTab('profile')">
+          Profile
+        </button>
+        <button 
+          class="tab-btn" 
+          [class.active]="activeTab === 'billing'"
+          (click)="switchTab('billing')">
+          Billing
+        </button>
+      </div>
+
+      <!-- Billing Tab Content -->
+      <div *ngIf="activeTab === 'billing'" class="tab-content">
+        <h2 class="section-title">Subscription & Billing</h2>
+
+        <!-- Payment Method -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Payment</h3>
+          </div>
+          <div class="payment-info">
+            <div class="payment-method">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect>
+                <line x1="1" y1="10" x2="23" y2="10"></line>
+              </svg>
+              <span>{{ paymentMethod }}</span>
+            </div>
+            <button class="btn-update" (click)="updatePaymentMethod()">Update</button>
+          </div>
+        </div>
+
+        <!-- Invoices -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Invoices</h3>
+          </div>
+          <div class="invoices-table">
+            <div class="table-header">
+              <div class="col-date">Date</div>
+              <div class="col-total">Total</div>
+              <div class="col-status">Status</div>
+              <div class="col-actions">Actions</div>
+            </div>
+            <div class="table-row" *ngFor="let invoice of invoices">
+              <div class="col-date">{{ invoice.date }}</div>
+              <div class="col-total">${{ invoice.total }}</div>
+              <div class="col-status">
+                <span class="status-badge" [ngClass]="getInvoiceStatusClass(invoice.status)">
+                  {{ invoice.status }}
+                </span>
+              </div>
+              <div class="col-actions">
+                <button class="link-btn" (click)="viewInvoice(invoice.id)">View</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cancellation -->
+        <div class="content-card">
+          <div class="card-header">
+            <h3>Cancellation</h3>
+          </div>
+          <div class="cancellation-section">
+            <span>Cancel Plan</span>
+            <button class="btn-cancel" (click)="cancelPlan()">Cancel</button>
+          </div>
+        </div>
+
+        <!-- Current Plan Banner -->
+        <div class="current-plan-banner">
+          <div class="banner-content">
+            <h3>Professional Plan</h3>
+            <p class="plan-price">${{ plans[2].price }}/month</p>
+            <p class="next-billing">Next billing date: {{ nextBillingDate }}</p>
+            <div class="plan-features-grid">
+              <div class="feature-item" *ngFor="let feature of plans[2].features.slice(0, 8)">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="20 6 9 17 4 12"></polyline>
+                </svg>
+                <span>{{ feature }}</span>
+              </div>
+            </div>
+          </div>
+          <span class="plan-status-badge">Active</span>
+        </div>
+
+        <!-- Available Plans -->
+        <div class="available-plans-section">
+          <h2>Available Plans</h2>
+          <div class="plans-grid">
+            <!-- Free Plan -->
+            <div class="plan-card" [class.current]="plans[0].isCurrent">
+              <h3>{{ plans[0].name }}</h3>
+              <div class="plan-price-display">
+                <span class="price">${{ plans[0].price }}</span>
+                <span class="period">/{{ plans[0].period }}</span>
+              </div>
+              <ul class="features-list">
+                <li *ngFor="let feature of plans[0].features">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+              <button class="btn-plan-action downgrade" (click)="selectPlan('free')">Downgrade</button>
+            </div>
+
+            <!-- Standard Plan -->
+            <div class="plan-card" [class.current]="plans[1].isCurrent">
+              <h3>{{ plans[1].name }}</h3>
+              <div class="plan-price-display">
+                <span class="price">${{ plans[1].price }}</span>
+                <span class="period">/{{ plans[1].period }}</span>
+              </div>
+              <ul class="features-list">
+                <li *ngFor="let feature of plans[1].features">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+              <button class="btn-plan-action downgrade" (click)="selectPlan('standard')">Downgrade</button>
+            </div>
+
+            <!-- Professional Plan (Current) -->
+            <div class="plan-card current" [class.current]="plans[2].isCurrent">
+              <div class="current-plan-label">Current Plan</div>
+              <h3>{{ plans[2].name }}</h3>
+              <div class="plan-price-display">
+                <span class="price">${{ plans[2].price }}</span>
+                <span class="period">/{{ plans[2].period }}</span>
+              </div>
+              <ul class="features-list">
+                <li *ngFor="let feature of plans[2].features">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+              <button class="btn-plan-action current-plan" disabled>Current Plan</button>
+            </div>
+
+            <!-- Premium Plan -->
+            <div class="plan-card" [class.current]="plans[3].isCurrent">
+              <h3>{{ plans[3].name }}</h3>
+              <div class="plan-price-display">
+                <span class="price">${{ plans[3].price }}</span>
+                <span class="period">/{{ plans[3].period }}</span>
+              </div>
+              <ul class="features-list">
+                <li *ngFor="let feature of plans[3].features">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+              <button class="btn-plan-action upgrade" (click)="selectPlan('premium')">Upgrade</button>
+            </div>
+
+            <!-- Enterprise Plan -->
+            <div class="plan-card enterprise">
+              <h3>{{ plans[4].name }}</h3>
+              <ul class="features-list">
+                <li *ngFor="let feature of plans[4].features">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                  <span>{{ feature }}</span>
+                </li>
+              </ul>
+              <button class="btn-plan-action contact" (click)="selectPlan('enterprise')">Contact Sales</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Tab Content -->
+      <div *ngIf="activeTab === 'profile'" class="tab-content">
+        <div class="profile-grid">
+          <!-- Business Profile Section -->
+          <div class="content-card">
+            <h3>Business Profile</h3>
+            
+            <div class="form-group">
+              <label>Business Name</label>
+              <input type="text" [(ngModel)]="businessName" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label>Contact Email</label>
+              <input type="email" [(ngModel)]="contactEmail" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label>Contact Phone</label>
+              <input type="tel" [(ngModel)]="contactPhone" class="form-input">
+            </div>
+
+            <div class="form-group">
+              <label>Platform Description</label>
+              <textarea [(ngModel)]="platformDescription" class="form-textarea" rows="4"></textarea>
+            </div>
+
+            <div class="form-group">
+              <label>Categories</label>
+              <div class="categories-list">
+                <label class="checkbox-label" *ngFor="let category of categories">
+                  <input type="checkbox" [(ngModel)]="category.selected">
+                  <span>{{ category.name }}</span>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Brand Identity Section -->
+          <div class="content-card">
+            <h3>Brand Identity</h3>
+            
+            <div class="form-group">
+              <label>Business Logo</label>
+              <div class="file-input-wrapper">
+                <input type="file" #logoUpload (change)="onLogoSelected($event)" accept="image/*" hidden>
+                <button class="btn-file-input" (click)="logoUpload.click()">
+                  Choose File
+                </button>
+                <span class="file-name">{{ businessLogo ? businessLogo.name : 'No file chosen' }}</span>
+              </div>
+              <img *ngIf="businessLogoPreview" [src]="businessLogoPreview" class="image-preview">
+            </div>
+
+            <div class="form-group">
+              <label>Primary Brand Color</label>
+              <div class="color-input-group">
+                <input type="color" [(ngModel)]="primaryColor" class="color-picker">
+                <input type="text" [(ngModel)]="primaryColor" class="color-text">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Secondary Brand Color</label>
+              <div class="color-input-group">
+                <input type="color" [(ngModel)]="secondaryColor" class="color-picker">
+                <input type="text" [(ngModel)]="secondaryColor" class="color-text">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Cover Image</label>
+              <div class="file-input-wrapper">
+                <input type="file" #coverUpload (change)="onCoverImageSelected($event)" accept="image/*" hidden>
+                <button class="btn-file-input" (click)="coverUpload.click()">
+                  Choose File
+                </button>
+                <span class="file-name">{{ coverImage ? coverImage.name : 'No file chosen' }}</span>
+              </div>
+              <img *ngIf="coverImagePreview" [src]="coverImagePreview" class="image-preview">
+            </div>
+          </div>
+        </div>
+
+        <div class="profile-grid">
+          <!-- Notification Preferences -->
+          <div class="content-card">
+            <h3>Notification Preferences</h3>
+            
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Email Notifications</h4>
+                <p>Receive email updates about your events</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="emailNotifications">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>RSVP Notifications</h4>
+                <p>Get notified when users RSVP to your events</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="rsvpNotifications">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Event Approval Status</h4>
+                <p>Updates on event approval/rejection</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="eventApprovalNotifications">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Weekly Reports</h4>
+                <p>Weekly performance summaries</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="weeklyReports">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>SMS Notifications</h4>
+                <p>Receive SMS for urgent updates</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="smsNotifications">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Account Security -->
+          <div class="content-card">
+            <h3>Account Security</h3>
+            
+            <div class="form-group">
+              <label>Current Password</label>
+              <input type="password" [(ngModel)]="currentPassword" class="form-input" placeholder="Current password">
+            </div>
+
+            <div class="form-group">
+              <label>New Password</label>
+              <input type="password" [(ngModel)]="newPassword" class="form-input" placeholder="New password">
+            </div>
+
+            <div class="form-group">
+              <label>Confirm New Password</label>
+              <input type="password" [(ngModel)]="confirmPassword" class="form-input" placeholder="Confirm new password">
+            </div>
+
+            <div class="toggle-item">
+              <div class="toggle-info">
+                <h4>Two-Factor Authentication</h4>
+                <p>Add extra security to account</p>
+              </div>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="twoFactorAuth">
+                <span class="slider"></span>
+              </label>
+            </div>
+
+            <button class="btn-update-password" (click)="updatePassword()">Update Password</button>
+          </div>
+        </div>
+
+        <!-- Social Media -->
+        <div class="content-card social-media-card">
+          <h3>Social Media</h3>
+          
+          <div class="form-group">
+            <label>Instagram</label>
+            <input type="text" [(ngModel)]="instagram" class="form-input" placeholder="@yourbusiness">
+          </div>
+
+          <div class="form-group">
+            <label>Facebook</label>
+            <input type="text" [(ngModel)]="facebook" class="form-input" placeholder="facebook.com/yourbusiness">
+          </div>
+
+          <div class="form-group">
+            <label>Tiktok</label>
+            <input type="text" [(ngModel)]="tiktok" class="form-input" placeholder="@yourbusiness">
+          </div>
+
+          <div class="form-group">
+            <label>X(Twitter)</label>
+            <input type="text" [(ngModel)]="twitter" class="form-input" placeholder="@yourbusiness">
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn-save" (click)="saveChanges()">Save Changes</button>
+          <button class="btn-reset" (click)="resetToDefaults()">Reset to defaults</button>
+          <button class="btn-delete" (click)="deleteAccount()">Delete Account</button>
+        </div>
+      </div>
+    </div>
+  </main>
+</div>

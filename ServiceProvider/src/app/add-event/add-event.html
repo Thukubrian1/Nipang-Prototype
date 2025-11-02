@@ -1,0 +1,95 @@
+<div class="modal-overlay" *ngIf="isOpen" (click)="closeModal()">
+  <div class="modal-container" (click)="$event.stopPropagation()">
+    <!-- Header -->
+    <div class="modal-header">
+      <h2>{{ formData.type === 'venue' ? 'Add New Venue' : 'Add New Event' }}</h2>
+      <button class="close-btn" (click)="closeModal()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="18" y1="6" x2="6" y2="18"></line>
+          <line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+
+    <!-- Progress Stepper -->
+    <div class="stepper">
+      <div *ngFor="let step of activeSteps; let i = index" class="step-item">
+        <div class="step-indicator" [class.active]="i === currentStep" [class.completed]="i < currentStep">
+          <div class="step-circle">
+            <svg *ngIf="i < currentStep" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+              <polyline points="20 6 9 17 4 12"></polyline>
+            </svg>
+            <span *ngIf="i >= currentStep">{{ i + 1 }}</span>
+          </div>
+        </div>
+        <div class="step-label">{{ step.label }}</div>
+        <div class="step-line" *ngIf="i < activeSteps.length - 1"></div>
+      </div>
+    </div>
+
+    <!-- Modal Body -->
+    <div class="modal-body">
+      <!-- Step 0: Select Sections -->
+      <app-select-sections
+        *ngIf="currentStepId === 'select'"
+        [selectedSections]="selectedSections"
+        (sectionsChange)="handleSectionsSelected($event)">
+      </app-select-sections>
+
+      <!-- Step 1: Basic Info -->
+      <app-basic-info
+        *ngIf="currentStepId === 'basic'"
+        [formData]="formData"
+        (dataChange)="handleStepData($event)">
+      </app-basic-info>
+
+      <!-- Step 2: Date & Time -->
+      <app-date-time
+        *ngIf="currentStepId === 'datetime'"
+        [formData]="formData"
+        (dataChange)="handleStepData($event)">
+      </app-date-time>
+
+      <!-- Step 3: Pricing & Tickets -->
+      <app-pricing-tickets
+        *ngIf="currentStepId === 'pricing'"
+        [formData]="formData"
+        (dataChange)="handleStepData($event)">
+      </app-pricing-tickets>
+
+      <!-- Step 4: Media Upload -->
+      <app-media-upload
+        *ngIf="currentStepId === 'media'"
+        [formData]="formData"
+        (dataChange)="handleStepData($event)">
+      </app-media-upload>
+
+      <!-- Step 5: Additional Info -->
+      <app-additional-info
+        *ngIf="currentStepId === 'additional'"
+        [formData]="formData"
+        (dataChange)="handleStepData($event)">
+      </app-additional-info>
+
+      <!-- Final Step: Review & Submit -->
+      <app-review-submit
+        *ngIf="isLastStep && currentStep > 0"
+        [formData]="formData"
+        [selectedSections]="selectedSections">
+      </app-review-submit>
+    </div>
+
+    <!-- Modal Footer -->
+    <div class="modal-footer">
+      <button class="btn-secondary" (click)="previousStep()" [disabled]="currentStep === 0">
+        Back
+      </button>
+      <button class="btn-primary" *ngIf="!isLastStep" (click)="nextStep()">
+        Next
+      </button>
+      <button class="btn-primary" *ngIf="isLastStep && currentStep > 0" (click)="handleSubmit()">
+        Submit Event
+      </button>
+    </div>
+  </div>
+</div>
