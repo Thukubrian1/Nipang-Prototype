@@ -1,0 +1,631 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [adminName]="adminName"
+      [role]="role"
+      [userAvatar]="userAvatar"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Wallet Content -->
+    <div class="wallet-content">
+      
+      <!-- Main Tabs Navigation -->
+      <div class="main-tabs-navigation">
+        <button 
+          class="main-tab-button" 
+          [class.active]="activeMainTab === 'wallet'"
+          (click)="switchMainTab('wallet')">
+          Wallet
+        </button>
+        <button 
+          class="main-tab-button" 
+          [class.active]="activeMainTab === 'escrowManagement'"
+          (click)="switchMainTab('escrowManagement')">
+          Wallet Management
+        </button>
+        <button 
+          class="main-tab-button" 
+          [class.active]="activeMainTab === 'walletSettings'"
+          (click)="switchMainTab('walletSettings')">
+          Wallet Settings
+        </button>
+      </div>
+
+      <!-- Wallet Tab Content -->
+      <div *ngIf="activeMainTab === 'wallet'" class="wallet-tab">
+        
+        <!-- Available for Withdrawal Card -->
+        <div class="withdrawal-card">
+          <h3>Available for Withdrawal</h3>
+          <div class="amount-value green">KSH {{walletData.availableForWithdrawal | number}}</div>
+          <button class="btn-withdraw" (click)="initiateWithdrawal()">Withdraw Now</button>
+        </div>
+
+        <!-- Held in Escrow Card -->
+        <div class="info-card">
+          <h3>Held in Wallet</h3>
+          <div class="amount-value red">KSH {{walletData.heldInEscrow | number}}</div>
+          <p class="info-text">{{walletData.escrowPendingEvents}} events pending</p>
+          <a class="link-button" (click)="viewEscrow()">View Wallet →</a>
+        </div>
+
+        <!-- Commission Earned Card -->
+        <div class="info-card">
+          <h3>Commission Earned</h3>
+          <div class="amount-value purple">KSH {{walletData.commissionEarned | number}}</div>
+          <p class="info-text">{{walletData.averageCommissionRate}}% average rate</p>
+        </div>
+
+        <!-- Total Lifetime Earnings Card -->
+        <div class="info-card">
+          <h3>Total Lifetime Earnings</h3>
+          <div class="amount-value">KSH {{walletData.totalLifetimeEarnings | number}}</div>
+          <p class="info-text positive">+{{walletData.lifetimeGrowth}}% vs last month</p>
+        </div>
+
+        <!-- App Subscribers Card -->
+        <div class="info-card">
+          <h3>App Subscribers</h3>
+          <div class="amount-value">KSH {{walletData.appSubscribers | number}}</div>
+          <p class="info-text">{{walletData.activeSubscriptions}} active subscriptions</p>
+          <div class="divider"></div>
+          <div class="growth-info">
+            <span>Growth this month:</span>
+            <span class="positive">+{{walletData.appSubsGrowth}}%</span>
+          </div>
+        </div>
+
+        <!-- Service Provider Subs Card -->
+        <div class="info-card">
+          <h3>Service Provider Subs</h3>
+          <div class="amount-value">KSH {{walletData.serviceProviderSubs | number}}</div>
+          <p class="info-text">{{walletData.premiumProviders}} premium providers</p>
+          <div class="divider"></div>
+          <div class="growth-info">
+            <span>Growth this month:</span>
+            <span class="positive">+{{walletData.providerSubsGrowth}}%</span>
+          </div>
+        </div>
+
+        <!-- Event Sponsorships Card -->
+        <div class="info-card">
+          <h3>Event Sponsorships</h3>
+          <div class="amount-value">KSH {{walletData.eventSponsorships | number}}</div>
+          <p class="info-text">{{walletData.premiumProviders}} premium providers</p>
+          <div class="divider"></div>
+          <div class="growth-info">
+            <span>Average per event:</span>
+            <span class="purple">KSH {{walletData.averagePerEvent | number:'1.2-2'}}</span>
+          </div>
+        </div>
+
+        <!-- Sub Tabs -->
+        <div class="sub-tabs-navigation">
+          <button 
+            class="sub-tab-button" 
+            [class.active]="activeSubTab === 'overview'"
+            (click)="switchSubTab('overview')">
+            Overview
+          </button>
+          <button 
+            class="sub-tab-button" 
+            [class.active]="activeSubTab === 'transactions'"
+            (click)="switchSubTab('transactions')">
+            Transactions
+          </button>
+          <button 
+            class="sub-tab-button" 
+            [class.active]="activeSubTab === 'invoices'"
+            (click)="switchSubTab('invoices')">
+            Invoices
+          </button>
+          <button 
+            class="sub-tab-button" 
+            [class.active]="activeSubTab === 'withdrawals'"
+            (click)="switchSubTab('withdrawals')">
+            Withdrawals
+          </button>
+        </div>
+
+        <!-- Overview Sub-Tab -->
+        <div *ngIf="activeSubTab === 'overview'" class="overview-tab">
+          <div class="section-header">
+            <h2>Financial Overview</h2>
+            <button class="btn-export" (click)="exportReport()">
+              <span class="export-icon">↓</span> Export Full Report
+            </button>
+          </div>
+
+          <div class="revenue-section">
+            <h3>Revenue Distribution</h3>
+            <div class="revenue-bars">
+              <div *ngFor="let item of revenueDistribution" class="revenue-bar-item">
+                <div class="bar-label">
+                  <span>{{item.label}}</span>
+                  <span class="percentage">{{item.percentage}}%</span>
+                </div>
+                <div class="bar-container">
+                  <div class="bar-fill" [style.width]="getBarWidth(item.percentage)" [style.background-color]="item.color"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="quick-stats-section">
+            <h3>Quick Stats</h3>
+            <div class="stats-grid">
+              <div class="stat-box">
+                <h4>Commission Rate</h4>
+                <div class="stat-number">{{walletData.commissionRate}}%</div>
+              </div>
+              <div class="stat-box">
+                <h4>Events This Month</h4>
+                <div class="stat-number">{{walletData.eventsThisMonth}}</div>
+              </div>
+              <div class="stat-box">
+                <h4>Active Subscribers</h4>
+                <div class="stat-number">{{walletData.activeSubscribers}}</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="activity-summary-section">
+            <h3>Recent Activity Summary</h3>
+            <div class="activity-cards">
+              <div class="activity-card">
+                <h4>Today's Revenue</h4>
+                <div class="activity-amount blue">KSH {{walletData.todayRevenue | number}}</div>
+              </div>
+              <div class="activity-card">
+                <h4>This Week</h4>
+                <div class="activity-amount green">KSH {{walletData.thisWeekRevenue | number}}</div>
+              </div>
+              <div class="activity-card">
+                <h4>This Month</h4>
+                <div class="activity-amount purple">KSH {{walletData.thisMonthRevenue | number}}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Transactions Sub-Tab -->
+        <div *ngIf="activeSubTab === 'transactions'" class="transactions-tab">
+          <div class="section-header">
+            <h2>Transaction History</h2>
+            <button class="btn-export" (click)="exportReport()">
+              <span class="export-icon">↓</span> Export Full Report
+            </button>
+          </div>
+
+          <div class="filter-section">
+            <input type="text" class="search-input" placeholder="Search" [(ngModel)]="searchQuery">
+            <select class="filter-dropdown" [(ngModel)]="transactionFilter">
+              <option value="">All Categories</option>
+              <option value="commission">Commission</option>
+              <option value="subscription">App Subscription</option>
+            </select>
+          </div>
+
+          <div class="transactions-list">
+            <div *ngFor="let transaction of transactions" class="transaction-item">
+              <div class="transaction-header">
+                <div class="transaction-info">
+                  <h4>{{transaction.type}}</h4>
+                  <p *ngIf="transaction.eventName">{{transaction.eventName}}</p>
+                  <p class="transaction-id" *ngIf="transaction.details && transaction.details.ref">ID: {{transaction.details.ref}}</p>
+                </div>
+                <div class="transaction-amount">
+                  <span class="amount-positive">+ KSH {{transaction.amount | number}}</span>
+                  <span class="transaction-date">{{transaction.date}}</span>
+                  <span class="status-badge completed">{{transaction.status}}</span>
+                </div>
+              </div>
+              <div *ngIf="transaction.type === 'Commission' && transaction.details" class="transaction-details">
+                <div class="detail-box">
+                  <div class="detail-row">
+                    <span>Event Payment</span>
+                    <span>KSH {{transaction.details.eventPayment | number}}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span>Rate</span>
+                    <span>{{transaction.details.rate}}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span>Commission</span>
+                    <span class="highlight">KSH {{transaction.details.commission | number}}</span>
+                  </div>
+                </div>
+              </div>
+              <div *ngIf="transaction.type === 'App Subscription' && transaction.details" class="transaction-details">
+                <div class="detail-box">
+                  <div class="detail-row">
+                    <span>Date</span>
+                    <span>{{transaction.date}}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span>Subscribers</span>
+                    <span>{{transaction.details.subscribers}}</span>
+                  </div>
+                  <div class="detail-row">
+                    <span>Ref</span>
+                    <span>{{transaction.details.ref}}</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoices Sub-Tab -->
+        <div *ngIf="activeSubTab === 'invoices'" class="invoices-tab">
+          <div class="section-header">
+            <h2>Invoices</h2>
+            <button class="btn-export" (click)="exportReport()">
+              <span class="export-icon">↓</span> Export Full Report
+            </button>
+          </div>
+
+          <div class="invoices-list">
+            <div *ngFor="let invoice of invoices" class="invoice-item">
+              <div class="invoice-header">
+                <div class="invoice-info">
+                  <h4>Invoice {{invoice.invoiceNumber}}</h4>
+                  <p>{{invoice.eventName}}</p>
+                </div>
+                <div class="invoice-badges">
+                  <span class="status-badge blue" *ngIf="invoice.sentStatus">Sent</span>
+                  <span class="status-badge green" *ngIf="invoice.paidStatus">Paid</span>
+                  <span class="status-badge light-blue" *ngIf="invoice.processingStatus">Processing</span>
+                </div>
+              </div>
+              <div class="invoice-details">
+                <div class="detail-row">
+                  <span>Gross Amount:</span>
+                  <span class="amount">KSH {{invoice.grossAmount | number}}</span>
+                </div>
+                <div class="detail-row">
+                  <span>Platform Commission (15%):</span>
+                  <span class="amount red">- KSH {{invoice.commission | number}}</span>
+                </div>
+                <div class="detail-row">
+                  <span>Net Amount:</span>
+                  <span class="amount green">KSH {{invoice.netAmount | number}}</span>
+                </div>
+                <div class="invoice-dates">
+                  <div class="date-item">
+                    <span>Issue Date</span>
+                    <span>{{invoice.issueDate}}</span>
+                  </div>
+                  <div class="date-item">
+                    <span>Due Date</span>
+                    <span>{{invoice.dueDate}}</span>
+                  </div>
+                </div>
+              </div>
+              <div class="invoice-actions">
+                <button class="btn-secondary" (click)="previewInvoice(invoice.id)">Preview</button>
+                <button class="btn-primary" (click)="downloadInvoice(invoice.id)">Download</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Withdrawals Sub-Tab -->
+        <div *ngIf="activeSubTab === 'withdrawals'" class="withdrawals-tab">
+          <div class="quick-withdrawal-section">
+            <h3>Quick Withdrawal</h3>
+            <div class="withdrawal-box">
+              <h4>Available Balance</h4>
+              <div class="balance-amount">KSH {{walletData.availableForWithdrawal | number}}</div>
+              <button class="btn-initiate" (click)="initiateWithdrawal()">Initiate Withdrawal</button>
+            </div>
+          </div>
+
+          <div class="section-header">
+            <h2>Withdrawal History</h2>
+            <button class="btn-export" (click)="exportReport()">
+              <span class="export-icon">↓</span> Export Full Report
+            </button>
+          </div>
+
+          <div class="withdrawals-list">
+            <div *ngFor="let withdrawal of withdrawals" class="withdrawal-item">
+              <div class="withdrawal-content">
+                <div class="withdrawal-info">
+                  <span class="withdrawal-ref">Ref: {{withdrawal.ref}}</span>
+                  <div class="withdrawal-details-inline">
+                    <span class="detail-text">Date<strong>{{withdrawal.date}}</strong></span>
+                    <span class="detail-text">Method<strong>{{withdrawal.method}}</strong></span>
+                  </div>
+                </div>
+                <div class="withdrawal-meta">
+                  <span class="withdrawal-amount">-KSH {{withdrawal.amount | number:'1.2-2'}}</span>
+                  <span class="status-badge completed">{{withdrawal.status}}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Escrow Management Tab -->
+      <div *ngIf="activeMainTab === 'escrowManagement'" class="escrow-tab">
+        <div class="section-header">
+          <h2>Wallet Management</h2>
+          <button class="btn-export" (click)="exportReport()">
+            <span class="export-icon">↓</span> Export Full Report
+          </button>
+        </div>
+        <p class="section-subtitle">Manage funds held for events</p>
+
+        <div class="escrow-summary-card">
+          <h3>Total Held in Wallet</h3>
+          <div class="amount-value">KSH {{escrowStats.totalHeld | number}}</div>
+          <p class="info-text">{{escrowStats.totalEvents}} total events</p>
+          <div class="divider"></div>
+          <div class="growth-info">
+            <span>Average per event:</span>
+            <span>KSH {{escrowStats.averagePerEvent | number}}</span>
+          </div>
+        </div>
+
+        <div class="escrow-breakdown">
+          <div class="escrow-status-card">
+            <h3>Ready for Release</h3>
+            <div class="amount-value green">KSH {{escrowStats.readyForRelease | number}}</div>
+            <p class="info-text">{{escrowStats.readyEvents}} events ready</p>
+            <div class="divider"></div>
+            <div class="growth-info">
+              <span>Commission pending:</span>
+              <span class="purple">KSH {{escrowStats.readyCommission | number}}</span>
+            </div>
+          </div>
+
+          <div class="escrow-status-card">
+            <h3>Events in Progress</h3>
+            <div class="amount-value blue">KSH {{escrowStats.inProgress | number}}</div>
+            <p class="info-text">{{escrowStats.inProgressEvents}} events ongoing</p>
+            <div class="divider"></div>
+            <div class="growth-info">
+              <span>Expected commission:</span>
+              <span class="purple">KSH {{escrowStats.inProgressCommission | number}}</span>
+            </div>
+          </div>
+
+          <div class="escrow-status-card">
+            <h3>Awaiting Completion</h3>
+            <div class="amount-value red">KSH {{escrowStats.awaitingCompletion | number}}</div>
+            <p class="info-text">{{escrowStats.awaitingEvents}} events pending</p>
+            <div class="divider"></div>
+            <div class="growth-info">
+              <span>Expected commission:</span>
+              <span class="purple">KSH {{escrowStats.awaitingCommission | number}}</span>
+            </div>
+          </div>
+
+          <div class="escrow-status-card">
+            <h3>Total Commission to Earn</h3>
+            <div class="amount-value purple">KSH {{escrowStats.totalCommission | number}}</div>
+            <p class="info-text">From {{escrowStats.totalEvents}} events • Avg {{walletData.commissionRate}}% rate</p>
+          </div>
+
+          <div class="escrow-status-card">
+            <h3>Net to Providers</h3>
+            <div class="amount-value green">KSH {{escrowStats.netToProviders | number}}</div>
+            <p class="info-text">Amount to be disbursed after commission</p>
+          </div>
+
+          <div class="escrow-status-card">
+            <h3>Sponsorship Revenue</h3>
+            <div class="amount-value purple">KSH {{walletData.eventSponsorships / 4 | number}}</div>
+            <p class="info-text">From 3 sponsored events</p>
+          </div>
+        </div>
+
+        <div class="escrow-events-header">
+          <h3>Wallet Management</h3>
+          <div class="status-filters">
+            <span class="filter-badge ready">{{escrowStats.readyEvents}} Ready</span>
+            <span class="filter-badge in-progress">{{escrowStats.inProgressEvents}} In Progress</span>
+            <span class="filter-badge awaiting">{{escrowStats.awaitingEvents}} Awaiting Completion</span>
+          </div>
+        </div>
+
+        <div class="escrow-events-list">
+          <div *ngFor="let event of escrowEvents" class="escrow-event-card">
+            <div class="event-header">
+              <h4>{{event.name}}</h4>
+              <div class="event-badges">
+                <span class="status-badge" [ngClass]="getStatusClass(event.status)">{{event.status}}</span>
+                <span class="currency-badge">{{event.currency}}</span>
+              </div>
+            </div>
+            <div class="event-details">
+              <p><strong>Wallet ID:</strong> {{event.escrowId}}</p>
+              <p><strong>Attendees:</strong> {{event.attendees}}</p>
+              <p><strong>Service Provider:</strong> {{event.provider}}</p>
+              <p *ngIf="event.email"><strong>Email:</strong> {{event.email}}</p>
+              <p><strong>Event Date:</strong> {{event.eventDate}}</p>
+              <p *ngIf="event.completedDate"><strong>Completed:</strong> {{event.completedDate}}</p>
+              <p *ngIf="event.rating"><strong>Rating:</strong> ⭐ {{event.rating}}/5.0</p>
+            </div>
+            <div class="commission-breakdown">
+              <h5>Commission & Disbursement Breakdown</h5>
+              <div class="breakdown-details">
+                <div class="breakdown-row">
+                  <span>Total Event Payment:</span>
+                  <span>{{formatCurrency(event.totalPayment, event.currency)}}</span>
+                </div>
+                <div class="breakdown-row">
+                  <span>Platform Commission (15%):</span>
+                  <span class="red">- {{formatCurrency(event.platformCommission, event.currency)}}</span>
+                </div>
+                <div class="breakdown-row">
+                  <span>Amount to Disburse to Provider:</span>
+                  <span class="green">{{formatCurrency(event.amountToProvider, event.currency)}}</span>
+                </div>
+              </div>
+            </div>
+            <div class="event-actions">
+              <button 
+                *ngIf="event.status === 'Ready For Release'" 
+                class="btn-release" 
+                (click)="releaseFunds(event.id)">
+                Release Funds & Generate Invoice
+              </button>
+              <button 
+                *ngIf="event.status === 'Ready For Release'" 
+                class="btn-hold" 
+                (click)="holdFunds(event.id)">
+                Hold
+              </button>
+              <button 
+                *ngIf="event.status === 'In Progress'" 
+                class="btn-disabled" 
+                disabled>
+                Event in Progress
+              </button>
+              <button 
+                *ngIf="event.status === 'Awaiting Completion'" 
+                class="btn-disabled" 
+                disabled>
+                Awaiting Event Completion
+              </button>
+              <button class="btn-details" (click)="viewEventDetails(event.id)">View Details</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Wallet Settings Tab -->
+      <div *ngIf="activeMainTab === 'walletSettings'" class="settings-tab">
+        <div class="settings-section">
+          <h3>Saved Accounts ({{savedAccounts.length}})</h3>
+          <button class="btn-add-account" (click)="addNewAccount()">Add new Account</button>
+        </div>
+
+        <div class="saved-accounts-list">
+          <div *ngFor="let account of savedAccounts" class="account-card">
+            <div class="account-icon">
+              <svg *ngIf="account.type === 'Bank Account'" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                <path d="M12 2L2 7v2h20V7l-10-5zM4 11v8H2v2h20v-2h-2v-8h-2v8h-3v-8h-2v8h-3v-8H8v8H6v-8H4z"/>
+              </svg>
+              <svg *ngIf="account.type === 'Mobile Wallet'" viewBox="0 0 24 24" fill="currentColor" width="32" height="32">
+                <path d="M17 2H7c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h10c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm0 18H7V4h10v16zm-5-1c.55 0 1-.45 1-1s-.45-1-1-1-1 .45-1 1 .45 1 1 1z"/>
+              </svg>
+            </div>
+            <div class="account-info">
+              <h4>{{account.type}}</h4>
+              <p>{{account.name}} - {{account.details}}</p>
+              <span class="default-badge" *ngIf="account.isDefault">Default</span>
+            </div>
+            <div class="account-actions">
+              <button *ngIf="!account.isDefault" class="btn-set-default" (click)="setDefaultAccount(account.id)">Set Default</button>
+
+              <button class="icon-btn" (click)="editAccount(account.id)" title="Edit">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                  <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+                </svg>
+              </button>
+              <button class="icon-btn delete-btn" (click)="deleteAccount(account.id)" title="Delete">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="20" height="20">
+                  <path d="M3 6h18M8 6V4c0-1 1-2 2-2h4c1 0 2 1 2 2v2m3 0v14c0 1-1 2-2 2H7c-1 0-2-1-2-2V6h14z"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="settings-section security-section">
+          <h3>Security Settings</h3>
+        </div>
+        <div class="security-options">
+          <button class="security-option-btn" (click)="changeWalletPin()">• Change Wallet PIN</button>
+          <button class="security-option-btn" (click)="enableTwoFactor()">• Enable Two-Factor Authentication</button>
+          <button class="security-option-btn" (click)="viewActivityLog()">• View Activity Log</button>
+          <button class="security-option-btn" (click)="withdrawalLimits()">• Withdrawal Limits & Notifications</button>
+        </div>
+
+        <div class="settings-form">
+          <div class="form-group">
+            <label>Default Commission Rate (%)</label>
+            <input type="number" [(ngModel)]="walletSettings.commissionRate" class="form-input">
+            <p class="form-help">Current rate: {{walletSettings.commissionRate}}% • Applied to all new events</p>
+          </div>
+
+          <div class="form-group">
+            <label>Auto-release after event completion</label>
+            <div class="toggle-group">
+              <span>Automatically release funds 24 hours after event ends</span>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="walletSettings.autoRelease">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Minimum Withdrawal Amount (KSH)</label>
+            <input type="number" [(ngModel)]="walletSettings.minimumWithdrawal" class="form-input">
+            <p class="form-help">Minimum amount required to process a withdrawal</p>
+          </div>
+
+          <div class="form-group">
+            <label>Email notifications</label>
+            <div class="toggle-group">
+              <span>Receive email alerts for transactions and events</span>
+              <label class="toggle-switch">
+                <input type="checkbox" [(ngModel)]="walletSettings.emailNotifications">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Default Display Currency</label>
+            <select [(ngModel)]="walletSettings.currency" class="form-select">
+              <option value="KSH(Kenyan Shillings)">KSH(Kenyan Shillings)</option>
+              <option value="USD">USD</option>
+              <option value="EUR">EUR</option>
+            </select>
+          </div>
+
+          <button class="btn-save" (click)="saveSettings()">Save Changes</button>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- PIN Modal -->
+  <div *ngIf="showPinModal" class="modal-overlay" (click)="closePinModal()">
+    <div class="modal-content" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Enter your pin</h3>
+        <button class="close-btn" (click)="closePinModal()">×</button>
+      </div>
+      <p class="modal-subtitle">Enter your PIN to access Wallet Settings</p>
+      <input 
+        type="password" 
+        maxlength="4" 
+        [(ngModel)]="pinInput" 
+        class="pin-input" 
+        placeholder="Enter 4-digit pin"
+        (keyup.enter)="submitPin()">
+      <div class="modal-actions">
+        <button class="btn-cancel" (click)="closePinModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitPin()">Submit</button>
+      </div>
+    </div>
+  </div>
+</div>

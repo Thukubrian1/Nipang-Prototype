@@ -1,0 +1,1141 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [adminName]="adminName"
+      [role]="role"
+      [userAvatar]="userAvatar"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Settings Content -->
+    <div class="settings-content">
+      
+      <!-- Main Tabs Navigation -->
+      <div class="main-tabs-navigation">
+        <button 
+          class="main-tab-button" 
+          [class.active]="activeMainTab === 'general'"
+          (click)="switchMainTab('general')">
+          General Platform Settings
+        </button>
+        <button 
+          class="main-tab-button" 
+          [class.active]="activeMainTab === 'billing'"
+          (click)="switchMainTab('billing')">
+          Billing & Subscription Management
+        </button>
+        <button 
+          class="main-tab-button" 
+          [class.active]="activeMainTab === 'regional'"
+          (click)="switchMainTab('regional')">
+          Regional & Tax Configuration
+        </button>
+        <button 
+          class="main-tab-button" 
+          [class.active]="activeMainTab === 'integrations'"
+          (click)="switchMainTab('integrations')">
+          Third-Party Integrations
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        
+        <!-- General Platform Settings Tab -->
+        <div *ngIf="activeMainTab === 'general'" class="general-tab">
+          
+          <!-- General Settings Section -->
+          <div class="settings-grid">
+            <div class="settings-section">
+              <h2 class="section-title">General Settings</h2>
+              
+              <div class="form-group">
+                <label>Platform Name</label>
+                <input type="text" class="form-input" [(ngModel)]="platformName" placeholder="Ni pange">
+              </div>
+
+              <div class="form-group">
+                <label>Platform Logo</label>
+                <div class="file-input-wrapper">
+                  <input type="file" id="platformLogo" class="file-input" (change)="handleFileUpload($event)">
+                  <label for="platformLogo" class="file-input-label">
+                    <span class="file-button">Choose File</span>
+                    <span class="file-text">{{logoFileName || 'No file chosen'}}</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Default Contact Email</label>
+                <input type="email" class="form-input" [(ngModel)]="defaultEmail" placeholder="info@nipange.com">
+              </div>
+
+              <div class="form-group">
+                <label>Default Contact Phone</label>
+                <input type="tel" class="form-input" [(ngModel)]="defaultPhone" placeholder="0701234567">
+              </div>
+            </div>
+
+            <div class="settings-section">
+              <div class="form-group">
+                <label>Platform Description</label>
+                <textarea class="form-textarea" [(ngModel)]="platformDescription" rows="4" placeholder="Brief Description of nipange platform ..."></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Commission Rate(%)</label>
+                <input type="number" class="form-input" [(ngModel)]="commissionRate" placeholder="10">
+              </div>
+
+              <div class="form-group">
+                <label>Default Currency</label>
+                <select class="form-select" [(ngModel)]="defaultCurrency">
+                  <option value="KSH">KSH(Kenyan Shillings)</option>
+                  <option value="USD">USD(US Dollar)</option>
+                  <option value="EUR">EUR(Euro)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Default Event Approval</label>
+                <select class="form-select" [(ngModel)]="defaultApproval">
+                  <option value="manual">Manual Review Required</option>
+                  <option value="auto">Auto Approve</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Enable Seasonal Tags</label>
+                <div class="toggle-wrapper">
+                  <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="enableSeasonalTags">
+                    <span class="toggle-slider"></span>
+                  </label>
+                  <span class="toggle-label">Show seasonal events like Valentine's Week, Christmas, etc.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Data Management & Security Section -->
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Data Management</h3>
+              
+              <div class="form-group">
+                <label>Data Retention Period (days)</label>
+                <input type="number" class="form-input" [(ngModel)]="dataRetentionDays" placeholder="365">
+              </div>
+
+              <div class="form-group">
+                <label>Backup Schedule</label>
+                <select class="form-select" [(ngModel)]="backupSchedule">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <div class="toggle-title">Auto-Delete Inactive Users</div>
+                  <div class="toggle-subtitle">Automatically remove users inactive for 2+ years</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" [(ngModel)]="autoDeleteInactiveUsers">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <div class="toggle-title">Analytics Data Collection</div>
+                  <div class="toggle-subtitle">Collect user behavior data for analytics</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" [(ngModel)]="analyticsDataCollection">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-card">
+              <h3>Security & Compliance</h3>
+              
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <div class="toggle-title">Two-Factor Authentication</div>
+                  <div class="toggle-subtitle">Require 2FA for admin accounts</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" [(ngModel)]="twoFactorAuth">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <div class="toggle-title">GDPR Compliance</div>
+                  <div class="toggle-subtitle">Enable GDPR data protection features</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" [(ngModel)]="gdprCompliance">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <div class="toggle-title">Kenya Data Protection Act</div>
+                  <div class="toggle-subtitle">Enable Kenya data protection compliance</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" [(ngModel)]="kenyaDataProtection">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+
+              <div class="form-group">
+                <label>Password Policy</label>
+                <select class="form-select" [(ngModel)]="passwordPolicy">
+                  <option value="strong">Strong(8+ chars, mixed case, numbers, symbols)</option>
+                  <option value="medium">Medium(6+ chars, mixed case)</option>
+                  <option value="basic">Basic(6+ chars)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Session TimeOut(Minutes)</label>
+                <input type="number" class="form-input" [(ngModel)]="sessionTimeout" placeholder="30">
+              </div>
+            </div>
+          </div>
+
+          <!-- Notifications Settings Section -->
+          <div class="settings-card full-width">
+            <h3>Notifications Settings</h3>
+            
+            <div class="notifications-grid">
+              <div class="notification-section">
+                <h4>Email/SMS Notifications</h4>
+                
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <div class="toggle-title">New Event Registrations</div>
+                    <div class="toggle-subtitle">Notify when users register for events</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="notifyEventRegistrations">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <div class="toggle-title">Event Submissions</div>
+                    <div class="toggle-subtitle">Notify when service providers submit events</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="notifyEventSubmissions">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <div class="toggle-title">User Reports</div>
+                    <div class="toggle-subtitle">Notify when users report issues</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="notifyUserReports">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="notification-section">
+                <h4>Push Notifications</h4>
+                
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <div class="toggle-title">System Alerts</div>
+                    <div class="toggle-subtitle">Critical system notifications</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="pushSystemAlerts">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <div class="toggle-title">Marketing Broadcasts</div>
+                    <div class="toggle-subtitle">Promotional notifications to users</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="pushMarketingBroadcasts">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+
+                <div class="toggle-item">
+                  <div class="toggle-info">
+                    <div class="toggle-title">Event Reminders</div>
+                    <div class="toggle-subtitle">Remind users about upcoming events</div>
+                  </div>
+                  <label class="toggle-switch">
+                    <input type="checkbox" [(ngModel)]="pushEventReminders">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+            <div class="settings-card full-width">
+          <div class="category-management-section">
+
+            <div class="category-grid">
+              <!-- Add New Category -->
+              <div class="category-form-card">
+                <h2 class="card-title">Add New Category</h2>
+                
+                <div class="form-group">
+                  <label>Category Name</label>
+                  <input 
+                    type="text" 
+                    class="form-input" 
+                    [(ngModel)]="newCategoryName"
+                    placeholder="Enter category name...">
+                </div>
+
+                <button class="btn-primary-full" (click)="addCategory()">Add Category</button>
+
+                <div class="stats-grid">
+                  <div class="stat-card">
+                    <div class="stat-number">{{totalCategories}}</div>
+                    <div class="stat-label">Total Categories</div>
+                  </div>
+                  <div class="stat-card">
+                    <div class="stat-number">{{activeCategories}}</div>
+                    <div class="stat-label">Active</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Categories List -->
+              <div class="categories-list-card">
+                <h2 class="card-title">Categories & Subcategories</h2>
+                
+                <div class="category-item" *ngFor="let category of categories">
+                  <div class="category-header">
+                    <div class="category-name-section">
+                      <span class="category-name">{{category.name}}</span>
+                      <span class="status-badge" [class.active-badge]="category.active" [class.inactive-badge]="!category.active">
+                        {{category.active ? 'Active' : 'Inactive'}}
+                      </span>
+                    </div>
+                    <div class="category-actions">
+                      <button 
+                        class="btn-action btn-deactivate" 
+                        *ngIf="category.active" 
+                        (click)="toggleCategoryStatus(category.id)">
+                        Deactivate
+                      </button>
+                      <button 
+                        class="btn-action btn-activate" 
+                        *ngIf="!category.active" 
+                        (click)="toggleCategoryStatus(category.id)">
+                        Activate
+                      </button>
+                      <button 
+                        class="btn-action btn-remove" 
+                        (click)="removeCategory(category.id)">
+                        Remove
+                      </button>
+                    </div>
+                  </div>
+
+                  <div class="subcategories-section">
+                    <div class="subcategories-header">
+                      <span class="subcategories-label">Subcategories ({{category.subcategories.length}})</span>
+                      <button 
+                        class="btn-add-subcategory" 
+                        (click)="showAddSubcategoryForm(category.id)">
+                        + Add Subcategory
+                      </button>
+                    </div>
+
+                    <div class="add-subcategory-form" *ngIf="category.showAddForm">
+                      <input 
+                        type="text" 
+                        class="subcategory-input" 
+                        [(ngModel)]="category.newSubcategoryName"
+                        placeholder="Enter subcategory name...">
+                      <button class="btn-save" (click)="addSubcategory(category.id)">Add</button>
+                      <button class="btn-cancel" (click)="cancelAddSubcategory(category.id)">Cancel</button>
+                    </div>
+
+                    <div class="subcategory-chips">
+                      <span class="subcategory-chip" *ngFor="let sub of category.subcategories">
+                        {{sub.name}}
+                        <button class="chip-remove" (click)="removeSubcategory(category.id, sub.id)">×</button>
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+            </div>
+
+          
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button class="btn-outline" (click)="resetToDefaults()">Reset to defaults</button>
+            <button class="btn-primary" (click)="saveSettings()">Save Settings</button>
+          </div>
+        </div>
+
+        <!-- Billing & Subscription Management Tab -->
+        <div *ngIf="activeMainTab === 'billing'" class="billing-tab">
+          
+          <!-- Sub Tabs -->
+          <div class="sub-tabs">
+            <button 
+              class="sub-tab-button" 
+              [class.active]="activeBillingTab === 'bundles'"
+              (click)="switchBillingTab('bundles')">
+              Bundles
+            </button>
+            <button 
+              class="sub-tab-button" 
+              [class.active]="activeBillingTab === 'analytics'"
+              (click)="switchBillingTab('analytics')">
+              Bundles Analytics
+            </button>
+            <button 
+              class="sub-tab-button" 
+              [class.active]="activeBillingTab === 'subscriptions'"
+              (click)="switchBillingTab('subscriptions')">
+              Subscriptions
+            </button>
+            <button 
+              class="sub-tab-button" 
+              [class.active]="activeBillingTab === 'payments'"
+              (click)="switchBillingTab('payments')">
+              Payments
+            </button>
+          </div>
+
+           <!-- Bundles Tab Content -->
+          <div *ngIf="activeBillingTab === 'bundles'" class="bundles-content">
+            
+            <!-- User Type Tabs -->
+            <div class="user-type-tabs">
+              <button 
+                class="user-type-tab" 
+                [class.active]="activeUserType === 'providers'"
+                (click)="switchUserType('providers')">
+                Service Providers
+              </button>
+              <button 
+                class="user-type-tab" 
+                [class.active]="activeUserType === 'users'"
+                (click)="switchUserType('users')">
+                App Users
+              </button>
+            </div>
+
+            <!-- Bundles Header -->
+            <div class="bundles-header">
+              <div class="bundles-title-section">
+                <h3 class="bundles-title">Bundling Templates</h3>
+                <p class="bundles-subtitle">Manage your bundling templates for subscriptions</p>
+              </div>
+              <button class="btn-add-bundle" (click)="addNewBundle()">Add Bundle</button>
+            </div>
+
+            <!-- Bundles List -->
+            <div class="bundles-list">
+              <div 
+                class="bundle-card" 
+                *ngFor="let bundle of bundles"
+                [class.most-popular]="bundle.popular">
+                
+                <div class="bundle-card-header">
+                  <h4 class="bundle-name">{{bundle.name}}</h4>
+                  <div class="bundle-actions">
+                    <button class="icon-button edit-btn" (click)="editBundle(bundle.id)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                        <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                      </svg>
+                    </button>
+                    <button class="icon-button delete-btn" (click)="deleteBundle(bundle.id)">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+
+                <span class="most-popular-badge" *ngIf="bundle.popular">Most Popular</span>
+
+                <div class="bundle-price">
+                  <span class="price-currency">$</span>
+                  <span class="price-amount">{{bundle.priceUSD}}</span>
+                  <span class="price-period">/{{bundle.period}}</span>
+                </div>
+
+                <div class="bundle-price-ksh">KSH {{bundle.priceKSH}}</div>
+
+                <div class="bundle-features">
+                  <div class="feature-row" *ngFor="let feature of bundle.features">
+                    <svg class="feature-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path [attr.d]="getFeatureIcon(feature.icon)"></path>
+                    </svg>
+                    <span class="feature-label">{{feature.label}}</span>
+                    <span class="feature-value">{{feature.value}}</span>
+                  </div>
+                </div>
+
+                <div class="bundle-integrations" *ngIf="bundle.integrations && bundle.integrations.length > 0">
+                  <h5 class="integrations-title">Integrations:</h5>
+                  <ul class="integrations-list">
+                    <li *ngFor="let integration of bundle.integrations">
+                      <svg class="check-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                      {{integration}}
+                    </li>
+                  </ul>
+                </div>
+
+                <span class="bundle-status-badge" [class.active-status]="bundle.active">
+                  {{bundle.active ? 'Active' : 'Inactive'}}
+                </span>
+              </div>
+            </div>
+
+            <!-- Feature Comparison Matrix -->
+            <div class="feature-comparison-section">
+              <h3 class="comparison-title">Feature Comparison Matrix</h3>
+              
+              <div class="comparison-table-wrapper">
+                <table class="comparison-table">
+                  <thead>
+                    <tr>
+                      <th>Feature</th>
+                      <th *ngFor="let bundle of bundles">{{bundle.name}}</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td class="feature-name">Price (USD)</td>
+                      <td *ngFor="let bundle of bundles">${{bundle.priceUSD}}</td>
+                    </tr>
+                    <tr>
+                      <td class="feature-name">Price (KSH)</td>
+                      <td *ngFor="let bundle of bundles">KSH {{bundle.priceKSH}}</td>
+                    </tr>
+                    <tr>
+                      <td class="feature-name">Validity</td>
+                      <td *ngFor="let bundle of bundles">{{bundle.validity}}</td>
+                    </tr>
+                    <tr *ngFor="let featureName of getUniqueFeatureNames()">
+                      <td class="feature-name">{{featureName}}</td>
+                      <td *ngFor="let bundle of bundles">
+                        {{getFeatureValue(bundle, featureName)}}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Bundles Analytics Content -->
+          <div *ngIf="activeBillingTab === 'analytics'" class="analytics-content">
+            
+            <!-- User Type Tabs -->
+            <div class="user-type-tabs">
+              <button 
+                class="user-type-tab" 
+                [class.active]="activeUserType === 'providers'"
+                (click)="switchUserType('providers')">
+                Service Providers
+              </button>
+              <button 
+                class="user-type-tab" 
+                [class.active]="activeUserType === 'users'"
+                (click)="switchUserType('users')">
+                App Users
+              </button>
+            </div>
+
+            <!-- Plan Adoption Statistics -->
+            <div class="statistics-section">
+              <h3>Plan Adoption Statistics</h3>
+              
+              <div class="plan-stats-list">
+                <div class="plan-stat-item" *ngFor="let plan of planStatistics">
+                  <div class="plan-indicator" [style.background-color]="plan.color"></div>
+                  <div class="plan-name">{{plan.name}}</div>
+                  <div class="plan-count">{{plan.count}}</div>
+                  <div class="plan-percentage">{{plan.percentage}}%</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Revenue By Plan -->
+            <div class="statistics-section">
+              <h3>Revenue By Plan (Monthly)</h3>
+              
+              <div class="revenue-stats-list">
+                <div class="revenue-stat-item" *ngFor="let revenue of revenueByPlan">
+                  <div class="revenue-indicator" [style.background-color]="revenue.color"></div>
+                  <div class="revenue-info">
+                    <div class="revenue-name">{{revenue.name}}</div>
+                  </div>
+                  <div class="revenue-details">
+                    <div class="revenue-amount">{{revenue.amount}}</div>
+                    <div class="revenue-subscribers">{{revenue.subscribers}} subscribers</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Subscriptions Content -->
+          <div *ngIf="activeBillingTab === 'subscriptions'" class="subscriptions-content">
+            
+            <!-- User Type Tabs -->
+            <div class="user-type-tabs">
+              <button 
+                class="user-type-tab" 
+                [class.active]="activeUserType === 'providers'"
+                (click)="switchUserType('providers')">
+                Service Providers
+              </button>
+              <button 
+                class="user-type-tab" 
+                [class.active]="activeUserType === 'users'"
+                (click)="switchUserType('users')">
+                App Users
+              </button>
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="export-buttons">
+              <button class="btn-primary" (click)="exportPDF()">Export as PDF</button>
+              <button class="btn-secondary" (click)="exportCSV()">Export as CSV</button>
+            </div>
+
+            <!-- Service Providers Table -->
+            <div *ngIf="activeUserType === 'providers'" class="table-section">
+              <div class="table-header">
+                <h3>Service Provider</h3>
+                <div class="search-filter">
+                  <select class="filter-select" [(ngModel)]="statusFilter">
+                    <option value="">Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                  </select>
+                  <input type="text" class="search-input" placeholder="Search by name, email..." [(ngModel)]="searchQuery">
+                </div>
+              </div>
+              
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Service Provider</th>
+                    <th>Users</th>
+                    <th>Plan</th>
+                    <th>Monthly Fee</th>
+                    <th>Status</th>
+                    <th>Next Billing</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let subscription of providerSubscriptions">
+                    <td>{{subscription.provider}}</td>
+                    <td>{{subscription.users}}</td>
+                    <td>{{subscription.plan}}</td>
+                    <td>${{subscription.monthlyFee}}</td>
+                    <td><span class="status-badge" [class]="subscription.status.toLowerCase()">{{subscription.status}}</span></td>
+                    <td>{{subscription.nextBilling}}</td>
+                    <td>
+                      <button class="action-btn" (click)="editSubscription(subscription.id)">Edit</button>
+                      <button class="action-btn" (click)="suspendSubscription(subscription.id)">Suspend</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- App Users Table -->
+            <div *ngIf="activeUserType === 'users'" class="table-section">
+              <div class="table-header">
+                <h3>App Users</h3>
+                <div class="search-filter">
+                  <select class="filter-select" [(ngModel)]="statusFilter">
+                    <option value="">Status</option>
+                    <option value="paid">Paid</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                  </select>
+                  <input type="text" class="search-input" placeholder="Search by name, email..." [(ngModel)]="searchQuery">
+                </div>
+              </div>
+              
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>User name</th>
+                    <th>Monthly Fee</th>
+                    <th>Status</th>
+                    <th>Next Billing</th>
+                    <th>Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let subscription of appUserSubscriptions">
+                    <td>{{subscription.userName}}</td>
+                    <td>${{subscription.monthlyFee}}</td>
+                    <td><span class="status-badge" [class]="subscription.status.toLowerCase()">{{subscription.status}}</span></td>
+                    <td>{{subscription.nextBilling}}</td>
+                    <td>
+                      <button class="action-btn" (click)="editSubscription(subscription.id)">Edit</button>
+                      <button class="action-btn" (click)="suspendSubscription(subscription.id)">Suspend</button>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Payments Content -->
+          <div *ngIf="activeBillingTab === 'payments'" class="payments-content">
+            
+            <!-- User Type Tabs -->
+            <div class="user-type-tabs">
+              <button 
+                class="user-type-tab" 
+                [class.active]="activeUserType === 'providers'"
+                (click)="switchUserType('providers')">
+                Service Providers
+              </button>
+              <button 
+                class="user-type-tab" 
+                [class.active]="activeUserType === 'users'"
+                (click)="switchUserType('users')">
+                App Users
+              </button>
+            </div>
+
+            <!-- Payment Summary Cards -->
+            <div class="payment-summary">
+              <div class="summary-card successful">
+                <div class="summary-label">Successful Payments</div>
+                <div class="summary-amount">{{successfulPayments.amount}}</div>
+                <div class="summary-count">{{successfulPayments.count}} transactions</div>
+              </div>
+
+              <div class="summary-card pending">
+                <div class="summary-label">Pending Payments</div>
+                <div class="summary-amount">{{pendingPayments.amount}}</div>
+                <div class="summary-count">{{pendingPayments.count}} transactions</div>
+              </div>
+
+              <div class="summary-card failed">
+                <div class="summary-label">Failed Payments</div>
+                <div class="summary-amount">{{failedPayments.amount}}</div>
+                <div class="summary-count">{{failedPayments.count}} transactions</div>
+              </div>
+            </div>
+
+            <!-- Export Buttons -->
+            <div class="export-buttons">
+              <button class="btn-primary" (click)="exportPDF()">Export as PDF</button>
+              <button class="btn-secondary" (click)="exportCSV()">Export as CSV</button>
+            </div>
+
+            <!-- Recent Payments Table -->
+            <div class="table-section">
+              <div class="table-header">
+                <h3>Recent Payments</h3>
+                <div class="search-filter">
+                  <select class="filter-select" [(ngModel)]="statusFilter">
+                    <option value="">Status</option>
+                    <option value="confirmed">Confirmed</option>
+                    <option value="pending">Pending</option>
+                    <option value="failed">Failed</option>
+                    <option value="cancelled">Cancelled</option>
+                  </select>
+                  <input type="text" class="search-input" placeholder="Search by name, email..." [(ngModel)]="searchQuery">
+                </div>
+              </div>
+              
+              <table class="data-table">
+                <thead>
+                  <tr>
+                    <th>Transaction ID</th>
+                    <th>Customer</th>
+                    <th>Bundle</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let payment of recentPayments">
+                    <td>{{payment.transactionId}}</td>
+                    <td>{{payment.customer}}</td>
+                    <td>{{payment.bundle}}</td>
+                    <td>${{payment.amount}}</td>
+                    <td><span class="status-badge" [class]="payment.status.toLowerCase()">{{payment.status}}</span></td>
+                    <td>{{payment.date}}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Regional & Tax Configuration Tab -->
+        <div *ngIf="activeMainTab === 'regional'" class="regional-tab">
+          
+          <!-- Billing Settings Header -->
+          <div class="section-header-with-button">
+            <h2 class="section-title">Billing Settings</h2>
+            <button class="btn-primary" (click)="addCountry()">Add Country</button>
+          </div>
+
+          <!-- Country Selection -->
+          <div class="form-group">
+            <label>Select Country / Region</label>
+            <select class="form-select" [(ngModel)]="selectedCountry">
+              <option value="KE">Kenya (KE)</option>
+              <option value="US">United States (US)</option>
+              <option value="UK">United Kingdom (UK)</option>
+            </select>
+          </div>
+
+          <!-- Payment Gateways -->
+          <div class="settings-section">
+            <h3>Payment Gateways</h3>
+            
+            <div class="gateway-list">
+              <div class="gateway-item" *ngFor="let gateway of paymentGateways">
+                <span class="gateway-name">{{gateway.name}}</span>
+                <span class="status-badge" [class]="gateway.status.toLowerCase()">{{gateway.status}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Currency & Exchange Settings -->
+          <div class="settings-card">
+            <h3>Currency & Exchange Settings</h3>
+            
+            <div class="currency-grid">
+              <div class="form-group">
+                <label>Primary Currency</label>
+                <input type="text" class="form-input" [(ngModel)]="primaryCurrency" placeholder="KE">
+                <small class="form-hint">ISO 4217 currency code</small>
+              </div>
+
+              <div class="form-group">
+                <label>Exchange Rate (USD to KES)</label>
+                <input type="number" class="form-input" [(ngModel)]="exchangeRate" placeholder="100">
+                <small class="form-hint">Current Exchange Rate</small>
+              </div>
+
+              <div class="form-group">
+                <label>Rate Update Frequency</label>
+                <select class="form-select" [(ngModel)]="rateUpdateFrequency">
+                  <option value="daily">Daily</option>
+                  <option value="weekly">Weekly</option>
+                  <option value="monthly">Monthly</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Basic Tax Settings -->
+          <div class="settings-card">
+            <h3>Basic Tax Settings</h3>
+            
+            <div class="tax-grid">
+              <div class="form-group">
+                <label>Primary Tax Rate (%)</label>
+                <input type="number" class="form-input" [(ngModel)]="primaryTaxRate" placeholder="16">
+                <small class="form-hint">Main VAT/GST/Sales tax rate</small>
+              </div>
+
+              <div class="form-group">
+                <label>Tax Calculation Method</label>
+                <select class="form-select" [(ngModel)]="taxCalculationMethod">
+                  <option value="exclusive">Tax Exclusive</option>
+                  <option value="inclusive">Tax Inclusive</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Tax Registration Number</label>
+                <input type="text" class="form-input" [(ngModel)]="taxRegistrationNumber" placeholder="P051234567B">
+                <small class="form-hint">Official tax registration ID</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Government & Regulatory Taxes -->
+          <div class="settings-card">
+            <h3>Government & Regulatory Taxes</h3>
+            
+            <div class="tax-grid">
+              <div class="form-group">
+                <label>Digital Services Tax (%)</label>
+                <input type="number" class="form-input" [(ngModel)]="digitalServicesTax" placeholder="1.5">
+                <small class="form-hint">Tax on digital services (DST)</small>
+              </div>
+
+              <div class="form-group">
+                <label>Withholding Tax (%)</label>
+                <input type="number" class="form-input" [(ngModel)]="withholdingTax" placeholder="5">
+                <small class="form-hint">Tax withheld at source</small>
+              </div>
+
+              <div class="form-group">
+                <label>Carbon/Environmental Tax (%)</label>
+                <input type="number" class="form-input" [(ngModel)]="environmentalTax" placeholder="0">
+                <small class="form-hint">Environmental impact tax</small>
+              </div>
+
+              <div class="form-group">
+                <label>Luxury/Sin Tax (%)</label>
+                <input type="number" class="form-input" [(ngModel)]="luxuryTax" placeholder="0">
+                <small class="form-hint">Tax on luxury goods/services</small>
+              </div>
+
+              <div class="form-group">
+                <label>Import Duty (%)</label>
+                <input type="number" class="form-input" [(ngModel)]="importDuty" placeholder="0">
+                <small class="form-hint">Customs/Import duties</small>
+              </div>
+
+              <div class="form-group">
+                <label>Excise Tax (%)</label>
+                <input type="number" class="form-input" [(ngModel)]="exciseTax" placeholder="0">
+                <small class="form-hint">Excise duties on specific goods</small>
+              </div>
+            </div>
+          </div>
+
+          <!-- Custom Tax Types -->
+          <div class="settings-card">
+            <div class="section-header-with-button">
+              <h3>Custom Tax Types</h3>
+              <button class="btn-primary" (click)="addCustomTax()">Add Custom Tax</button>
+            </div>
+            
+            <div class="custom-tax-list">
+              <div class="custom-tax-item" *ngFor="let tax of customTaxes; let i = index">
+                <div class="custom-tax-header">
+                  <h4>Custom Tax {{i + 1}}</h4>
+                  <button class="btn-danger-small" (click)="removeCustomTax(i)">Remove</button>
+                </div>
+                
+                <div class="tax-grid">
+                  <div class="form-group">
+                    <label>Tax Name</label>
+                    <input type="text" class="form-input" [(ngModel)]="tax.name" placeholder="Infrastructure Levy">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Rate</label>
+                    <input type="number" class="form-input" [(ngModel)]="tax.rate" placeholder="2.5">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Type</label>
+                    <select class="form-select" [(ngModel)]="tax.type">
+                      <option value="percentage">%</option>
+                      <option value="fixed">Fixed Amount</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tax Exemptions & Special Cases -->
+          <div class="settings-card">
+            <h3>Tax Exemptions & Special Cases</h3>
+            
+            <div class="exemptions-grid">
+              <div class="checkbox-item" *ngFor="let exemption of taxExemptions">
+                <input type="checkbox" [id]="exemption.id" [(ngModel)]="exemption.enabled">
+                <label [for]="exemption.id">{{exemption.label}}</label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Compliance & Reporting Requirements -->
+          <div class="settings-card">
+            <h3>Compliance & Reporting Requirements</h3>
+            
+            <div class="compliance-grid">
+              <div class="form-group">
+                <label>Tax Reporting Period</label>
+                <select class="form-select" [(ngModel)]="taxReportingPeriod">
+                  <option value="monthly">Monthly</option>
+                  <option value="quarterly">Quarterly</option>
+                  <option value="annually">Annually</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Invoice Numbering Format</label>
+                <select class="form-select" [(ngModel)]="invoiceNumberingFormat">
+                  <option value="custom">Custom Format</option>
+                  <option value="sequential">Sequential</option>
+                  <option value="date">Date-based</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Tax Authority Portal</label>
+                <input type="url" class="form-input" [(ngModel)]="taxAuthorityPortal" placeholder="https://itax.kra.go.ke">
+                <small class="form-hint">Link to official tax authority portal</small>
+              </div>
+
+              <div class="form-group">
+                <label>Filing Deadline (Day of Month)</label>
+                <input type="number" class="form-input" [(ngModel)]="filingDeadline" placeholder="20" min="1" max="31">
+                <small class="form-hint">Day of month when returns are due</small>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Required Documentation</label>
+              <div class="documentation-checkboxes">
+                <div class="checkbox-item" *ngFor="let doc of requiredDocumentation">
+                  <input type="checkbox" [id]="doc.id" [(ngModel)]="doc.required">
+                  <label [for]="doc.id">{{doc.label}}</label>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Special Economic Zones & Tax Incentives -->
+          <div class="settings-card">
+            <h3>Special Economic Zones & Tax Incentives</h3>
+            
+            <div class="incentives-grid">
+              <div class="form-group">
+                <label>Economic Zone Type</label>
+                <select class="form-select" [(ngModel)]="economicZoneType">
+                  <option value="epz">Export Processing Zone (EPZ)</option>
+                  <option value="sez">Special Economic Zone (SEZ)</option>
+                  <option value="ftz">Free Trade Zone (FTZ)</option>
+                </select>
+              </div>
+
+              <div class="form-group">
+                <label>Tax Incentive Rate (%)</label>
+                <input type="number" class="form-input" [(ngModel)]="taxIncentiveRate" placeholder="10">
+                <small class="form-hint">Reduced tax rate for qualified businesses</small>
+              </div>
+
+              <div class="form-group">
+                <label>Incentive Validity Period</label>
+                <input type="date" class="form-input" [(ngModel)]="incentiveValidityPeriod">
+              </div>
+
+              <div class="form-group">
+                <label>Zone Registration Number</label>
+                <input type="text" class="form-input" [(ngModel)]="zoneRegistrationNumber" placeholder="EPZ-2023-001">
+              </div>
+            </div>
+          </div>
+
+          <!-- Action Buttons -->
+          <div class="action-buttons">
+            <button class="btn-outline" (click)="saveAllSettings()">Save All Settings</button>
+            <button class="btn-outline" (click)="resetToDefaults()">Reset To Default</button>
+            <button class="btn-outline" (click)="validateConfiguration()">Validate Configuration</button>
+            <button class="btn-outline" (click)="previewTaxCalculation()">Preview Tax Calculation</button>
+            <button class="btn-danger" (click)="deleteCountry()">Delete Country</button>
+          </div>
+        </div>
+
+        <!-- Third-Party Integrations Tab -->
+        <div *ngIf="activeMainTab === 'integrations'" class="integrations-tab">
+          
+          <!-- Payment Gateways -->
+          <div class="settings-section">
+            <h3>Payment Gateways</h3>
+            
+            <div class="gateway-list">
+              <div class="gateway-item" *ngFor="let gateway of allPaymentGateways">
+                <span class="gateway-name">{{gateway.name}}</span>
+                <span class="status-badge" [class]="gateway.status.toLowerCase()">{{gateway.status}}</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Third Party Integrations -->
+          <div class="integrations-grid">
+            <div class="integration-card">
+              <h3>Third Party Integrations</h3>
+              
+              <div class="integration-item" *ngFor="let integration of thirdPartyIntegrations">
+                <div class="integration-info">
+                  <div class="integration-name">{{integration.name}}</div>
+                  <div class="integration-description">{{integration.description}}</div>
+                </div>
+                <span class="status-badge" [class]="integration.status.toLowerCase()">{{integration.status}}</span>
+              </div>
+            </div>
+
+            <div class="integration-card">
+              <h3>Social Media Integrations</h3>
+              
+              <div class="integration-item" *ngFor="let integration of socialMediaIntegrations">
+                <div class="integration-info">
+                  <div class="integration-name">{{integration.name}}</div>
+                  <div class="integration-description">{{integration.description}}</div>
+                </div>
+                <span class="status-badge" [class]="integration.status.toLowerCase()">{{integration.status}}</span>
+              </div>
+
+              <div class="toggle-item">
+                <div class="toggle-info">
+                  <div class="toggle-title">Auto Share New Events</div>
+                  <div class="toggle-subtitle">Automatically share approved events on social media</div>
+                </div>
+                <label class="toggle-switch">
+                  <input type="checkbox" [(ngModel)]="autoShareEvents">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>

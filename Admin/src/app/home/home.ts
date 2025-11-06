@@ -1,5 +1,6 @@
-import { Component, OnInit, AfterViewInit } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Sidebar } from '../sidebar/sidebar';
 import { Topbar } from '../topbar/topbar';
@@ -7,20 +8,97 @@ import { Topbar } from '../topbar/topbar';
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, Sidebar, Topbar], 
+  imports: [CommonModule, FormsModule, Sidebar, Topbar],  
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
-export class Home implements OnInit, AfterViewInit {
+export class Home implements OnInit {
+  // User Information
+  adminName: string = 'Super Admin';
+  role: string = 'Administrator';
+  userAvatar: string = '';
+  
   // Stats Data
   totalUsers: number = 1500;
-  usersGrowth: number = 12.5;
+  usersGrowthPercentage: number = 12.5;
   activeEvents: number = 24;
-  eventsGrowth: number = 10;
+  eventsGrowthPercentage: number = 10;
   avgSessionTime: string = '10m';
-  sessionGrowth: number = 23.1;
-  revenue: string = '500K';
-  revenueGrowth: number = 15;
+  sessionGrowthPercentage: number = 23.1;
+  
+  // Financial Data
+  availableBalance: string = 'KSh 8,452,500';
+  heldInWallet: string = 'KSh 4,250,000';
+  commissionEarned: string = 'KSh 682,500';
+  lifetimeRevenue: string = 'KSh 15,630,000';
+  totalTransactions: number = 147;
+  
+  // Chart Data for Line Chart
+  revenueLinePoints: string = '';
+  bookingsLinePoints: string = '';
+  chartLabels: string[] = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov'];
+  
+  revenueData: number[] = [200000, 210000, 220000, 205000, 230000, 250000, 240000, 260000, 270000, 280000, 295000];
+  bookingsData: number[] = [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+  
+  // AI-Powered Insights
+  aiInsights = [
+    {
+      title: 'High Demand Period Detected',
+      description: 'Weekends show 3x higher booking rates. Consider promoting Friday - Sunday events',
+      linkText: 'View Recommendations'
+    },
+    {
+      title: 'Revenue Optimization Opportunity',
+      description: 'Music category events 45% higher conversion rates. Increase allocation',
+      linkText: 'Optimize Now'
+    },
+    {
+      title: 'User Retention Alert',
+      description: '500 users at risk of churning. Launch targeted re-engagement campaign',
+      linkText: 'Create Campaign'
+    }
+  ];
+  
+  // Upcoming Events
+  upcomingEvents = [
+    { 
+      id: 1, 
+      name: 'Album Launch', 
+      date: '20/10/2025', 
+      time: '19:00', 
+      booked: '45/100 booked',
+      price: 'KSH 15,000',
+      category: 'Music'
+    },
+    { 
+      id: 2, 
+      name: 'Album Launch', 
+      date: '20/10/2025', 
+      time: '19:00', 
+      booked: '45/100 booked',
+      price: 'KSH 15,000',
+      category: 'Music'
+    },
+    { 
+      id: 3, 
+      name: 'Album Launch', 
+      date: '20/10/2025', 
+      time: '19:00', 
+      booked: '45/100 booked',
+      price: 'KSH 15,000',
+      category: 'Music'
+    },
+    { 
+      id: 4, 
+      name: 'Album Launch', 
+      date: '20/10/2025', 
+      time: '19:00', 
+      booked: '45/100 booked',
+      price: 'KSH 15,000',
+      category: 'Music'
+    }
+  ];
   
   // Popular Categories
   popularCategories = [
@@ -32,217 +110,140 @@ export class Home implements OnInit, AfterViewInit {
     { name: 'Clubbing & Concerts', count: 100 }
   ];
   
-  // Upcoming Events
-  upcomingEvents = [
+  // Recent Platform Activity
+  recentActivities = [
     {
-      name: 'Jazz Night at Java',
-      date: 'July 5 2025',
-      location: 'Westlands',
-      status: 'Live'
+      title: 'New Service Provider Registration',
+      description: 'Elite Events Ltd registered and submitted 2 events for approval',
+      time: '5 minutes ago'
     },
     {
-      name: 'Hiking at Mt Kenya',
-      date: 'July 5 2025',
-      location: 'Nanyuki',
-      status: 'Live'
+      title: 'Event Fully Booked',
+      description: 'Summer Music Festival reached maximum capacity (500 bookings)',
+      time: '18 minutes ago'
     },
     {
-      name: 'Food Festival',
-      date: 'July 5 2025',
-      location: 'Nairobi CBD',
-      status: 'Pending'
+      title: 'Payment Processed',
+      description: 'Withdrawal request of KSh 85,000 approved for Urban Venues Co.',
+      time: '1 hour ago'
     },
     {
-      name: 'Yoga Session',
-      date: 'July 5 2025',
-      location: 'Kilimoni',
-      status: 'Pending'
-    },
-    {
-      name: 'Tech Meetup',
-      date: 'July 5 2025',
-      location: 'iHub',
-      status: 'Live'
+      title: 'Event Pending Review',
+      description: 'Tech Conference 2025 awaiting admin approval',
+      time: '2 hours ago'
     }
   ];
   
-  pendingEventsCount: number = 10;
+  // UI State
+  isSidebarOpen: boolean = true;
 
   constructor(private router: Router) { }
 
   ngOnInit(): void {
     this.loadDashboardData();
-  }
-
-  ngAfterViewInit(): void {
-    // Initialize charts after view is ready
-    setTimeout(() => {
-      this.initializeCharts();
-    }, 100);
+    this.generateChartPoints();
   }
 
   loadDashboardData(): void {
     // TODO: Replace with actual API calls
-    console.log('Loading dashboard data...');
   }
 
-  initializeCharts(): void {
-    this.initializeGrowthChart();
-    this.initializeCategoryChart();
-  }
-
-  initializeGrowthChart(): void {
-    const canvas = document.getElementById('growthChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 300;
-
-    // Sample data
-    const data = {
-      labels: ['Aug 01', 'Aug 05', 'Aug 10', 'Aug 15', 'Aug 20', 'Aug 25'],
-      users: [100, 200, 300, 500, 700, 850],
-      bookings: [50, 120, 200, 320, 450, 600]
-    };
-
-    // Draw chart
-    this.drawBarChart(ctx, canvas.width, canvas.height, data);
-  }
-
-  drawBarChart(ctx: CanvasRenderingContext2D, width: number, height: number, data: any): void {
-    const padding = 50;
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - padding * 2;
-    const barWidth = chartWidth / (data.labels.length * 2.5);
-    const maxValue = Math.max(...data.users, ...data.bookings);
-
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-
-    // Draw grid lines
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-      const y = padding + (chartHeight / 5) * i;
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
-      ctx.stroke();
-    }
-
-    // Draw bars
-    data.labels.forEach((label: string, index: number) => {
-      const x = padding + (index * chartWidth) / data.labels.length;
-      
-      // Users bar (blue)
-      const usersHeight = (data.users[index] / maxValue) * chartHeight;
-      ctx.fillStyle = '#6366f1';
-      ctx.fillRect(x + 10, height - padding - usersHeight, barWidth, usersHeight);
-      
-      // Bookings bar (green)
-      const bookingsHeight = (data.bookings[index] / maxValue) * chartHeight;
-      ctx.fillStyle = '#10b981';
-      ctx.fillRect(x + barWidth + 15, height - padding - bookingsHeight, barWidth, bookingsHeight);
-      
-      // Labels
-      ctx.fillStyle = '#666';
-      ctx.font = '12px Arial';
-      ctx.textAlign = 'center';
-      ctx.fillText(label, x + barWidth + 15, height - padding + 20);
+  generateChartPoints(): void {
+    // Generate points for revenue line
+    const revenuePoints: string[] = [];
+    const maxRevenue = Math.max(...this.revenueData);
+    const revenueScale = 250 / maxRevenue;
+    
+    this.revenueData.forEach((value, index) => {
+      const x = 50 + index * 70;
+      const y = 250 - (value * revenueScale);
+      revenuePoints.push(`${x},${y}`);
     });
-  }
-
-  initializeCategoryChart(): void {
-    const canvas = document.getElementById('categoryChart') as HTMLCanvasElement;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // Set canvas size
-    canvas.width = canvas.offsetWidth;
-    canvas.height = 300;
-
-    // Sample data
-    const data = {
-      labels: ['Nightlife', 'Sports', 'Arts & Culture', 'Food & Dining', 'Business', 'Wellness'],
-      rsvps: [400, 300, 250, 350, 150, 200],
-      views: [2800, 2000, 1800, 2400, 1200, 1400]
-    };
-
-    // Draw chart
-    this.drawCategoryBarChart(ctx, canvas.width, canvas.height, data);
-  }
-
-  drawCategoryBarChart(ctx: CanvasRenderingContext2D, width: number, height: number, data: any): void {
-    const padding = 50;
-    const chartWidth = width - padding * 2;
-    const chartHeight = height - padding * 2;
-    const barWidth = chartWidth / (data.labels.length * 2.5);
-    const maxValue = Math.max(...data.views);
-
-    // Clear canvas
-    ctx.clearRect(0, 0, width, height);
-
-    // Draw grid lines
-    ctx.strokeStyle = '#e0e0e0';
-    ctx.lineWidth = 1;
-    for (let i = 0; i <= 5; i++) {
-      const y = padding + (chartHeight / 5) * i;
-      ctx.beginPath();
-      ctx.moveTo(padding, y);
-      ctx.lineTo(width - padding, y);
-      ctx.stroke();
-    }
-
-    // Draw bars
-    data.labels.forEach((label: string, index: number) => {
-      const x = padding + (index * chartWidth) / data.labels.length;
-      
-      // RSVPs bar (blue)
-      const rsvpsHeight = (data.rsvps[index] / maxValue) * chartHeight;
-      ctx.fillStyle = '#6366f1';
-      ctx.fillRect(x + 10, height - padding - rsvpsHeight, barWidth * 0.8, rsvpsHeight);
-      
-      // Views bar (green)
-      const viewsHeight = (data.views[index] / maxValue) * chartHeight;
-      ctx.fillStyle = '#10b981';
-      ctx.fillRect(x + barWidth + 5, height - padding - viewsHeight, barWidth * 0.8, viewsHeight);
-      
-      // Labels
-      ctx.fillStyle = '#666';
-      ctx.font = '11px Arial';
-      ctx.textAlign = 'center';
-      ctx.save();
-      ctx.translate(x + barWidth, height - padding + 15);
-      ctx.rotate(-Math.PI / 6);
-      ctx.fillText(label, 0, 0);
-      ctx.restore();
+    this.revenueLinePoints = revenuePoints.join(' ');
+    
+    // Generate points for bookings line (mostly flat at bottom)
+    const bookingsPoints: string[] = [];
+    this.bookingsData.forEach((value, index) => {
+      const x = 50 + index * 70;
+      const y = 250;
+      bookingsPoints.push(`${x},${y}`);
     });
+    this.bookingsLinePoints = bookingsPoints.join(' ');
+  }
+
+  handleSidebarToggle(): void {
+    this.isSidebarOpen = !this.isSidebarOpen;
+  }
+
+  handleSearch(query: string): void {
+    console.log('Searching for:', query);
+    // Implement search functionality
+  }
+
+  // Financial Actions
+  requestWithdrawal(): void {
+    console.log('Request withdrawal');
+    this.router.navigate(['/home/wallet/withdrawal']);
+  }
+
+  viewFullWallet(): void {
+    console.log('View full wallet');
+    this.router.navigate(['/home/wallet']);
+  }
+
+  // Chart Actions
+  viewChartDetails(event: Event): void {
+    event.preventDefault();
+    console.log('View chart details');
+    this.router.navigate(['/home/analytics/revenue-trend']);
+  }
+
+  // Insights Actions
+  viewAllInsights(event: Event): void {
+    event.preventDefault();
+    console.log('View all insights');
+    this.router.navigate(['/home/insights']);
+  }
+
+  viewInsightDetails(insight: any, event: Event): void {
+    event.preventDefault();
+    console.log('View insight:', insight.title);
+    this.router.navigate(['/home/insights', insight.title.toLowerCase().replace(/ /g, '-')]);
   }
 
   // Quick Actions
   addNewEvent(): void {
-    console.log('Add new event');
-    this.router.navigate(['/admin/events/new']);
+    this.router.navigate(['/home/events/new']);
   }
 
-  approvePendingEvents(): void {
-    console.log('Approve pending events');
-    this.router.navigate(['/admin/events/pending']);
+  manageUsers(): void {
+    this.router.navigate(['/home/users']);
   }
 
-  viewReports(): void {
-    console.log('View reports');
-    this.router.navigate(['/admin/reports']);
+  viewTickets(): void {
+    this.router.navigate(['/home/tickets']);
   }
 
-  sendBroadcast(): void {
-    console.log('Send broadcast');
-    this.router.navigate(['/admin/messaging/broadcast']);
+  processPayments(): void {
+    this.router.navigate(['/home/payments']);
+  }
+
+  sendNotifications(): void {
+    this.router.navigate(['/home/messaging/broadcast']);
+  }
+
+  viewAnalytics(): void {
+    this.router.navigate(['/home/analytics']);
+  }
+
+  // Navigation
+  viewCategory(categoryName: string): void {
+    console.log('View category:', categoryName);
+    this.router.navigate(['/home/categories', categoryName]);
+  }
+
+  viewEvent(eventId: number): void {
+    console.log('View event:', eventId);
+    this.router.navigate(['/home/events', eventId]);
   }
 }

@@ -1,0 +1,239 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [adminName]="adminName"
+      [role]="role"
+      [userAvatar]="userAvatar"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Events Content -->
+    <div class="events-content">
+      
+      <!-- Tabs Navigation -->
+      <div class="tabs-navigation">
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'events'"
+          (click)="switchTab('events')">
+          Events
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'bookings'"
+          (click)="switchTab('bookings')">
+          Bookings
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        
+        <!-- Events Tab -->
+        <div *ngIf="activeTab === 'events'" class="events-tab">
+          
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Live Events</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{eventStats.live}}</div>
+              <div class="stat-trend positive">+{{eventStats.newThisWeek}} this week</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Pending Approval</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{eventStats.pending}}</div>
+              <div class="stat-trend neutral">Requires Review</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Sponsored Events</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{eventStats.sponsored}}</div>
+              <div class="stat-trend positive">{{eventStats.newSponsored}} new today</div>
+            </div>
+          </div>
+
+          <!-- Section Header -->
+          <div class="section-header">
+            <h2>Events/Venues</h2>
+          </div>
+
+          <!-- Search and Add Button -->
+          <div class="content-header">
+            <div class="search-filter">
+              <select class="filter-dropdown" [(ngModel)]="eventFilter">
+                <option value="">Event</option>
+                <option value="active">Active</option>
+                <option value="pending">Pending</option>
+                <option value="sponsored">Sponsored</option>
+              </select>
+              <input type="text" class="search-input" placeholder="Search by event, provider..." [(ngModel)]="searchQuery">
+            </div>
+            <button class="btn-add" (click)="addEvent()">
+              <span class="add-icon">+</span> Add Event
+            </button>
+          </div>
+
+          <!-- Events Table -->
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event/Venue</th>
+                  <th>Provider</th>
+                  <th>Category</th>
+                  <th>Date From</th>
+                  <th>Date to</th>
+                  <th>Bookings</th>
+                  <th>Revenue</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let event of events">
+                  <td>{{event.name}}</td>
+                  <td>{{event.provider}}</td>
+                  <td>{{event.category}}</td>
+                  <td>{{event.dateFrom}}</td>
+                  <td>{{event.dateTo}}</td>
+                  <td>
+                    <span class="booking-info" *ngIf="event.bookings">
+                      <span class="booking-icon">👥</span> {{event.bookings}}
+                    </span>
+                    <span *ngIf="!event.bookings">-</span>
+                  </td>
+                  <td>
+                    <span *ngIf="event.revenue">{{event.revenue}}</span>
+                    <span *ngIf="!event.revenue">-</span>
+                  </td>
+                  <td>
+                    <span class="status-badge" [class]="event.status.toLowerCase()">
+                      {{event.status}}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="action-btn" (click)="editEvent(event.id)">Edit</button>
+                    <button 
+                      *ngIf="event.status !== 'Pending'" 
+                      class="action-btn" 
+                      (click)="viewAnalytics(event.id)">Analytics</button>
+                    <button 
+                      *ngIf="event.status === 'Active' || event.status === 'Sponsored'" 
+                      class="action-btn suspend" 
+                      (click)="suspendEvent(event.id)">Suspend</button>
+                    <button 
+                      *ngIf="event.status === 'Pending'" 
+                      class="action-btn reject" 
+                      (click)="rejectEvent(event.id)">Reject</button>
+                    <button 
+                      *ngIf="event.status === 'Pending'" 
+                      class="action-btn approve" 
+                      (click)="approveEvent(event.id)">Approve</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Bookings Tab -->
+        <div *ngIf="activeTab === 'bookings'" class="bookings-tab">
+          
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Total Booking</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{bookingStats.total}}</div>
+              <div class="stat-trend positive">+{{bookingStats.newThisWeek}} this week</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Confirmed</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{bookingStats.confirmed}}</div>
+              <div class="stat-trend neutral">{{bookingStats.confirmedPercentage}}% of total</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Pending</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{bookingStats.pending}}</div>
+              <div class="stat-trend neutral">{{bookingStats.pendingPercentage}}% of total</div>
+            </div>
+          </div>
+
+          <!-- Section Header -->
+          <div class="section-header">
+            <h2>Bookings</h2>
+          </div>
+
+          <!-- Search -->
+          <div class="content-header">
+            <div class="search-filter">
+              <select class="filter-dropdown" [(ngModel)]="bookingFilter">
+                <option value="">Event</option>
+                <option value="confirmed">Confirmed</option>
+                <option value="pending">Pending</option>
+              </select>
+              <input type="text" class="search-input" placeholder="Search by event, provider..." [(ngModel)]="searchQuery">
+            </div>
+          </div>
+
+          <!-- Bookings Table -->
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Event</th>
+                  <th>Provider</th>
+                  <th>Available Slots</th>
+                  <th>Booked</th>
+                  <th>Remaining</th>
+                  <th>Confirmed</th>
+                  <th>Pending</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let booking of bookings">
+                  <td>{{booking.event}}</td>
+                  <td>{{booking.provider}}</td>
+                  <td>{{booking.availableSlots | number}}</td>
+                  <td>{{booking.booked}}</td>
+                  <td>{{booking.remaining}}</td>
+                  <td>{{booking.confirmed}}</td>
+                  <td>{{booking.pending}}</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>

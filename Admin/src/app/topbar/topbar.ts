@@ -1,122 +1,106 @@
-import { Component } from '@angular/core';
+import { Component, Input, Output, EventEmitter } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router } from '@angular/router';
+
+interface Notification {
+  id: number;
+  message: string;
+  time: string;
+  read: boolean;
+}
 
 @Component({
   selector: 'app-topbar',
-  imports: [],
+  standalone: true,
+  imports: [CommonModule, FormsModule],
   templateUrl: './topbar.html',
-  styleUrl: './topbar.css',
+  styleUrls: ['./topbar.css']
 })
 export class Topbar {
+  @Input() adminName: string = 'Super Admin';
+  @Input() role: string = 'Administrator';
+  @Input() userAvatar: string = '';
+  
+  @Output() searchQuery = new EventEmitter<string>();
+  @Output() profileClick = new EventEmitter<void>();
 
-  private menuToggle: HTMLButtonElement | null;
-    private searchInput: HTMLInputElement | null;
-    private sidebarToggleCallback: (() => void) | null = null;
+  searchText: string = '';
+  showProfileMenu: boolean = false;
+  showNotifications: boolean = false;
 
-    constructor() {
-        this.menuToggle = document.getElementById('menuToggle') as HTMLButtonElement;
-        this.searchInput = document.getElementById('searchInput') as HTMLInputElement;
-        
-        this.init();
+  notifications: Notification[] = [
+    {
+      id: 1,
+      message: 'New event booking request from John Doe',
+      time: '5 minutes ago',
+      read: false
+    },
+    {
+      id: 2,
+      message: 'Payment received for Event #12345',
+      time: '1 hour ago',
+      read: false
+    },
+    {
+      id: 3,
+      message: 'New service provider registration pending approval',
+      time: '2 hours ago',
+      read: true
+    },
+    {
+      id: 4,
+      message: 'System maintenance scheduled for tonight',
+      time: '5 hours ago',
+      read: true
     }
+  ];
 
-    private init(): void {
-        this.setupMenuToggle();
-        this.setupSearch();
+  constructor(private router: Router) {}
+
+  get notificationCount(): number {
+    return this.notifications.filter(n => !n.read).length;
+  }
+
+  onSearch(): void {
+    if (this.searchText.trim()) {
+      this.searchQuery.emit(this.searchText);
     }
+  }
 
-    /**
-     * Setup menu toggle button
-     */
-    private setupMenuToggle(): void {
-        this.menuToggle?.addEventListener('click', () => {
-            if (this.sidebarToggleCallback) {
-                this.sidebarToggleCallback();
-            }
-            this.animateHamburger();
-        });
-    }
+  toggleNotifications(): void {
+    this.showNotifications = !this.showNotifications;
+    this.showProfileMenu = false;
+  }
 
-    /**
-     * Animate hamburger icon
-     */
-    public animateHamburger(isActive?: boolean): void {
-        const lines = this.menuToggle?.querySelectorAll('.hamburger-line');
-        
-        if (!lines) return;
+  toggleProfileMenu(): void {
+    this.showProfileMenu = !this.showProfileMenu;
+    this.showNotifications = false;
+  }
 
-        if (isActive) {
-            lines[0]?.setAttribute('style', 'transform: rotate(45deg) translateY(7px);');
-            lines[1]?.setAttribute('style', 'opacity: 0;');
-            lines[2]?.setAttribute('style', 'transform: rotate(-45deg) translateY(-7px);');
-        } else {
-            lines.forEach(line => line.removeAttribute('style'));
-        }
-    }
+  closeAllDropdowns(): void {
+    this.showProfileMenu = false;
+    this.showNotifications = false;
+  }
 
-    /**
-     * Setup search functionality
-     */
-    private setupSearch(): void {
-        this.searchInput?.addEventListener('input', (e) => {
-            this.handleSearch((e.target as HTMLInputElement).value);
-        });
+  markAllAsRead(): void {
+    this.notifications.forEach(notification => {
+      notification.read = true;
+    });
+  }
 
-        this.searchInput?.addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') {
-                this.executeSearch((e.target as HTMLInputElement).value);
-            }
-        });
-    }
+  navigateToProfile(): void {
+    this.router.navigate(['/home/profile']);
+    this.showProfileMenu = false;
+  }
 
-    /**
-     * Handle search input
-     */
-    private handleSearch(query: string): void {
-        // Implement debounced search logic
-        console.log('Searching for:', query);
-        // Add your search API call here
-    }
+  navigateToSettings(): void {
+    this.router.navigate(['/home/settings']);
+    this.showProfileMenu = false;
+  }
 
-    /**
-     * Execute search on Enter key
-     */
-    private executeSearch(query: string): void {
-        console.log('Executing search for:', query);
-        // Add your search execution logic here
-    }
-
-    /**
-     * Set callback for sidebar toggle
-     */
-    public setSidebarToggleCallback(callback: () => void): void {
-        this.sidebarToggleCallback = callback;
-    }
-
-    /**
-     * Get search input value
-     */
-    public getSearchValue(): string {
-        return this.searchInput?.value || '';
-    }
-
-    /**
-     * Clear search input
-     */
-    public clearSearch(): void {
-        if (this.searchInput) {
-            this.searchInput.value = '';
-        }
-    }
-
-    /**
-     * Update user profile
-     */
-    public updateUserProfile(name: string, role: string): void {
-        const userName = document.querySelector('.user-name');
-        const userRole = document.querySelector('.user-role');
-        
-        if (userName) userName.textContent = name;
-        if (userRole) userRole.textContent = role;
-    }
-    
+  logout(): void {
+    console.log('Logging out...');
+    this.router.navigate(['/login']);
+  }
 }

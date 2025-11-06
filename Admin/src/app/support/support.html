@@ -1,0 +1,139 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [adminName]="adminName"
+      [role]="role"
+      [userAvatar]="userAvatar"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Support Content -->
+    <div class="support-content">
+      
+      <!-- Stats Cards Row -->
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-value">{{totalTickets}}</div>
+          <div class="stat-label">Total Tickets</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-value">{{openTickets}}</div>
+          <div class="stat-label">Open Tickets</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-value">{{totalFaqs}}</div>
+          <div class="stat-label">Total FAQs</div>
+        </div>
+
+        <div class="stat-card">
+          <div class="stat-value">{{resolutionRate}}%</div>
+          <div class="stat-label">Resolution Rate</div>
+        </div>
+      </div>
+
+      <!-- Tabs Navigation -->
+      <div class="tabs-container">
+        <div class="tabs-nav">
+          <button 
+            class="tab-button" 
+            [class.active]="activeTab === 'faq'"
+            (click)="switchTab('faq')">
+            FAQ Management
+          </button>
+          <button 
+            class="tab-button" 
+            [class.active]="activeTab === 'tickets'"
+            (click)="switchTab('tickets')">
+            Support Tickets
+          </button>
+        </div>
+      </div>
+
+      <!-- FAQ Management Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'faq'">
+        <div class="faq-header">
+          <button class="btn-primary" (click)="addNewFaq()">Add New FAQ</button>
+        </div>
+
+        <div class="faq-list">
+          <div class="faq-item" *ngFor="let faq of faqs">
+            <div class="faq-question-row">
+              <h3 class="faq-question">{{faq.question}}</h3>
+              <div class="faq-actions">
+                <button class="btn-edit" (click)="editFaq(faq)">Edit</button>
+                <button class="btn-remove" (click)="removeFaq(faq)">Remove</button>
+              </div>
+            </div>
+            <p class="faq-answer">{{faq.answer}}</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Support Tickets Tab -->
+      <div class="tab-content" *ngIf="activeTab === 'tickets'">
+        <div class="tickets-list">
+          <div class="ticket-card" *ngFor="let ticket of tickets">
+            <div class="ticket-header">
+              <div class="ticket-id-status">
+                <span class="ticket-id">{{ticket.id}}</span>
+                <span class="ticket-status" [ngClass]="getStatusClass(ticket.status)">
+                  {{ticket.status}}
+                </span>
+              </div>
+            </div>
+
+            <h3 class="ticket-title">{{ticket.title}}</h3>
+
+            <div class="ticket-meta">
+              <span class="ticket-meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="16" y1="2" x2="16" y2="6"></line>
+                  <line x1="8" y1="2" x2="8" y2="6"></line>
+                  <line x1="3" y1="10" x2="21" y2="10"></line>
+                </svg>
+                {{ticket.date}}
+              </span>
+              <span class="ticket-meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                  <circle cx="9" cy="7" r="4"></circle>
+                  <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                  <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                </svg>
+                {{ticket.organization}}
+              </span>
+              <span class="ticket-meta-item">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg>
+                {{ticket.email}}
+              </span>
+            </div>
+
+            <p class="ticket-description">{{ticket.description}}</p>
+
+            <div class="ticket-actions">
+              <button class="btn-view" (click)="viewAndRespond(ticket)">View & Respond</button>
+              <button class="btn-resolve" (click)="markResolved(ticket)">Mark Resolved</button>
+              <button class="btn-progress" *ngIf="ticket.status === 'Open'" (click)="markInProgress(ticket)">In Progress</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+  
+</div>

@@ -1,0 +1,292 @@
+<div class="dashboard-container">
+  <!-- Sidebar -->
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <app-topbar
+      [adminName]="adminName"
+      [role]="role"
+      [userAvatar]="userAvatar"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
+
+    <!-- Users Content -->
+    <div class="users-content">
+      
+      <!-- Tabs Navigation -->
+      <div class="tabs-navigation">
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'admins'"
+          (click)="switchTab('admins')">
+          Admins
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'providers'"
+          (click)="switchTab('providers')">
+          Service Providers
+        </button>
+        <button 
+          class="tab-button" 
+          [class.active]="activeTab === 'users'"
+          (click)="switchTab('users')">
+          App Users
+        </button>
+      </div>
+
+      <!-- Tab Content -->
+      <div class="tab-content">
+        
+        <!-- Admins Tab -->
+        <div *ngIf="activeTab === 'admins'" class="admins-tab">
+          
+          <!-- Header with Add Button -->
+          <div class="content-header">
+            <button class="btn-add" (click)="addAdmin()">
+              <span class="add-icon">+</span> Add Admin
+            </button>
+          </div>
+
+          <!-- Admins Table -->
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Last Login</th>
+                  <th>Role</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let admin of admins">
+                  <td>{{admin.name}}</td>
+                  <td>{{admin.email}}</td>
+                  <td>{{admin.lastLogin}}</td>
+                  <td>
+                    <span class="role-badge" [class]="admin.role.toLowerCase().replace(' ', '-')">
+                      {{admin.role}}
+                    </span>
+                  </td>
+                  <td>
+                    <span class="status-badge" [class]="admin.status.toLowerCase()">
+                      {{admin.status}}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="action-btn-text" (click)="editAdmin(admin.id)">Edit</button>
+                    <button class="action-btn-text delete" (click)="deleteAdmin(admin.id)">Delete</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Service Providers Tab -->
+        <div *ngIf="activeTab === 'providers'" class="providers-tab">
+          
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Active Providers</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{providerStats.active}}</div>
+              <div class="stat-trend positive">+{{providerStats.newThisWeek}} this week</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Pending Approval</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{providerStats.pending}}</div>
+              <div class="stat-trend neutral">Requires Review</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>AVG. Session Time</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{providerStats.avgSessionTime}}</div>
+              <div class="stat-trend positive">+{{providerStats.sessionChange}} last week</div>
+            </div>
+          </div>
+
+          <!-- Search and Add Button -->
+          <div class="content-header">
+            <div class="search-filter">
+              <select class="filter-dropdown" [(ngModel)]="providerFilter">
+                <option value="">Provider</option>
+                <option value="approved">Approved</option>
+                <option value="pending">Pending</option>
+                <option value="suspended">Suspended</option>
+              </select>
+              <input type="text" class="search-input" placeholder="Search by provider, email..." [(ngModel)]="searchQuery">
+            </div>
+            <button class="btn-add" (click)="addServiceProvider()">
+              <span class="add-icon">+</span> Add Service Provider
+            </button>
+          </div>
+
+          <!-- Service Providers Table -->
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Service Provider</th>
+                  <th>Email</th>
+                  <th>Phone Number</th>
+                  <th>Categories</th>
+                  <th>Events</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let provider of serviceProviders">
+                  <td>{{provider.name}}</td>
+                  <td>{{provider.email}}</td>
+                  <td>{{provider.phone}}</td>
+                  <td>{{provider.categories}}</td>
+                  <td>{{provider.events}}</td>
+                  <td>
+                    <span class="status-badge" [class]="provider.status.toLowerCase()">
+                      {{provider.status}}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="action-btn" (click)="viewProvider(provider.id)">View</button>
+                    <button 
+                      *ngIf="provider.status === 'Approved'" 
+                      class="action-btn danger" 
+                      (click)="suspendProvider(provider.id)">Suspend</button>
+                    <button 
+                      *ngIf="provider.status === 'Pending'" 
+                      class="action-btn danger" 
+                      (click)="rejectProvider(provider.id)">Reject</button>
+                    <button 
+                      *ngIf="provider.status === 'Pending'" 
+                      class="action-btn success" 
+                      (click)="approveProvider(provider.id)">Approve</button>
+                    <button 
+                      *ngIf="provider.status === 'Suspended'" 
+                      class="action-btn info" 
+                      (click)="reinstateProvider(provider.id)">Reinstate</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- App Users Tab -->
+        <div *ngIf="activeTab === 'users'" class="app-users-tab">
+          
+          <!-- Stats Cards -->
+          <div class="stats-grid">
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Active Users</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{userStats.active}}</div>
+              <div class="stat-trend positive">+{{userStats.newThisWeek}} this week</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>Premium Users</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{userStats.premium}}</div>
+              <div class="stat-trend neutral">{{userStats.premiumPercentage}}% of total</div>
+            </div>
+
+            <div class="stat-card">
+              <div class="stat-header">
+                <h3>AVG. Session Time</h3>
+                <span class="stat-icon">📅</span>
+              </div>
+              <div class="stat-value">{{userStats.avgSessionTime}}</div>
+              <div class="stat-trend positive">+{{userStats.sessionChange}} last week</div>
+            </div>
+          </div>
+
+          <!-- Search and Add Button -->
+          <div class="content-header">
+            <div class="search-filter">
+              <select class="filter-dropdown" [(ngModel)]="userFilter">
+                <option value="">Name</option>
+                <option value="active">Active</option>
+                <option value="suspended">Suspended</option>
+                <option value="standard">Standard</option>
+                <option value="premium">Premium</option>
+              </select>
+              <input type="text" class="search-input" placeholder="Search by name, email..." [(ngModel)]="searchQuery">
+            </div>
+            <button class="btn-add" (click)="addAppUser()">
+              <span class="add-icon">+</span> Add App User
+            </button>
+          </div>
+
+          <!-- App Users Table -->
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone Number</th>
+                  <th>Location</th>
+                  <th>User Type</th>
+                  <th>Events Attended</th>
+                  <th>Status</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr *ngFor="let user of appUsers">
+                  <td>{{user.name}}</td>
+                  <td>{{user.email}}</td>
+                  <td>{{user.phone}}</td>
+                  <td>{{user.location}}</td>
+                  <td>{{user.userType}}</td>
+                  <td>{{user.eventsAttended}}</td>
+                  <td>
+                    <span class="status-badge" [class]="user.status.toLowerCase()">
+                      {{user.status}}
+                    </span>
+                  </td>
+                  <td>
+                    <button class="action-btn" (click)="viewUser(user.id)">View</button>
+                    <button 
+                      *ngIf="user.status === 'Active'" 
+                      class="action-btn danger" 
+                      (click)="suspendUser(user.id)">Suspend</button>
+                    <button 
+                      *ngIf="user.status === 'Suspended'" 
+                      class="action-btn info" 
+                      (click)="reactivateUser(user.id)">Reactivate</button>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </main>
+</div>

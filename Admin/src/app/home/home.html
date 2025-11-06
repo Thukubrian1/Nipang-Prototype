@@ -1,30 +1,39 @@
 <div class="dashboard-container">
   <!-- Sidebar -->
-  <app-sidebar></app-sidebar>
+  <app-sidebar 
+    [isOpen]="isSidebarOpen" 
+    (toggleSidebar)="handleSidebarToggle()">
+  </app-sidebar>
 
   <!-- Main Content -->
   <main class="main-content">
     <!-- Top Bar -->
-    <app-topbar></app-topbar>
+    <app-topbar
+      [adminName]="adminName"
+      [role]="role"
+      [userAvatar]="userAvatar"
+      (searchQuery)="handleSearch($event)">
+    </app-topbar>
 
     <!-- Dashboard Content -->
     <div class="dashboard-content">
-      <!-- Stats Cards -->
+      
+      <!-- Stats Cards Row -->
       <div class="stats-grid">
         <!-- Total Users Card -->
         <div class="stat-card">
           <div class="stat-header">
             <h3>Total Users</h3>
             <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21"></path>
-              <circle cx="9" cy="7" r="4"></circle>
-              <path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13"></path>
-              <path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88"></path>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
           </div>
-          <div class="stat-value">{{totalUsers | number}}</div>
+          <div class="stat-value">{{totalUsers | number:'1.0-0'}}</div>
           <div class="stat-footer positive">
-            <span>+{{usersGrowth}}% from last month</span>
+            <span>+{{usersGrowthPercentage}}% from last month</span>
           </div>
         </div>
 
@@ -41,7 +50,7 @@
           </div>
           <div class="stat-value">{{activeEvents}}</div>
           <div class="stat-footer positive">
-            <span>+{{eventsGrowth}}% from last month</span>
+            <span>+{{eventsGrowthPercentage}}% from last month</span>
           </div>
         </div>
 
@@ -50,96 +59,181 @@
           <div class="stat-header">
             <h3>AVG Session Time</h3>
             <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <circle cx="12" cy="12" r="10"></circle>
-              <polyline points="12 6 12 12 16 14"></polyline>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
             </svg>
           </div>
           <div class="stat-value">{{avgSessionTime}}</div>
           <div class="stat-footer positive">
-            <span>+{{sessionGrowth}}% from last month</span>
+            <span>+{{sessionGrowthPercentage}}% from last month</span>
           </div>
         </div>
       </div>
 
-      <!-- Revenue Card (Full Width) -->
-      <div class="revenue-section">
-        <div class="stat-card">
-          <div class="stat-header">
-            <h3>Revenue</h3>
-            <svg class="stat-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5C8.57174 5 7.6815 5.36875 7.02513 6.02513C6.36875 6.6815 6 7.57174 6 8.5C6 9.42826 6.36875 10.3185 7.02513 10.9749C7.6815 11.6313 8.57174 12 9.5 12H14.5C15.4283 12 16.3185 12.3687 16.9749 13.0251C17.6313 13.6815 18 14.5717 18 15.5C18 16.4283 17.6313 17.3185 16.9749 17.9749C16.3185 18.6313 15.4283 19 14.5 19H6"></path>
-            </svg>
+      <!-- Financial Overview Section -->
+      <div class="financial-overview-section">
+        <div class="financial-card">
+          <h2 class="financial-title">Financial Overview</h2>
+          
+          <div class="available-balance">
+            <div class="balance-label">Available Balance</div>
+            <div class="balance-amount">{{availableBalance}}</div>
           </div>
-          <div class="stat-value">{{revenue}}</div>
-          <div class="stat-footer positive">
-            <span>+{{revenueGrowth}}% from last month</span>
+
+          <div class="financial-stats">
+            <div class="financial-stat-item">
+              <div class="financial-stat-label">Held in Wallet</div>
+              <div class="financial-stat-value">{{heldInWallet}}</div>
+            </div>
+            <div class="financial-stat-item">
+              <div class="financial-stat-label">Commission Earned</div>
+              <div class="financial-stat-value">{{commissionEarned}}</div>
+            </div>
+            <div class="financial-stat-item">
+              <div class="financial-stat-label">Lifetime Revenue</div>
+              <div class="financial-stat-value">{{lifetimeRevenue}}</div>
+            </div>
+            <div class="financial-stat-item">
+              <div class="financial-stat-label">Total Transaction</div>
+              <div class="financial-stat-value">{{totalTransactions}}</div>
+            </div>
+          </div>
+
+          <div class="financial-actions">
+            <button class="btn-withdrawal" (click)="requestWithdrawal()">Request Withdrawal</button>
+            <button class="btn-view-wallet" (click)="viewFullWallet()">View Full Wallet</button>
           </div>
         </div>
       </div>
 
-      <!-- User Growth & Bookings Chart -->
+      <!-- Revenue & Bookings Trend Chart -->
       <div class="chart-section">
         <div class="chart-card">
           <div class="chart-header">
-            <div class="chart-title">
+            <div class="chart-title-wrapper">
               <svg class="chart-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="12" y1="20" x2="12" y2="10"></line>
                 <line x1="18" y1="20" x2="18" y2="4"></line>
                 <line x1="6" y1="20" x2="6" y2="16"></line>
               </svg>
-              <h2>User Growth & Bookings</h2>
+              <h2>Revenue & Bookings Trend</h2>
             </div>
-            <select class="time-filter">
-              <option>Last 30 days</option>
-              <option>Last 7 days</option>
-              <option>Last 90 days</option>
-              <option>Last year</option>
-            </select>
+            <a href="#" class="view-details-link" (click)="viewChartDetails($event)">View Details →</a>
           </div>
-          <div class="chart-legend">
-            <div class="legend-item">
-              <span class="legend-color users"></span>
-              <span>Users</span>
+          <div class="chart-content">
+            <div class="chart-legend">
+              <div class="legend-item">
+                <span class="legend-line revenue"></span>
+                <span>Revenue (KSh)</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-line bookings"></span>
+                <span>Bookings</span>
+              </div>
             </div>
-            <div class="legend-item">
-              <span class="legend-color bookings"></span>
-              <span>Bookings</span>
+            <div class="line-chart">
+              <svg viewBox="0 0 800 300" class="chart-svg">
+                <!-- Revenue Line (Green) -->
+                <polyline
+                  [attr.points]="revenueLinePoints"
+                  fill="none"
+                  stroke="#10b981"
+                  stroke-width="2"
+                />
+                <!-- Bookings Line (Blue) -->
+                <polyline
+                  [attr.points]="bookingsLinePoints"
+                  fill="none"
+                  stroke="#3b82f6"
+                  stroke-width="2"
+                />
+                <!-- X-axis labels -->
+                <text *ngFor="let label of chartLabels; let i = index" 
+                      [attr.x]="50 + i * 100" 
+                      y="290" 
+                      font-size="11" 
+                      fill="#666" 
+                      text-anchor="middle">{{label}}</text>
+              </svg>
             </div>
-          </div>
-          <div class="chart-placeholder">
-            <canvas id="growthChart"></canvas>
           </div>
         </div>
       </div>
 
-      <!-- Two Column Layout -->
-      <div class="two-column-layout">
-        <!-- Left Column -->
-        <div class="left-column">
-          <!-- Engagement by Category -->
-          <div class="chart-card">
-            <h3 class="section-title">Engagement by Category</h3>
-            <div class="chart-legend">
-              <div class="legend-item">
-                <span class="legend-color rsvps"></span>
-                <span>RSVPs</span>
+      <!-- AI-Powered Insights -->
+      <div class="insights-section">
+        <div class="insights-card">
+          <div class="insights-header">
+            <h2>AI-Powered Insights</h2>
+            <a href="#" class="view-all-link" (click)="viewAllInsights($event)">View all</a>
+          </div>
+          <div class="insights-list">
+            <div class="insight-item" *ngFor="let insight of aiInsights">
+              <div class="insight-content">
+                <h4 class="insight-title">{{insight.title}}</h4>
+                <p class="insight-description">{{insight.description}}</p>
+                <a href="#" class="insight-link" (click)="viewInsightDetails(insight, $event)">{{insight.linkText}} →</a>
               </div>
-              <div class="legend-item">
-                <span class="legend-color views"></span>
-                <span>Views</span>
-              </div>
-            </div>
-            <div class="chart-placeholder">
-              <canvas id="categoryChart"></canvas>
             </div>
           </div>
+        </div>
+      </div>
 
-          <!-- Popular Categories -->
+      <!-- Upcoming Events -->
+      <div class="upcoming-section">
+        <div class="upcoming-card">
+          <h2 class="section-title">Upcoming Events</h2>
+          <div class="events-list">
+            <div class="event-item" *ngFor="let event of upcomingEvents" (click)="viewEvent(event.id)">
+              <div class="event-main">
+                <h4 class="event-name">{{event.name}}</h4>
+                <div class="event-details">
+                  <span class="event-detail">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                      <line x1="16" y1="2" x2="16" y2="6"></line>
+                      <line x1="8" y1="2" x2="8" y2="6"></line>
+                      <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    {{event.date}}
+                  </span>
+                  <span class="event-detail">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    {{event.time}}
+                  </span>
+                  <span class="event-detail">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    {{event.booked}}
+                  </span>
+                </div>
+              </div>
+              <div class="event-meta">
+                <span class="event-price">{{event.price}}</span>
+                <span class="event-category">{{event.category}}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Two Column Layout - Categories & Activity -->
+      <div class="two-column-layout">
+        <!-- Popular Categories -->
+        <div class="categories-section">
           <div class="categories-card">
-            <h3 class="section-title">Popular Categories</h3>
+            <h3 class="section-subtitle">Popular Categories</h3>
             <div class="categories-list">
-              <div class="category-item" *ngFor="let category of popularCategories">
+              <div class="category-item" *ngFor="let category of popularCategories" (click)="viewCategory(category.name)">
                 <span class="category-name">{{category.name}}</span>
                 <span class="category-count">{{category.count}}</span>
               </div>
@@ -147,49 +241,81 @@
           </div>
         </div>
 
-        <!-- Right Column -->
-        <div class="right-column">
-          <!-- Quick Actions -->
-          <div class="quick-actions-card">
-            <h3 class="section-title">Quick Actions</h3>
-            <div class="actions-list">
-              <button class="action-btn" (click)="addNewEvent()">
-                <span class="action-icon">+</span>
-                <span>Add New Event</span>
-              </button>
-              <button class="action-btn" (click)="approvePendingEvents()">
-                <span class="action-icon">+</span>
-                <span>Approve Pending Events({{pendingEventsCount}})</span>
-              </button>
-              <button class="action-btn" (click)="viewReports()">
-                <span class="action-icon">+</span>
-                <span>View Reports</span>
-              </button>
-              <button class="action-btn" (click)="sendBroadcast()">
-                <span class="action-icon">+</span>
-                <span>Send Broadcast notification</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Upcoming Events -->
-          <div class="events-card">
-            <h3 class="section-title">Upcoming Events</h3>
-            <div class="events-list">
-              <div class="event-item" *ngFor="let event of upcomingEvents">
-                <div class="event-info">
-                  <div class="event-name">{{event.name}}</div>
-                  <div class="event-date">{{event.date}}</div>
-                </div>
-                <div class="event-meta">
-                  <span class="event-location">{{event.location}}</span>
-                  <span class="event-status" [ngClass]="event.status.toLowerCase()">{{event.status}}</span>
+        <!-- Recent Platform Activity -->
+        <div class="activity-section">
+          <div class="activity-card">
+            <h3 class="section-subtitle">Recent Platform Activity</h3>
+            <div class="activity-list">
+              <div class="activity-item" *ngFor="let activity of recentActivities">
+                <div class="activity-content">
+                  <h4 class="activity-title">{{activity.title}}</h4>
+                  <p class="activity-description">{{activity.description}}</p>
+                  <span class="activity-time">{{activity.time}}</span>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Quick Actions -->
+      <div class="quick-actions-section">
+        <div class="quick-actions-card">
+          <h2 class="section-title">Quick Actions</h2>
+          <div class="quick-actions-grid">
+            <button class="action-card" (click)="addNewEvent()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+                <path d="M8 14h.01M12 14h.01M16 14h.01M8 18h.01M12 18h.01M16 18h.01"></path>
+              </svg>
+              <span>Add event</span>
+            </button>
+            <button class="action-card" (click)="manageUsers()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              <span>Manage Users</span>
+            </button>
+            <button class="action-card" (click)="viewTickets()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+              </svg>
+              <span>View Tickets</span>
+            </button>
+            <button class="action-card" (click)="processPayments()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <circle cx="12" cy="12" r="10"></circle>
+                <line x1="12" y1="8" x2="12" y2="12"></line>
+                <line x1="12" y1="16" x2="12.01" y2="16"></line>
+              </svg>
+              <span>Process Payments</span>
+            </button>
+            <button class="action-card" (click)="sendNotifications()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+              </svg>
+              <span>Send Notifications</span>
+            </button>
+            <button class="action-card" (click)="viewAnalytics()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="20" x2="12" y2="10"></line>
+                <line x1="18" y1="20" x2="18" y2="4"></line>
+                <line x1="6" y1="20" x2="6" y2="16"></line>
+              </svg>
+              <span>View Analytics</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
     </div>
   </main>
+  
 </div>
