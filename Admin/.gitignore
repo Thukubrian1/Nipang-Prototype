@@ -17,6 +17,7 @@ yarn-error.log*
 .classpath
 .c9/
 .launch
+.gitignore
 .settings/
 .vscode/*
 !.vscode/settings.json
