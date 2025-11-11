@@ -217,23 +217,23 @@ export class Home implements OnInit {
   }
 
   manageUsers(): void {
-    this.router.navigate(['/home/users']);
+    this.router.navigate(['/users']);
   }
 
   viewTickets(): void {
-    this.router.navigate(['/home/tickets']);
+    this.router.navigate(['/support']);
   }
 
   processPayments(): void {
-    this.router.navigate(['/home/payments']);
+    this.router.navigate(['wallet']);
   }
 
   sendNotifications(): void {
-    this.router.navigate(['/home/messaging/broadcast']);
+    this.router.navigate(['/messaging']);
   }
 
   viewAnalytics(): void {
-    this.router.navigate(['/home/analytics']);
+    this.router.navigate(['/analytics']);
   }
 
   // Navigation
@@ -244,6 +244,6 @@ export class Home implements OnInit {
 
   viewEvent(eventId: number): void {
     console.log('View event:', eventId);
-    this.router.navigate(['/home/events', eventId]);
+    this.router.navigate(['/events', eventId]);
   }
 }

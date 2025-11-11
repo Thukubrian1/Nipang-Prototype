@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Sidebar } from '../sidebar/sidebar';
 import { Topbar } from '../topbar/topbar';
-import { AddEvent } from '../add-event/add-event';  // FIXED: Import AddEvent component instead of DOM Event
+import { AddEvent } from '../add-event/add-event';
 import { EventFormData } from '../models/eventmodel';
 
 
@@ -45,7 +46,7 @@ interface WalletPaymentForm {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, Sidebar, Topbar, AddEvent],
+  imports: [CommonModule, FormsModule, Sidebar, Topbar, AddEvent],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
