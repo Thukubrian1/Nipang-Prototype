@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
+import { FormsModule, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Sidebar } from '../sidebar/sidebar';
 import { Topbar } from '../topbar/topbar';
@@ -8,7 +8,7 @@ import { Topbar } from '../topbar/topbar';
 @Component({
   selector: 'app-system',
   standalone: true,
-  imports: [CommonModule, FormsModule, Sidebar, Topbar],
+  imports: [CommonModule, FormsModule, ReactiveFormsModule, Sidebar, Topbar],
   templateUrl: './system.html',
   styleUrls: ['./system.css']
 })
@@ -26,6 +26,21 @@ export class System implements OnInit {
   // Search States
   searchBy: string = 'role';
   searchQuery: string = '';
+  
+  // Modal States
+  showRoleModal: boolean = false;
+  showDeleteRoleModal: boolean = false;
+  showReasonModal: boolean = false;
+  showDeleteReasonModal: boolean = false;
+  
+  // Edit States
+  isEditingRole: boolean = false;
+  isEditingReason: boolean = false;
+  currentEditId: number | null = null;
+  
+  // Forms
+  roleForm!: FormGroup;
+  reasonForm!: FormGroup;
   
   // Roles Stats
   totalRoles: number = 10;
@@ -101,10 +116,38 @@ export class System implements OnInit {
     }
   ];
 
-  constructor(private router: Router) { }
+  constructor(
+    private router: Router,
+    private fb: FormBuilder
+  ) { }
 
   ngOnInit(): void {
     this.updateSearchBy();
+    this.initializeForms();
+  }
+
+  initializeForms(): void {
+    // Role Form
+    this.roleForm = this.fb.group({
+      status: ['Active', Validators.required],
+      name: ['', Validators.required],
+      manageUsers: [false],
+      manageEvents: [false],
+      viewAnalytics: [false],
+      systemSettings: [false],
+      createEvents: [false],
+      editEvents: [false],
+      viewAllEvents: [false],
+      accessAnalytics: [false]
+    });
+
+    // Reason Form
+    this.reasonForm = this.fb.group({
+      reason: ['', Validators.required],
+      type: ['', Validators.required],
+      applicableTo: ['', Validators.required],
+      status: ['', Validators.required]
+    });
   }
 
   handleSidebarToggle(): void {
@@ -129,23 +172,102 @@ export class System implements OnInit {
     }
   }
 
-  // Roles Actions
+  // ===== ROLE MODAL METHODS =====
   addSystemRole(): void {
-    console.log('Add system role');
-    this.router.navigate(['/system-roles/roles/new']);
+    this.isEditingRole = false;
+    this.currentEditId = null;
+    this.roleForm.reset({
+      status: 'Active',
+      manageUsers: false,
+      manageEvents: false,
+      viewAnalytics: false,
+      systemSettings: false,
+      createEvents: false,
+      editEvents: false,
+      viewAllEvents: false,
+      accessAnalytics: false
+    });
+    this.showRoleModal = true;
   }
 
   editRole(id: number): void {
-    console.log('Edit role:', id);
-    this.router.navigate(['/system-roles/roles/edit', id]);
+    this.isEditingRole = true;
+    this.currentEditId = id;
+    const role = this.roles.find(r => r.id === id);
+    
+    if (role) {
+      this.roleForm.patchValue({
+        status: role.status,
+        name: role.name,
+        // Set default permissions for demo
+        manageUsers: true,
+        manageEvents: true,
+        viewAnalytics: true,
+        systemSettings: true,
+        createEvents: false,
+        editEvents: true,
+        viewAllEvents: true,
+        accessAnalytics: true
+      });
+    }
+    
+    this.showRoleModal = true;
+  }
+
+  closeRoleModal(): void {
+    this.showRoleModal = false;
+    this.isEditingRole = false;
+    this.currentEditId = null;
+  }
+
+  saveRole(): void {
+    if (this.roleForm.valid) {
+      const formValue = this.roleForm.value;
+      
+      if (this.isEditingRole && this.currentEditId) {
+        // Update existing role
+        const index = this.roles.findIndex(r => r.id === this.currentEditId);
+        if (index !== -1) {
+          this.roles[index] = {
+            ...this.roles[index],
+            name: formValue.name,
+            status: formValue.status,
+            lastActivity: 'Just now'
+          };
+        }
+      } else {
+        // Add new role
+        const newRole = {
+          id: Math.max(...this.roles.map(r => r.id)) + 1,
+          name: formValue.name,
+          assignedUsers: 0,
+          lastActivity: 'Just now',
+          status: formValue.status
+        };
+        this.roles.push(newRole);
+      }
+      
+      this.updateRoleStats();
+      this.closeRoleModal();
+    }
   }
 
   deleteRole(id: number): void {
-    console.log('Delete role:', id);
-    if (confirm('Are you sure you want to delete this role?')) {
-      this.roles = this.roles.filter(r => r.id !== id);
+    this.currentEditId = id;
+    this.showDeleteRoleModal = true;
+  }
+
+  closeDeleteRoleModal(): void {
+    this.showDeleteRoleModal = false;
+    this.currentEditId = null;
+  }
+
+  confirmDeleteRole(): void {
+    if (this.currentEditId) {
+      this.roles = this.roles.filter(r => r.id !== this.currentEditId);
       this.updateRoleStats();
     }
+    this.closeDeleteRoleModal();
   }
 
   updateRoleStats(): void {
@@ -154,23 +276,86 @@ export class System implements OnInit {
     this.inactiveRoles = this.roles.filter(r => r.status === 'Inactive').length;
   }
 
-  // Reasons Actions
+  // ===== REASON MODAL METHODS =====
   addReason(): void {
-    console.log('Add reason');
-    this.router.navigate(['/system-roles/reasons/new']);
+    this.isEditingReason = false;
+    this.currentEditId = null;
+    this.reasonForm.reset();
+    this.showReasonModal = true;
   }
 
   editReason(id: number): void {
-    console.log('Edit reason:', id);
-    this.router.navigate(['/system-roles/reasons/edit', id]);
+    this.isEditingReason = true;
+    this.currentEditId = id;
+    const reason = this.reasons.find(r => r.id === id);
+    
+    if (reason) {
+      this.reasonForm.patchValue({
+        reason: reason.reason,
+        type: reason.type,
+        applicableTo: reason.applicableTo,
+        status: reason.status
+      });
+    }
+    
+    this.showReasonModal = true;
+  }
+
+  closeReasonModal(): void {
+    this.showReasonModal = false;
+    this.isEditingReason = false;
+    this.currentEditId = null;
+  }
+
+  saveReason(): void {
+    if (this.reasonForm.valid) {
+      const formValue = this.reasonForm.value;
+      
+      if (this.isEditingReason && this.currentEditId) {
+        // Update existing reason
+        const index = this.reasons.findIndex(r => r.id === this.currentEditId);
+        if (index !== -1) {
+          this.reasons[index] = {
+            id: this.currentEditId,
+            reason: formValue.reason,
+            type: formValue.type,
+            applicableTo: formValue.applicableTo,
+            status: formValue.status
+          };
+        }
+      } else {
+        // Add new reason
+        const newReason = {
+          id: Math.max(...this.reasons.map(r => r.id)) + 1,
+          reason: formValue.reason,
+          type: formValue.type,
+          applicableTo: formValue.applicableTo,
+          status: formValue.status
+        };
+        this.reasons.push(newReason);
+      }
+      
+      this.updateReasonStats();
+      this.closeReasonModal();
+    }
   }
 
   deleteReason(id: number): void {
-    console.log('Delete reason:', id);
-    if (confirm('Are you sure you want to delete this reason?')) {
-      this.reasons = this.reasons.filter(r => r.id !== id);
+    this.currentEditId = id;
+    this.showDeleteReasonModal = true;
+  }
+
+  closeDeleteReasonModal(): void {
+    this.showDeleteReasonModal = false;
+    this.currentEditId = null;
+  }
+
+  confirmDeleteReason(): void {
+    if (this.currentEditId) {
+      this.reasons = this.reasons.filter(r => r.id !== this.currentEditId);
       this.updateReasonStats();
     }
+    this.closeDeleteReasonModal();
   }
 
   updateReasonStats(): void {
@@ -179,4 +364,3 @@ export class System implements OnInit {
     this.inactiveReasons = this.reasons.filter(r => r.status === 'Inactive').length;
   }
 }
-

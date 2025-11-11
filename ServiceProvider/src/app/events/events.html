@@ -121,10 +121,7 @@
         <!-- Action Buttons -->
         <div class="action-buttons">
           <button class="btn-add-event" (click)="addEvent()">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-              <line x1="12" y1="5" x2="12" y2="19"></line>
-              <line x1="5" y1="12" x2="19" y2="12"></line>
-            </svg>
+            <span class="plus-icon">+</span>
             Add Event
           </button>
           <button class="btn-sponsor-event" (click)="sponsorEvent()">
@@ -211,4 +208,1050 @@
       </div>
     </div>
   </main>
+
+  <!-- Add Event Modal -->
+  <app-add-event
+    [isOpen]="isAddEventModalOpen"
+    (close)="closeAddEventModal()"
+    (submit)="handleEventSubmit($event)">
+  </app-add-event>
+
+  <!-- Select Event to Sponsor Modal -->
+  <div class="modal-overlay" *ngIf="showSponsorEventModal" (click)="closeSponsorEventModal()">
+    <div class="sponsor-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Select Event to Sponsor</h3>
+        <button class="btn-close" (click)="closeSponsorEventModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-subtitle">Select an active event you would like to sponsor for $10</p>
+        
+        <div class="event-list">
+          <label class="event-option" *ngFor="let event of availableSponsorEvents">
+            <input 
+              type="radio" 
+              name="sponsorEvent" 
+              [value]="event.id"
+              [(ngModel)]="selectedEventId"
+              (change)="selectSponsorEvent(event.id)">
+            <div class="event-option-content">
+              <div class="event-option-header">
+                <h4>{{ event.title }}</h4>
+                <span class="event-status-badge">Active</span>
+              </div>
+              <p class="event-category">{{ event.category }}</p>
+              <div class="event-details">
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-icon">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  {{ event.date }}
+                </span>
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-icon">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  {{ event.time }}
+                </span>
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-icon">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  {{ event.booked }}/{{ event.capacity }} booked
+                </span>
+                <span class="event-detail price">Ksh {{ event.price | number:'1.0-0' }}</span>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeSponsorEventModal()">Cancel</button>
+        <button class="btn-continue" (click)="continueToPayment()">Continue to Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Select Payment Method Modal -->
+  <div class="modal-overlay" *ngIf="showPaymentMethodModal" (click)="closePaymentMethodModal()">
+    <div class="payment-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Select Payment Method</h3>
+        <button class="btn-close" (click)="closePaymentMethodModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="event-summary" *ngIf="selectedSponsorEvent">
+          <h4>{{ selectedSponsorEvent.title }}</h4>
+          <div class="summary-details">
+            <span class="summary-detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="summary-icon">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              {{ selectedSponsorEvent.date }}
+            </span>
+            <span class="summary-detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="summary-icon">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {{ selectedSponsorEvent.time }}
+            </span>
+            <span class="summary-detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="summary-icon">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              {{ selectedSponsorEvent.booked }}/{{ selectedSponsorEvent.capacity }} booked
+            </span>
+          </div>
+        </div>
+
+        <div class="sponsorship-fee-banner">
+          <span>Sponsorship Fee</span>
+          <span class="fee-amount">$ {{ sponsorshipFee }}</span>
+        </div>
+
+        <div class="payment-methods">
+          <div class="payment-method" (click)="selectPaymentMethod('mobile')">
+            <div class="payment-method-icon">📱</div>
+            <div class="payment-method-info">
+              <h4>Mobile Banking</h4>
+              <p>Pay via M-pesa, T-Kash, Airtel Money etc</p>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+
+          <div class="payment-method" (click)="selectPaymentMethod('card')">
+            <div class="payment-method-icon">🏦</div>
+            <div class="payment-method-info">
+              <h4>Card</h4>
+              <p>Pay via your Bank Account Card</p>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+
+          <div class="payment-method" (click)="selectPaymentMethod('wallet')">
+            <div class="payment-method-icon"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+      </svg>
+    </div>
+            <div class="payment-method-info">
+              <h4>Wallet</h4>
+              <p>Pay via your wallet</p>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <button class="btn-back-text" (click)="backToEventSelection()">Back to Event Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Banking Payment Modal -->
+  <div class="modal-overlay" *ngIf="showMobileBankingModal" (click)="closeMobileBankingModal()">
+    <div class="payment-form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Mobile Banking Payment</h3>
+        <button class="btn-close" (click)="closeMobileBankingModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="amount-banner">
+          <span>Amount to Pay</span>
+          <span class="amount">$ {{ sponsorshipFee }}</span>
+        </div>
+
+        <form class="payment-form">
+          <div class="form-group">
+            <label>Select Payment Mode</label>
+            <select [(ngModel)]="mobileBankingForm.paymentMode" name="paymentMode" class="form-select">
+              <option value="">Select your payment mode</option>
+              <option value="mpesa">M-pesa</option>
+              <option value="airtel">Airtel Money</option>
+              <option value="tkash">T-Kash</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Phone number</label>
+            <input 
+              type="tel" 
+              [(ngModel)]="mobileBankingForm.phoneNumber"
+              name="phoneNumber"
+              class="form-input"
+              placeholder="0712345678">
+            <p class="input-note">You will receive a prompt to enter your pin on this number</p>
+          </div>
+
+          <div class="form-group-checkbox">
+            <input 
+              type="checkbox" 
+              id="mobileTerms"
+              [(ngModel)]="mobileBankingForm.agreeToTerms"
+              name="agreeToTerms">
+            <label for="mobileTerms">I agree to the terms & conditions. The $10 sponsorship fee is no-refundable</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToPaymentMethod()">Back</button>
+        <button class="btn-pay" (click)="processMobileBankingPayment()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Payment Modal -->
+  <div class="modal-overlay" *ngIf="showCardPaymentModal" (click)="closeCardPaymentModal()">
+    <div class="payment-form-modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Bank Transfer</h3>
+        <button class="btn-close" (click)="closeCardPaymentModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="amount-banner">
+          <span>Amount to Pay</span>
+          <span class="amount">$ {{ sponsorshipFee }}</span>
+        </div>
+
+        <form class="payment-form">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.fullName"
+              name="fullName"
+              class="form-input"
+              placeholder="Enter your full name">
+          </div>
+
+          <div class="form-group">
+            <label>Country or Region</label>
+            <select [(ngModel)]="cardPaymentForm.country" name="country" class="form-select">
+              <option value="">Select your country or region</option>
+              <option value="kenya">Kenya</option>
+              <option value="uganda">Uganda</option>
+              <option value="tanzania">Tanzania</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Address line 1</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.addressLine1"
+              name="addressLine1"
+              class="form-input"
+              placeholder="Enter your address">
+          </div>
+
+          <div class="form-group">
+            <label>City</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.city"
+              name="city"
+              class="form-input"
+              placeholder="Enter City">
+          </div>
+
+          <div class="form-group">
+            <label>Postal Code</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.postalCode"
+              name="postalCode"
+              class="form-input"
+              placeholder="Enter Postal Code">
+          </div>
+
+          <div class="form-group">
+            <label>Card Number</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.cardNumber"
+              name="cardNumber"
+              class="form-input"
+              placeholder="1234 1234 1234 1234"
+              maxlength="19">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Expiration Date</label>
+              <input 
+                type="text" 
+                [(ngModel)]="cardPaymentForm.expirationDate"
+                name="expirationDate"
+                class="form-input"
+                placeholder="MM/YY"
+                maxlength="5">
+            </div>
+
+            <div class="form-group">
+              <label>Security Code</label>
+              <input 
+                type="text" 
+                [(ngModel)]="cardPaymentForm.securityCode"
+                name="securityCode"
+                class="form-input"
+                placeholder="CVC"
+                maxlength="3">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Account Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.accountName"
+              name="accountName"
+              class="form-input"
+              placeholder="Account holder name">
+          </div>
+
+          <div class="form-group-checkbox">
+            <input 
+              type="checkbox" 
+              id="cardTerms"
+              [(ngModel)]="cardPaymentForm.agreeToTerms"
+              name="agreeToTerms">
+            <label for="cardTerms">I agree to the terms & conditions. The $10 sponsorship fee is no-refundable</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToPaymentMethod()">Back</button>
+        <button class="btn-pay" (click)="processCardPayment()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wallet Payment Modal -->
+  <div class="modal-overlay" *ngIf="showWalletPaymentModal" (click)="closeWalletPaymentModal()">
+    <div class="payment-form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Wallet Payment</h3>
+        <button class="btn-close" (click)="closeWalletPaymentModal()">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+      </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="amount-banner">
+          <span>Amount to Pay</span>
+          <span class="amount">$ {{ sponsorshipFee }}</span>
+        </div>
+
+        <form class="payment-form">
+          <div class="form-group">
+            <label>Wallet Password</label>
+            <input 
+              type="password" 
+              [(ngModel)]="walletPaymentForm.walletPassword"
+              name="walletPassword"
+              class="form-input"
+              placeholder="Enter your wallet password to pay">
+            <p class="input-note">You will be deducted the amount from your wallet</p>
+          </div>
+
+          <div class="form-group-checkbox">
+            <input 
+              type="checkbox" 
+              id="walletTerms"
+              [(ngModel)]="walletPaymentForm.agreeToTerms"
+              name="agreeToTerms">
+            <label for="walletTerms">I agree to the terms & conditions. The $10 sponsorship fee is no-refundable</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToPaymentMethod()">Back</button>
+        <button class="btn-pay" (click)="processWalletPayment()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Event Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showDeleteModal" (click)="closeDeleteModal()">
+    <div class="delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Delete Event</h3>
+        <button class="btn-close" (click)="closeDeleteModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body-delete">
+        <div class="delete-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <h4>Are you sure you want to Delete this Event?</h4>
+        <p *ngIf="deletingEvent" class="event-info">{{ deletingEvent.name }} - {{ deletingEvent.category }}</p>
+        <p class="warning-text">On deleting the event, the event won't be visible on the app</p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-no" (click)="closeDeleteModal()">NO</button>
+        <button class="btn-yes" (click)="confirmDeleteEvent()">YES</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Analytics Modal -->
+  <div class="modal-overlay" *ngIf="showAnalyticsModal && currentAnalytics" (click)="closeAnalyticsModal()">
+    <div class="analytics-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ currentAnalytics.eventName }} Analytics</h3>
+          <p class="modal-subtitle">{{ currentAnalytics.category }}</p>
+        </div>
+        <button class="btn-close" (click)="closeAnalyticsModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body-analytics">
+        <!-- Key Metrics -->
+        <div class="analytics-grid">
+          <div class="analytics-card">
+            <div class="analytics-icon">💰</div>
+            <div class="analytics-value">Ksh {{ currentAnalytics.totalRevenue | number:'1.0-0' }}</div>
+            <div class="analytics-label">Total Revenue</div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon">👥</div>
+            <div class="analytics-value">{{ currentAnalytics.totalBookings }}</div>
+            <div class="analytics-label">Total Bookings</div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon">🎯</div>
+            <div class="analytics-value">{{ currentAnalytics.capacityFilled }}</div>
+            <div class="analytics-label">Capacity Filled</div>
+          </div>
+
+          <div class="analytics-card">
+            <div class="analytics-icon">⭐</div>
+            <div class="analytics-value">{{ currentAnalytics.averageRating }}</div>
+            <div class="analytics-label">Average Rating</div>
+          </div>
+        </div>
+
+        <!-- Views Trend -->
+        <div class="analytics-section">
+          <div class="section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
+              <circle cx="12" cy="12" r="3"></circle>
+            </svg>
+            <h4>Views Trend</h4>
+          </div>
+          <div class="trend-bars">
+            <div class="trend-item" *ngFor="let item of currentAnalytics.viewsTrend">
+              <div class="trend-label">{{ item.day }}</div>
+              <div class="trend-bar-container">
+                <div class="trend-bar trend-bar-orange" [style.width.%]="(item.value / 150) * 100"></div>
+              </div>
+              <div class="trend-value">{{ item.value }} Views</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Booking Trend -->
+        <div class="analytics-section">
+          <div class="section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
+              <polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline>
+            </svg>
+            <h4>Booking Trend</h4>
+          </div>
+          <div class="trend-bars">
+            <div class="trend-item" *ngFor="let item of currentAnalytics.bookingTrend">
+              <div class="trend-label">{{ item.day }}</div>
+              <div class="trend-bar-container">
+                <div class="trend-bar trend-bar-blue" [style.width.%]="(item.value / 15) * 100"></div>
+              </div>
+              <div class="trend-value">{{ item.value }} Bookings</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Attendee Demographics -->
+        <div class="analytics-section">
+          <div class="section-header">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="section-icon">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            <h4>Attendee Demographics</h4>
+          </div>
+          <div class="trend-bars">
+            <div class="trend-item" *ngFor="let item of currentAnalytics.demographics">
+              <div class="trend-label">{{ item.range }}</div>
+              <div class="trend-bar-container">
+                <div class="trend-bar trend-bar-purple" [style.width.%]="item.percentage"></div>
+              </div>
+              <div class="trend-value">{{ item.percentage }}%</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reviews Preview -->
+        <div class="analytics-section">
+          <div class="section-header">
+            <h4>Reviews</h4>
+            <button class="btn-view-all" (click)="viewAllReviews()">View all</button>
+          </div>
+          <div class="reviews-preview-vertical">
+            <div class="review-card-vertical" *ngFor="let review of currentAnalytics.reviews.slice(0, 2)">
+              <div class="review-rating">
+                <span class="star" *ngFor="let star of [1,2,3,4,5]">⭐</span>
+              </div>
+              <h5 class="review-title">{{ review.title }}</h5>
+              <p class="review-comment">{{ review.comment }}</p>
+              <div class="review-author">
+                <div class="author-avatar">{{ review.userName.charAt(0) }}</div>
+                <div class="author-info">
+                  <div class="author-name">{{ review.userName }}</div>
+                  <div class="review-date">{{ review.date }}</div>
+                </div>
+              </div>
+              
+              <!-- Show Reply if exists -->
+              <div class="review-reply" *ngIf="review.replied && review.reply">
+                <div class="reply-indicator">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 11 12 14 22 4"></polyline>
+                    <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                  </svg>
+                  <span>Reply</span>
+                </div>
+                <p class="reply-text">{{ review.reply }}</p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Additional Metrics -->
+        <div class="metrics-row">
+          <div class="metric-card">
+            <h4>Conversion Rate</h4>
+            <div class="metric-value">{{ currentAnalytics.conversionRate }}%</div>
+            <div class="metric-change positive">{{ currentAnalytics.conversionChange }}% from last event</div>
+          </div>
+
+          <div class="metric-card">
+            <h4>Avg. Ticket Price</h4>
+            <div class="metric-value">Ksh {{ currentAnalytics.avgTicketPrice }}</div>
+            <div class="metric-note">Per attendee</div>
+          </div>
+
+          <div class="metric-card">
+            <h4>Cancellation Rate</h4>
+            <div class="metric-value">{{ currentAnalytics.cancellationRate }}%</div>
+            <div class="metric-change positive">{{ currentAnalytics.cancellationImprovement }}% improvement</div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="analytics-actions">
+          <button class="btn-export" (click)="exportReport()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Export Full Report
+          </button>
+          <button class="btn-schedule" (click)="scheduleReport()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            Schedule Report
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- All Reviews Modal -->
+  <div class="modal-overlay" *ngIf="showAllReviewsModal && currentAnalytics" (click)="closeAnalyticsModal()">
+    <div class="reviews-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div>
+          <h3>{{ currentAnalytics.eventName }} Analytics</h3>
+          <p class="modal-subtitle">{{ currentAnalytics.category }}</p>
+        </div>
+        <button class="btn-close" (click)="closeAnalyticsModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body-reviews">
+        <div class="reviews-header">
+          <div class="reviews-title-section">
+            <h4>All Reviews</h4>
+            <p class="reviews-stats">{{ currentAnalytics.reviews.length }} total review • 0 replied</p>
+          </div>
+          <button class="btn-back-link" (click)="backToAnalytics()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+            Back to Analytics
+          </button>
+        </div>
+
+        <div class="review-filters">
+          <button 
+            class="filter-btn" 
+            [class.active]="activeReviewFilter === 'all'"
+            (click)="setReviewFilter('all')">
+            All Reviews
+          </button>
+          <button 
+            class="filter-btn" 
+            [class.active]="activeReviewFilter === 'pending'"
+            (click)="setReviewFilter('pending')">
+            Pending Reply
+          </button>
+          <button 
+            class="filter-btn" 
+            [class.active]="activeReviewFilter === 'replied'"
+            (click)="setReviewFilter('replied')">
+            Replied
+          </button>
+        </div>
+
+        <div class="all-reviews-list">
+          <div class="review-item-vertical" *ngFor="let review of getFilteredReviews()">
+            <div class="review-rating">
+              <span class="star" *ngFor="let star of [1,2,3,4,5]">⭐</span>
+            </div>
+            <h5 class="review-title">{{ review.title }}</h5>
+            <p class="review-comment">{{ review.comment }}</p>
+            <div class="review-author">
+              <div class="author-avatar">{{ review.userName.charAt(0) }}</div>
+              <div class="author-info">
+                <div class="author-name">{{ review.userName }}</div>
+                <div class="review-date">{{ review.date }}</div>
+              </div>
+            </div>
+
+            <!-- Show existing reply if present -->
+            <div class="review-reply" *ngIf="review.replied && review.reply && replyingToReviewId !== review.id">
+              <div class="reply-indicator">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <polyline points="9 11 12 14 22 4"></polyline>
+                  <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+                </svg>
+                <span>Reply</span>
+              </div>
+              <p class="reply-text">{{ review.reply }}</p>
+            </div>
+
+            <!-- Reply Form -->
+            <div class="reply-form" *ngIf="replyingToReviewId === review.id">
+              <textarea 
+                [(ngModel)]="currentReviewReply" 
+                placeholder="Write your response to {{ review.userName }}"
+                class="reply-textarea"
+                maxlength="500"></textarea>
+              <div class="reply-actions">
+                <span class="char-count">{{ currentReviewReply.length }}/500</span>
+                <div class="reply-buttons">
+                  <button class="btn-cancel-reply" (click)="cancelReply()">Cancel</button>
+                  <button class="btn-send-reply" (click)="sendReply(review.id)">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <line x1="22" y1="2" x2="11" y2="13"></line>
+                      <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                    </svg>
+                    Send Reply
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Reply Button -->
+            <button 
+              class="btn-reply" 
+              *ngIf="!review.replied && replyingToReviewId !== review.id"
+              (click)="startReply(review.id)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 11 12 14 22 4"></polyline>
+                <path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"></path>
+              </svg>
+              Reply
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Edit Event Modal -->
+  <div class="modal-overlay" *ngIf="showEditModal" (click)="closeEditModal()">
+    <div class="edit-event-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Edit Event</h3>
+        <button class="btn-close" (click)="closeEditModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body-edit">
+        <form class="edit-event-form">
+          <!-- Cover Image Upload -->
+          <div class="form-section">
+            <div class="upload-box cover-upload">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="upload-icon">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="17 8 12 3 7 8"></polyline>
+                <line x1="12" y1="3" x2="12" y2="15"></line>
+              </svg>
+              <p class="upload-text">Upload Cover image</p>
+              <p class="upload-note">Maximum file size 10MB</p>
+            </div>
+          </div>
+
+          <!-- Gallery Media Upload -->
+          <div class="form-section">
+            <div class="upload-box gallery-upload">
+              <div class="upload-icons">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="upload-icon">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <circle cx="8.5" cy="8.5" r="1.5"></circle>
+                  <polyline points="21 15 16 10 5 21"></polyline>
+                </svg>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="upload-icon">
+                  <polygon points="23 7 16 12 23 17 23 7"></polygon>
+                  <rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect>
+                </svg>
+              </div>
+              <p class="upload-text">Upload Gallery Media</p>
+              <p class="upload-note">Images and videos for the carousel (Max 8 items, 10MB each)</p>
+            </div>
+            
+            <!-- Gallery Thumbnails -->
+            <div class="gallery-grid">
+              <div class="gallery-thumb" *ngFor="let i of [1,2,3,4,5,6,7,8]">
+                <img src="" alt="Gallery image {{ i }}">
+                <button class="btn-remove-thumb">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="15" y1="9" x2="9" y2="15"></line>
+                    <line x1="9" y1="9" x2="15" y2="15"></line>
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Basic Information Section -->
+          <div class="form-section">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>Event Name</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editEventForm.eventName"
+                  name="eventName"
+                  class="form-input">
+              </div>
+
+              <div class="form-group">
+                <label>Category</label>
+                <select [(ngModel)]="editEventForm.category" name="category" class="form-select">
+                  <option value="Outdoor Adventure">Outdoor Adventure</option>
+                  <option value="Music & Entertainment">Music & Entertainment</option>
+                  <option value="Sports & Fitness">Sports & Fitness</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>Description</label>
+                <textarea 
+                  [(ngModel)]="editEventForm.description"
+                  name="description"
+                  class="form-textarea"
+                  rows="4"></textarea>
+              </div>
+
+              <div class="form-group">
+                <label>Sub-Category</label>
+                <select [(ngModel)]="editEventForm.subCategory" name="subCategory" class="form-select">
+                  <option value="Hiking">Hiking</option>
+                  <option value="Camping">Camping</option>
+                  <option value="Rock Climbing">Rock Climbing</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Location Section -->
+          <div class="form-section">
+            <div class="form-grid-2">
+              <div class="form-group">
+                <label>Location</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editEventForm.location"
+                  name="location"
+                  class="form-input"
+                  placeholder="e.g Karura Forest">
+              </div>
+
+              <div class="form-group">
+                <label>Location URL</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editEventForm.locationURL"
+                  name="locationURL"
+                  class="form-input"
+                  placeholder="e.g Karura Forest location">
+              </div>
+            </div>
+          </div>
+
+          <!-- Date & Time Section -->
+          <div class="form-section">
+            <div class="form-grid-4">
+              <div class="form-group">
+                <label>Date From</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editEventForm.dateFrom"
+                  name="dateFrom"
+                  class="form-input"
+                  placeholder="5/07/2025">
+              </div>
+
+              <div class="form-group">
+                <label>Date To</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editEventForm.dateTo"
+                  name="dateTo"
+                  class="form-input"
+                  placeholder="5/07/2025">
+              </div>
+
+              <div class="form-group">
+                <label>Start Time</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editEventForm.startTime"
+                  name="startTime"
+                  class="form-input"
+                  placeholder="9:00AM">
+              </div>
+
+              <div class="form-group">
+                <label>End Time</label>
+                <input 
+                  type="text" 
+                  [(ngModel)]="editEventForm.endTime"
+                  name="endTime"
+                  class="form-input"
+                  placeholder="5:00PM">
+              </div>
+            </div>
+          </div>
+
+          <!-- Price Section -->
+          <div class="price-section">
+            <div class="price-header">
+              <h4>Price</h4>
+              <div class="total-tickets-group">
+                <label>Total Tickets</label>
+                <input 
+                  type="number" 
+                  [(ngModel)]="editEventForm.totalTickets"
+                  name="totalTickets"
+                  class="tickets-input">
+              </div>
+            </div>
+
+            <!-- Price Types -->
+            <div class="price-types-container">
+              <div class="price-type-card" *ngFor="let priceType of editEventForm.priceTypes; let i = index">
+                <div class="price-type-header">
+                  <h5>Price Type {{ i + 1 }}</h5>
+                  <button type="button" class="btn-remove-price" (click)="removePriceType(i)">Remove</button>
+                </div>
+
+                <div class="form-grid-3">
+                  <div class="form-group">
+                    <label>Type Name</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="priceType.typeName"
+                      [name]="'typeName' + i"
+                      class="form-input"
+                      placeholder="e.g Regular">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Price</label>
+                    <input 
+                      type="number" 
+                      [(ngModel)]="priceType.price"
+                      [name]="'price' + i"
+                      class="form-input"
+                      placeholder="2000">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Available Tickets</label>
+                    <input 
+                      type="number" 
+                      [(ngModel)]="priceType.availableTickets"
+                      [name]="'availableTickets' + i"
+                      class="form-input"
+                      placeholder="1000">
+                  </div>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label>Ticket Type</label>
+                    <select 
+                      [(ngModel)]="priceType.ticketType" 
+                      [name]="'ticketType' + i" 
+                      class="form-select">
+                      <option value="General">General</option>
+                      <option value="VIP">VIP</option>
+                      <option value="Reserved">Reserved</option>
+                    </select>
+                  </div>
+
+                  <div class="form-group">
+                    <label>Ticket URL</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="priceType.ticketURL"
+                      [name]="'ticketURL' + i"
+                      class="form-input"
+                      placeholder="https://nipange.chan.com">
+                  </div>
+                </div>
+
+                <div class="form-grid-2">
+                  <div class="form-group">
+                    <label>Available From</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="priceType.availableFrom"
+                      [name]="'availableFrom' + i"
+                      class="form-input"
+                      placeholder="3/07/2025 at 4:00 PM">
+                  </div>
+
+                  <div class="form-group">
+                    <label>Available To</label>
+                    <input 
+                      type="text" 
+                      [(ngModel)]="priceType.availableTo"
+                      [name]="'availableTo' + i"
+                      class="form-input"
+                      placeholder="5/07/2025 at 12:00 AM">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Add Price Type Button -->
+            <button type="button" class="btn-add-price-type" (click)="addPriceType()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="plus-icon">
+                <line x1="12" y1="5" x2="12" y2="19"></line>
+                <line x1="5" y1="12" x2="19" y2="12"></line>
+              </svg>
+              Add Price Type
+            </button>
+          </div>
+
+          <!-- Update Button -->
+          <button type="button" class="btn-update-event" (click)="updateEvent()">
+            Update
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+  
 </div>

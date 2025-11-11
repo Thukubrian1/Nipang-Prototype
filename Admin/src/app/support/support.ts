@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { Sidebar } from '../sidebar/sidebar';
 import { Topbar } from '../topbar/topbar';
@@ -23,7 +24,7 @@ interface SupportTicket {
 @Component({
   selector: 'app-support',
   standalone: true,
-  imports: [CommonModule, Sidebar, Topbar],
+  imports: [CommonModule, FormsModule, Sidebar, Topbar],
   templateUrl: './support.html',
   styleUrl: './support.css',
 })
@@ -42,12 +43,35 @@ export class Support implements OnInit {
   // Active Tab
   activeTab: string = 'faq';
   
+  // Modal States
+  showAddFaqModal: boolean = false;
+  showEditFaqModal: boolean = false;
+  showRemoveFaqModal: boolean = false;
+  showTicketModal: boolean = false;
+  
+  // Form Data
+  newFaq: FAQ = {
+    id: 0,
+    question: '',
+    answer: ''
+  };
+  
+  editingFaq: FAQ = {
+    id: 0,
+    question: '',
+    answer: ''
+  };
+  
+  faqToRemove: FAQ | null = null;
+  selectedTicket: SupportTicket | null = null;
+  ticketResponse: string = '';
+  
   // FAQs Data
   faqs: FAQ[] = [
     {
       id: 1,
       question: 'How do I create an event?',
-      answer: 'Click on "Events" in the sidebar, then click add event above the table and  fill out all required fields, upload images, and submit for approval.'
+      answer: 'Click on "Events" in the sidebar, then click add event above the table and fill out all required fields, upload images, and submit for approval.'
     },
     {
       id: 2,
@@ -97,7 +121,7 @@ export class Support implements OnInit {
     },
     {
       id: 'T-2025-004',
-      title: 'Payment delay for color fest',
+      title: 'Analytics page error',
       status: 'Open',
       date: '20/10/2025',
       organization: 'BNET Organizers',
@@ -135,46 +159,124 @@ export class Support implements OnInit {
 
   // FAQ Management Methods
   addNewFaq(): void {
-    console.log('Add new FAQ');
-    // Open modal or navigate to FAQ creation page
-    this.router.navigate(['/support/faq/new']);
+    this.newFaq = {
+      id: 0,
+      question: '',
+      answer: ''
+    };
+    this.showAddFaqModal = true;
+  }
+
+  closeAddFaqModal(): void {
+    this.showAddFaqModal = false;
+    this.newFaq = {
+      id: 0,
+      question: '',
+      answer: ''
+    };
+  }
+
+  saveFaq(): void {
+    if (this.newFaq.question.trim() && this.newFaq.answer.trim()) {
+      const newId = Math.max(...this.faqs.map(f => f.id), 0) + 1;
+      this.faqs.push({
+        id: newId,
+        question: this.newFaq.question,
+        answer: this.newFaq.answer
+      });
+      this.totalFaqs = this.faqs.length;
+      this.closeAddFaqModal();
+      alert('FAQ added successfully!');
+      // TODO: Call API to save FAQ
+    } else {
+      alert('Please fill in both question and answer fields.');
+    }
   }
 
   editFaq(faq: FAQ): void {
-    console.log('Edit FAQ:', faq);
-    // Open modal or navigate to FAQ edit page
-    this.router.navigate(['/support/faq/edit', faq.id]);
+    this.editingFaq = { ...faq };
+    this.showEditFaqModal = true;
+  }
+
+  closeEditFaqModal(): void {
+    this.showEditFaqModal = false;
+    this.editingFaq = {
+      id: 0,
+      question: '',
+      answer: ''
+    };
+  }
+
+  updateFaq(): void {
+    if (this.editingFaq.question.trim() && this.editingFaq.answer.trim()) {
+      const index = this.faqs.findIndex(f => f.id === this.editingFaq.id);
+      if (index !== -1) {
+        this.faqs[index] = { ...this.editingFaq };
+        this.closeEditFaqModal();
+        alert('FAQ updated successfully!');
+        // TODO: Call API to update FAQ
+      }
+    } else {
+      alert('Please fill in both question and answer fields.');
+    }
   }
 
   removeFaq(faq: FAQ): void {
-    console.log('Remove FAQ:', faq);
-    // Show confirmation dialog
-    const confirmed = confirm(`Are you sure you want to delete the FAQ: "${faq.question}"?`);
-    if (confirmed) {
-      this.faqs = this.faqs.filter(f => f.id !== faq.id);
+    this.faqToRemove = { ...faq };
+    this.showRemoveFaqModal = true;
+  }
+
+  closeRemoveFaqModal(): void {
+    this.showRemoveFaqModal = false;
+    this.faqToRemove = null;
+  }
+
+  confirmRemoveFaq(): void {
+    if (this.faqToRemove) {
+      this.faqs = this.faqs.filter(f => f.id !== this.faqToRemove!.id);
       this.totalFaqs = this.faqs.length;
+      this.closeRemoveFaqModal();
+      alert('FAQ removed successfully!');
       // TODO: Call API to delete FAQ
     }
   }
 
   // Support Ticket Methods
   viewAndRespond(ticket: SupportTicket): void {
-    console.log('View and respond to ticket:', ticket);
-    // Navigate to ticket details page
-    this.router.navigate(['/support/tickets', ticket.id]);
+    this.selectedTicket = { ...ticket };
+    this.ticketResponse = '';
+    this.showTicketModal = true;
+  }
+
+  closeTicketModal(): void {
+    this.showTicketModal = false;
+    this.selectedTicket = null;
+    this.ticketResponse = '';
+  }
+
+  sendResponse(): void {
+    if (this.ticketResponse.trim()) {
+      console.log('Sending response:', this.ticketResponse);
+      console.log('To ticket:', this.selectedTicket);
+      alert('Response sent successfully!');
+      this.closeTicketModal();
+      // TODO: Call API to send response
+    } else {
+      alert('Please enter a response before sending.');
+    }
   }
 
   markResolved(ticket: SupportTicket): void {
-    console.log('Mark ticket as resolved:', ticket);
     ticket.status = 'Resolved';
     this.updateTicketStats();
+    alert('Ticket marked as resolved!');
     // TODO: Call API to update ticket status
   }
 
   markInProgress(ticket: SupportTicket): void {
-    console.log('Mark ticket as in progress:', ticket);
     ticket.status = 'In Progress';
     this.updateTicketStats();
+    alert('Ticket marked as in progress!');
     // TODO: Call API to update ticket status
   }
 

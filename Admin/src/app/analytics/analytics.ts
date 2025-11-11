@@ -56,6 +56,13 @@ interface SavedTemplate {
   fieldsSelected: number;
 }
 
+interface ScheduledReport {
+  id: string;
+  name: string;
+  frequency: string;
+  nextRun: string;
+}
+
 @Component({
   selector: 'app-analytics',
   standalone: true,
@@ -157,6 +164,7 @@ export class Analytics implements OnInit, AfterViewInit {
   savedTemplatesCount: number = 4;
   activeExportDropdown: string | null = null;
   activeExportMenu: string | null = null;
+  showScheduledReportsModal: boolean = false;
   
   // Report Categories
   reportCategories: ReportCategory[] = [
@@ -305,7 +313,7 @@ export class Analytics implements OnInit, AfterViewInit {
       }
     ]
   };
-  
+
   // Custom Report Builder State
   customReport: CustomReport = {
     dataSource: '',
@@ -350,6 +358,22 @@ export class Analytics implements OnInit, AfterViewInit {
       name: 'Security Audit Report',
       category: 'Compliance report',
       fieldsSelected: 4
+    }
+  ];
+
+  // Scheduled Reports Data
+  scheduledReports: ScheduledReport[] = [
+    {
+      id: 'scheduled-1',
+      name: 'Weekly User Report',
+      frequency: 'Weekly',
+      nextRun: 'Monday 9:00 AM'
+    },
+    {
+      id: 'scheduled-2',
+      name: 'Monthly Revenue Summary',
+      frequency: 'Monthly',
+      nextRun: '1st of Month'
     }
   ];
 
@@ -428,6 +452,11 @@ export class Analytics implements OnInit, AfterViewInit {
     this.switchReportTab('custom');
   }
 
+  createNewReport(): void {
+    console.log('Create new custom report');
+    this.switchReportTab('custom');
+  }
+
   selectReportCategory(categoryId: string): void {
     this.selectedReportCategory = categoryId;
   }
@@ -439,6 +468,10 @@ export class Analytics implements OnInit, AfterViewInit {
 
   getSelectedCategoryReports(): DashboardReport[] {
     return this.selectedReportCategory ? this.allReports[this.selectedReportCategory] || [] : [];
+  }
+
+  getReportsByCategory(categoryId: string): DashboardReport[] {
+    return this.allReports[categoryId] || [];
   }
 
   scheduleReport(reportId: string): void {
@@ -830,5 +863,43 @@ export class Analytics implements OnInit, AfterViewInit {
         }
       });
     }
+  }
+
+  // Scheduled Reports Modal Methods
+  openScheduledReportsModal(): void {
+    this.showScheduledReportsModal = true;
+  }
+
+  closeScheduledReportsModal(): void {
+    this.showScheduledReportsModal = false;
+  }
+
+  deleteScheduledReport(reportId: string): void {
+    if (confirm('Are you sure you want to delete this scheduled report?')) {
+      this.scheduledReports = this.scheduledReports.filter(r => r.id !== reportId);
+      this.scheduledReportsCount = this.scheduledReports.length;
+      console.log('Scheduled report deleted:', reportId);
+    }
+  }
+
+  // AI Insights Methods
+  viewInsightRecommendations(insightType: string): void {
+    console.log('View recommendations for:', insightType);
+    alert('Viewing recommendations for ' + insightType);
+  }
+
+  sponsorEvent(): void {
+    console.log('Sponsor event');
+    alert('Opening event sponsorship options...');
+  }
+
+  targetAudience(): void {
+    console.log('Target audience');
+    alert('Opening audience targeting tools...');
+  }
+
+  adjustPricing(): void {
+    console.log('Adjust pricing');
+    alert('Opening pricing optimization tools...');
   }
 }

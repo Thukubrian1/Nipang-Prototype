@@ -9,9 +9,13 @@ interface Admin {
   id: string;
   name: string;
   email: string;
+  phone?: string;
+  gender?: string;
   lastLogin: string;
   role: string;
   status: string;
+  password?: string;
+  action?: string;
 }
 
 interface ServiceProvider {
@@ -19,9 +23,12 @@ interface ServiceProvider {
   name: string;
   email: string;
   phone: string;
-  categories: string;
+  description?: string;
+  categories: string[];
+  subcategories: string[];
   events: number;
   status: string;
+  password?: string;
 }
 
 interface AppUser {
@@ -29,10 +36,15 @@ interface AppUser {
   name: string;
   email: string;
   phone: string;
+  gender?: string;
+  dateOfBirth?: string;
   location: string;
+  categoryPreference: string[];
+  budgetTier?: string;
   userType: string;
   eventsAttended: number;
   status: string;
+  password?: string;
 }
 
 interface ProviderStats {
@@ -50,6 +62,12 @@ interface UserStats {
   newThisWeek: number;
   sessionChange: string;
   premiumPercentage: number;
+}
+
+interface Category {
+  id: string;
+  name: string;
+  subcategories: string[];
 }
 
 @Component({
@@ -70,10 +88,89 @@ export class Users implements OnInit {
   isSidebarOpen: boolean = true;
   activeTab: string = 'admins';
   
+  // Modal States
+  showAddAdminModal: boolean = false;
+  showEditAdminModal: boolean = false;
+  showDeleteAdminModal: boolean = false;
+  showAddProviderModal: boolean = false;
+  showViewProviderModal: boolean = false;
+  showSuspendProviderModal: boolean = false;
+  showRejectProviderModal: boolean = false;
+  showApproveProviderModal: boolean = false;
+  showReinstateProviderModal: boolean = false;
+  showAddUserModal: boolean = false;
+  showViewUserModal: boolean = false;
+  showSuspendUserModal: boolean = false;
+  showReactivateUserModal: boolean = false;
+  
   // Filters
   providerFilter: string = '';
   userFilter: string = '';
   searchQuery: string = '';
+
+  // Selected Items
+  selectedAdmin: Admin | null = null;
+  selectedProvider: ServiceProvider | null = null;
+  selectedUser: AppUser | null = null;
+
+  // Form Data
+  adminForm: Admin = {
+    id: '',
+    name: '',
+    email: '',
+    phone: '',
+    gender: '',
+    lastLogin: '',
+    role: 'Super Admin',
+    status: 'Active',
+    password: '',
+    action: 'Activate'
+  };
+
+  providerForm: ServiceProvider = {
+    id: '',
+    name: '',
+    email: '',
+    phone: '',
+    description: '',
+    categories: [],
+    subcategories: [],
+    events: 0,
+    status: 'Pending',
+    password: ''
+  };
+
+  userForm: AppUser = {
+    id: '',
+    name: '',
+    email: '',
+    phone: '',
+    gender: '',
+    dateOfBirth: '',
+    location: '',
+    categoryPreference: [],
+    budgetTier: '',
+    userType: 'Standard',
+    eventsAttended: 0,
+    status: 'Active',
+    password: ''
+  };
+
+  suspensionReason: string = '';
+  rejectionReason: string = '';
+  reinstatementReason: string = '';
+
+  // Categories and Subcategories
+  categories: Category[] = [
+    { id: '1', name: 'Night Life', subcategories: ['Clubs', 'Bars', 'Lounges', 'Late Night Dining'] },
+    { id: '2', name: 'Outdoor Adventure', subcategories: ['Hiking', 'Camping', 'Rock Climbing', 'Water Sports'] },
+    { id: '3', name: 'Wellness', subcategories: ['Yoga', 'Meditation', 'Spa', 'Fitness'] },
+    { id: '4', name: 'Arts & Culture', subcategories: ['Museums', 'Galleries', 'Theater', 'Concerts'] },
+    { id: '5', name: 'Food & Dining', subcategories: ['Fine Dining', 'Casual Dining', 'Food Tours', 'Cooking Classes'] },
+    { id: '6', name: 'Sports', subcategories: ['Team Sports', 'Individual Sports', 'Spectator Events', 'Sports Training'] }
+  ];
+
+  availableSubcategories: string[] = [];
 
   // Provider Stats
   providerStats: ProviderStats = {
@@ -110,28 +207,28 @@ export class Users implements OnInit {
 
   // Service Providers Data
   serviceProviders: ServiceProvider[] = [
-    { id: '1', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Approved' },
-    { id: '2', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Approved' },
-    { id: '3', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Approved' },
-    { id: '4', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Approved' },
-    { id: '5', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Approved' },
-    { id: '6', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Pending' },
-    { id: '7', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Pending' },
-    { id: '8', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Pending' },
-    { id: '9', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: 'Night Life, Outdoor Adventure', events: 12, status: 'Suspended' }
+    { id: '1', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Approved' },
+    { id: '2', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Approved' },
+    { id: '3', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Approved' },
+    { id: '4', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Approved' },
+    { id: '5', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Approved' },
+    { id: '6', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Pending' },
+    { id: '7', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Pending' },
+    { id: '8', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Pending' },
+    { id: '9', name: 'BNET Organizers', email: 'b****n@gmail.com', phone: '0712****90', categories: ['Night Life', 'Outdoor Adventure'], subcategories: [], events: 12, status: 'Suspended' }
   ];
 
   // App Users Data
   appUsers: AppUser[] = [
-    { id: '1', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', eventsAttended: 24, status: 'Active' },
-    { id: '2', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Premium', eventsAttended: 24, status: 'Active' },
-    { id: '3', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', eventsAttended: 24, status: 'Active' },
-    { id: '4', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Premium', eventsAttended: 24, status: 'Active' },
-    { id: '5', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', eventsAttended: 24, status: 'Active' },
-    { id: '6', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Premium', eventsAttended: 24, status: 'Active' },
-    { id: '7', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', eventsAttended: 24, status: 'Suspended' },
-    { id: '8', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Premium', eventsAttended: 24, status: 'Suspended' },
-    { id: '9', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', eventsAttended: 24, status: 'Suspended' }
+    { id: '1', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', categoryPreference: [], eventsAttended: 24, status: 'Active' },
+    { id: '2', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Premium', categoryPreference: [], eventsAttended: 24, status: 'Active' },
+    { id: '3', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', categoryPreference: [], eventsAttended: 24, status: 'Active' },
+    { id: '4', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Premium', categoryPreference: [], eventsAttended: 24, status: 'Active' },
+    { id: '5', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', categoryPreference: [], eventsAttended: 24, status: 'Active' },
+    { id: '6', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Premium', categoryPreference: [], eventsAttended: 24, status: 'Active' },
+    { id: '7', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', categoryPreference: [], eventsAttended: 24, status: 'Suspended' },
+    { id: '8', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Premium', categoryPreference: [], eventsAttended: 24, status: 'Suspended' },
+    { id: '9', name: 'Brian Ngugi', email: 'b****n@gmail.com', phone: '0712****90', location: 'Nairobi', userType: 'Standard', categoryPreference: [], eventsAttended: 24, status: 'Suspended' }
   ];
 
   constructor(private router: Router) {}
@@ -155,115 +252,386 @@ export class Users implements OnInit {
     this.activeTab = tab;
   }
 
+  // Category Management
+  onCategoryChange(category: string, isChecked: boolean, formType: 'provider' | 'user'): void {
+    if (formType === 'provider') {
+      if (isChecked) {
+        if (!this.providerForm.categories.includes(category)) {
+          this.providerForm.categories.push(category);
+        }
+      } else {
+        this.providerForm.categories = this.providerForm.categories.filter(c => c !== category);
+        // Remove subcategories of this category
+        const cat = this.categories.find(c => c.name === category);
+        if (cat) {
+          this.providerForm.subcategories = this.providerForm.subcategories.filter(
+            sc => !cat.subcategories.includes(sc)
+          );
+        }
+      }
+      this.updateAvailableSubcategories();
+    } else {
+      if (isChecked) {
+        if (!this.userForm.categoryPreference.includes(category)) {
+          this.userForm.categoryPreference.push(category);
+        }
+      } else {
+        this.userForm.categoryPreference = this.userForm.categoryPreference.filter(c => c !== category);
+      }
+    }
+  }
+
+  onSubcategoryChange(subcategory: string, isChecked: boolean): void {
+    if (isChecked) {
+      if (!this.providerForm.subcategories.includes(subcategory)) {
+        this.providerForm.subcategories.push(subcategory);
+      }
+    } else {
+      this.providerForm.subcategories = this.providerForm.subcategories.filter(sc => sc !== subcategory);
+    }
+  }
+
+  updateAvailableSubcategories(): void {
+    this.availableSubcategories = [];
+    this.providerForm.categories.forEach(catName => {
+      const cat = this.categories.find(c => c.name === catName);
+      if (cat) {
+        this.availableSubcategories.push(...cat.subcategories);
+      }
+    });
+  }
+
+  isCategorySelected(category: string, formType: 'provider' | 'user'): boolean {
+    if (formType === 'provider') {
+      return this.providerForm.categories.includes(category);
+    } else {
+      return this.userForm.categoryPreference.includes(category);
+    }
+  }
+
+  isSubcategorySelected(subcategory: string): boolean {
+    return this.providerForm.subcategories.includes(subcategory);
+  }
+
   // Admin Actions
   addAdmin(): void {
-    console.log('Adding new admin...');
-    alert('Opening admin creation form...');
+    this.adminForm = {
+      id: '',
+      name: '',
+      email: '',
+      phone: '',
+      gender: 'Male',
+      lastLogin: '',
+      role: 'Super Admin',
+      status: 'Active',
+      password: '',
+      action: 'Activate'
+    };
+    this.showAddAdminModal = true;
+  }
+
+  saveAdmin(): void {
+    if (this.adminForm.name && this.adminForm.email && this.adminForm.password) {
+      const newAdmin: Admin = {
+        ...this.adminForm,
+        id: (this.admins.length + 1).toString(),
+        lastLogin: 'Never'
+      };
+      this.admins.push(newAdmin);
+      this.showAddAdminModal = false;
+      alert('Admin added successfully');
+    } else {
+      alert('Please fill all required fields');
+    }
   }
 
   editAdmin(id: string): void {
-    console.log('Editing admin:', id);
-    alert('Editing admin: ' + id);
+    const admin = this.admins.find(a => a.id === id);
+    if (admin) {
+      this.selectedAdmin = admin;
+      this.adminForm = { ...admin };
+      this.showEditAdminModal = true;
+    }
+  }
+
+  updateAdmin(): void {
+    if (this.selectedAdmin && this.adminForm.name && this.adminForm.email) {
+      const index = this.admins.findIndex(a => a.id === this.selectedAdmin!.id);
+      if (index !== -1) {
+        this.admins[index] = { ...this.adminForm };
+        this.showEditAdminModal = false;
+        this.selectedAdmin = null;
+        alert('Admin updated successfully');
+      }
+    } else {
+      alert('Please fill all required fields');
+    }
   }
 
   deleteAdmin(id: string): void {
-    if (confirm('Are you sure you want to delete this admin? This action cannot be undone.')) {
-      console.log('Deleting admin:', id);
-      this.admins = this.admins.filter(admin => admin.id !== id);
+    const admin = this.admins.find(a => a.id === id);
+    if (admin) {
+      this.selectedAdmin = admin;
+      this.showDeleteAdminModal = true;
+    }
+  }
+
+  confirmDeleteAdmin(): void {
+    if (this.selectedAdmin) {
+      this.admins = this.admins.filter(admin => admin.id !== this.selectedAdmin!.id);
+      this.showDeleteAdminModal = false;
+      this.selectedAdmin = null;
       alert('Admin deleted successfully');
     }
   }
 
   // Service Provider Actions
   addServiceProvider(): void {
-    console.log('Adding new service provider...');
-    alert('Opening service provider registration form...');
+    this.providerForm = {
+      id: '',
+      name: '',
+      email: '',
+      phone: '',
+      description: '',
+      categories: [],
+      subcategories: [],
+      events: 0,
+      status: 'Pending',
+      password: ''
+    };
+    this.availableSubcategories = [];
+    this.showAddProviderModal = true;
+  }
+
+  saveServiceProvider(): void {
+    if (this.providerForm.name && this.providerForm.email && this.providerForm.password && 
+        this.providerForm.categories.length > 0) {
+      const newProvider: ServiceProvider = {
+        ...this.providerForm,
+        id: (this.serviceProviders.length + 1).toString()
+      };
+      this.serviceProviders.push(newProvider);
+      this.showAddProviderModal = false;
+      alert('Service provider added successfully');
+    } else {
+      alert('Please fill all required fields and select at least one category');
+    }
   }
 
   viewProvider(id: string): void {
-    console.log('Viewing provider:', id);
-    alert('Viewing provider details: ' + id);
+    const provider = this.serviceProviders.find(p => p.id === id);
+    if (provider) {
+      this.selectedProvider = provider;
+      this.providerForm = { ...provider };
+      this.updateAvailableSubcategories();
+      this.showViewProviderModal = true;
+    }
   }
 
   approveProvider(id: string): void {
-    if (confirm('Are you sure you want to approve this service provider?')) {
-      console.log('Approving provider:', id);
-      const provider = this.serviceProviders.find(p => p.id === id);
+    const provider = this.serviceProviders.find(p => p.id === id);
+    if (provider) {
+      this.selectedProvider = provider;
+      this.showApproveProviderModal = true;
+    }
+  }
+
+  confirmApproveProvider(): void {
+    if (this.selectedProvider) {
+      const provider = this.serviceProviders.find(p => p.id === this.selectedProvider!.id);
       if (provider) {
         provider.status = 'Approved';
       }
+      this.showApproveProviderModal = false;
+      this.selectedProvider = null;
       alert('Service provider approved successfully');
     }
   }
 
   rejectProvider(id: string): void {
-    if (confirm('Are you sure you want to reject this service provider?')) {
-      const reason = prompt('Please provide a reason for rejection:');
-      if (reason) {
-        console.log('Rejecting provider:', id, 'Reason:', reason);
-        alert('Service provider rejected');
-      }
+    const provider = this.serviceProviders.find(p => p.id === id);
+    if (provider) {
+      this.selectedProvider = provider;
+      this.rejectionReason = '';
+      this.showRejectProviderModal = true;
+    }
+  }
+
+  confirmRejectProvider(): void {
+    if (this.selectedProvider && this.rejectionReason) {
+      console.log('Rejecting provider:', this.selectedProvider.id, 'Reason:', this.rejectionReason);
+      this.showRejectProviderModal = false;
+      this.selectedProvider = null;
+      this.rejectionReason = '';
+      alert('Service provider rejected');
+    } else {
+      alert('Please select a reason for rejection');
     }
   }
 
   suspendProvider(id: string): void {
-    if (confirm('Are you sure you want to suspend this service provider?')) {
-      const reason = prompt('Please provide a reason for suspension:');
-      if (reason) {
-        console.log('Suspending provider:', id, 'Reason:', reason);
-        const provider = this.serviceProviders.find(p => p.id === id);
-        if (provider) {
-          provider.status = 'Suspended';
-        }
-        alert('Service provider suspended');
+    const provider = this.serviceProviders.find(p => p.id === id);
+    if (provider) {
+      this.selectedProvider = provider;
+      this.suspensionReason = '';
+      this.showSuspendProviderModal = true;
+    }
+  }
+
+  confirmSuspendProvider(): void {
+    if (this.selectedProvider && this.suspensionReason) {
+      const provider = this.serviceProviders.find(p => p.id === this.selectedProvider!.id);
+      if (provider) {
+        provider.status = 'Suspended';
       }
+      this.showSuspendProviderModal = false;
+      this.selectedProvider = null;
+      this.suspensionReason = '';
+      alert('Service provider suspended');
+    } else {
+      alert('Please select a reason for suspension');
     }
   }
 
   reinstateProvider(id: string): void {
-    if (confirm('Are you sure you want to reinstate this service provider?')) {
-      console.log('Reinstating provider:', id);
-      const provider = this.serviceProviders.find(p => p.id === id);
+    const provider = this.serviceProviders.find(p => p.id === id);
+    if (provider) {
+      this.selectedProvider = provider;
+      this.reinstatementReason = '';
+      this.showReinstateProviderModal = true;
+    }
+  }
+
+  confirmReinstateProvider(): void {
+    if (this.selectedProvider && this.reinstatementReason) {
+      const provider = this.serviceProviders.find(p => p.id === this.selectedProvider!.id);
       if (provider) {
         provider.status = 'Approved';
       }
+      this.showReinstateProviderModal = false;
+      this.selectedProvider = null;
+      this.reinstatementReason = '';
       alert('Service provider reinstated successfully');
+    } else {
+      alert('Please select a reason for reinstatement');
     }
   }
 
   // App User Actions
   addAppUser(): void {
-    console.log('Adding new app user...');
-    alert('Opening app user registration form...');
+    this.userForm = {
+      id: '',
+      name: '',
+      email: '',
+      phone: '',
+      gender: 'Male',
+      dateOfBirth: '',
+      location: '',
+      categoryPreference: [],
+      budgetTier: '',
+      userType: 'Standard',
+      eventsAttended: 0,
+      status: 'Active',
+      password: ''
+    };
+    this.showAddUserModal = true;
+  }
+
+  saveAppUser(): void {
+    if (this.userForm.name && this.userForm.email && this.userForm.password) {
+      const newUser: AppUser = {
+        ...this.userForm,
+        id: (this.appUsers.length + 1).toString()
+      };
+      this.appUsers.push(newUser);
+      this.showAddUserModal = false;
+      alert('App user added successfully');
+    } else {
+      alert('Please fill all required fields');
+    }
   }
 
   viewUser(id: string): void {
-    console.log('Viewing user:', id);
-    alert('Viewing user details: ' + id);
+    const user = this.appUsers.find(u => u.id === id);
+    if (user) {
+      this.selectedUser = user;
+      this.userForm = { ...user };
+      this.showViewUserModal = true;
+    }
   }
 
   suspendUser(id: string): void {
-    if (confirm('Are you sure you want to suspend this user?')) {
-      const reason = prompt('Please provide a reason for suspension:');
-      if (reason) {
-        console.log('Suspending user:', id, 'Reason:', reason);
-        const user = this.appUsers.find(u => u.id === id);
-        if (user) {
-          user.status = 'Suspended';
-        }
-        alert('User suspended');
+    const user = this.appUsers.find(u => u.id === id);
+    if (user) {
+      this.selectedUser = user;
+      this.suspensionReason = '';
+      this.showSuspendUserModal = true;
+    }
+  }
+
+  confirmSuspendUser(): void {
+    if (this.selectedUser && this.suspensionReason) {
+      const user = this.appUsers.find(u => u.id === this.selectedUser!.id);
+      if (user) {
+        user.status = 'Suspended';
       }
+      this.showSuspendUserModal = false;
+      this.selectedUser = null;
+      this.suspensionReason = '';
+      alert('User suspended');
+    } else {
+      alert('Please select a reason for suspension');
     }
   }
 
   reactivateUser(id: string): void {
-    if (confirm('Are you sure you want to reactivate this user?')) {
-      console.log('Reactivating user:', id);
-      const user = this.appUsers.find(u => u.id === id);
+    const user = this.appUsers.find(u => u.id === id);
+    if (user) {
+      this.selectedUser = user;
+      this.reinstatementReason = '';
+      this.showReactivateUserModal = true;
+    }
+  }
+
+  confirmReactivateUser(): void {
+    if (this.selectedUser && this.reinstatementReason) {
+      const user = this.appUsers.find(u => u.id === this.selectedUser!.id);
       if (user) {
         user.status = 'Active';
       }
+      this.showReactivateUserModal = false;
+      this.selectedUser = null;
+      this.reinstatementReason = '';
       alert('User reactivated successfully');
+    } else {
+      alert('Please select a reason for reactivation');
     }
+  }
+
+  // Modal Close Functions
+  closeModal(): void {
+    this.showAddAdminModal = false;
+    this.showEditAdminModal = false;
+    this.showDeleteAdminModal = false;
+    this.showAddProviderModal = false;
+    this.showViewProviderModal = false;
+    this.showSuspendProviderModal = false;
+    this.showRejectProviderModal = false;
+    this.showApproveProviderModal = false;
+    this.showReinstateProviderModal = false;
+    this.showAddUserModal = false;
+    this.showViewUserModal = false;
+    this.showSuspendUserModal = false;
+    this.showReactivateUserModal = false;
+    this.selectedAdmin = null;
+    this.selectedProvider = null;
+    this.selectedUser = null;
+    this.suspensionReason = '';
+    this.rejectionReason = '';
+    this.reinstatementReason = '';
+  }
+
+  getCategoriesDisplay(categories: string[]): string {
+    return categories.join(', ');
   }
 }

@@ -42,7 +42,7 @@
           <div class="balance-card highlight">
             <h3>Available for Withdrawal</h3>
             <div class="balance-amount green">KSh {{availableBalance | number:'1.0-0'}}</div>
-            <button class="btn-withdraw" (click)="withdrawNow()">Withdraw Now</button>
+            <button class="btn-withdraw" (click)="openWithdrawModal()">Withdraw Now</button>
           </div>
 
           <!-- Pending Balance -->
@@ -201,7 +201,7 @@
         <div class="settings-section">
           <div class="section-header">
             <h2>Saved Accounts ({{savedAccounts.length}})</h2>
-            <button class="btn-add" (click)="addNewAccount()">Add new Account</button>
+            <button class="btn-add" (click)="openAddAccountModal()">Add new Account</button>
           </div>
 
           <div class="accounts-list">
@@ -302,6 +302,515 @@
       <div class="modal-footer">
         <button class="btn-cancel" (click)="closePinModal()">Cancel</button>
         <button class="btn-submit" (click)="submitPin()">Submit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdraw Funds Modal -->
+  <div class="modal-overlay" *ngIf="showWithdrawModal" (click)="closeWithdrawModal()">
+    <div class="withdraw-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Withdraw Funds</h3>
+        <button class="btn-close" (click)="closeWithdrawModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="balance-banner">
+          <p class="banner-label">Available for withdrawal</p>
+          <h2 class="banner-amount">KSh {{availableBalance | number:'1.0-0'}}</h2>
+        </div>
+
+        <div class="form-group">
+          <label>Enter Amount</label>
+          <input 
+            type="number" 
+            [(ngModel)]="withdrawAmount"
+            class="form-input"
+            placeholder="Enter amount to withdraw">
+          <p class="input-note">Minimum withdrawal: KSh 100</p>
+        </div>
+
+        <button class="btn-continue" (click)="proceedToSelectAccount()">Continue</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Select Withdrawal Account Modal -->
+  <div class="modal-overlay" *ngIf="showSelectAccountModal" (click)="closeSelectAccountModal()">
+    <div class="withdraw-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Select Withdrawal Account</h3>
+        <button class="btn-close" (click)="closeSelectAccountModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="amount-display">
+          <p class="amount-label">Amount to withdraw</p>
+          <h3 class="amount-value">Ksh {{withdrawAmount | number:'1.0-0'}}</h3>
+        </div>
+
+        <div class="account-selection">
+          <div 
+            class="account-option" 
+            *ngFor="let account of savedAccounts"
+            [class.selected]="selectedAccountId === account.id"
+            (click)="selectAccount(account.id)">
+            <div class="account-option-icon">{{account.icon}}</div>
+            <div class="account-option-info">
+              <h4>{{account.type}}</h4>
+              <p>{{account.name}} - {{account.accountNumber}}</p>
+            </div>
+            <span class="default-badge-small" *ngIf="account.isDefault">Default</span>
+          </div>
+        </div>
+
+        <div class="modal-footer-buttons">
+          <button class="btn-back" (click)="closeSelectAccountModal()">Back</button>
+          <button class="btn-confirm" (click)="proceedToVerifyIdentity()">Confirm Withdrawal</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verify Identity Modal (OTP) -->
+  <div class="modal-overlay" *ngIf="showVerifyIdentityModal" (click)="closeVerifyIdentityModal()">
+    <div class="verify-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Verify Your Identity</h3>
+        <button class="btn-close" (click)="closeVerifyIdentityModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="verify-instruction">Enter the 6-digit code sent to:</p>
+        <p class="verify-destination">{{verificationDestination}}</p>
+
+        <input 
+          type="text" 
+          maxlength="6"
+          [(ngModel)]="otpCode"
+          class="otp-input"
+          placeholder="Enter 6-digit OTP">
+
+        <p class="otp-timer">Code expires in 10 minutes</p>
+        <button class="btn-resend" (click)="resendOTP()">Resend OTP</button>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeVerifyIdentityModal()">Cancel</button>
+        <button class="btn-verify" (click)="verifyOTP()">Verify</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Withdrawal Successful Modal -->
+  <div class="modal-overlay" *ngIf="showSuccessModal" (click)="closeSuccessModal()">
+    <div class="success-modal" (click)="$event.stopPropagation()">
+      <div class="success-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+      </div>
+      <h3>Withdrawal Successful!</h3>
+      <p class="success-message">Your withdrawal is successfully</p>
+      <p class="transaction-id">Transaction ID: {{transactionId}}</p>
+    </div>
+  </div>
+
+  <!-- Add Account Type Selection Modal -->
+  <div class="modal-overlay" *ngIf="showAddAccountModal" (click)="closeAddAccountModal()">
+    <div class="account-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add New Account</h3>
+        <button class="btn-close" (click)="closeAddAccountModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="form-group">
+          <label>Account Type</label>
+          <select [(ngModel)]="selectedAccountType" class="form-select" (ngModelChange)="onAccountTypeChange($event)">
+            <option value="">Select account type</option>
+            <option value="bank">Bank Account</option>
+            <option value="mobile">Mobile Banking</option>
+            <option value="paypal">Paypal</option>
+          </select>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Account Modal -->
+  <div class="modal-overlay" *ngIf="showEditAccountModal" (click)="closeEditAccountModal()">
+    <div class="account-modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Edit Account</h3>
+        <button class="btn-close" (click)="closeEditAccountModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form class="account-form" *ngIf="editingAccount">
+          <div class="form-group">
+            <label>Account Type</label>
+            <input type="text" [value]="editingAccount.type" class="form-input" disabled>
+          </div>
+
+          <div class="form-group" *ngIf="editingAccount.type === 'Bank Account'">
+            <label>Bank Name</label>
+            <input type="text" [(ngModel)]="editingAccount.name" name="editBankName" class="form-input">
+          </div>
+
+          <div class="form-group" *ngIf="editingAccount.type === 'Mobile Wallet'">
+            <label>Service Provider</label>
+            <input type="text" [(ngModel)]="editingAccount.name" name="editProvider" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label>Account Number / Phone</label>
+            <input type="text" [(ngModel)]="editingAccount.accountNumber" name="editAccountNumber" class="form-input">
+          </div>
+
+          <div class="form-group">
+            <label>Nickname (Optional)</label>
+            <input type="text" [(ngModel)]="editingAccount.nickname" name="editNickname" class="form-input" placeholder="e.g Main Account, Partner Account">
+          </div>
+
+          <div class="form-group">
+            <label class="checkbox-label-edit">
+              <input type="checkbox" [(ngModel)]="editingAccount.isDefault" name="editIsDefault">
+              <span>Set as default account</span>
+            </label>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="closeEditAccountModal()">Cancel</button>
+        <button class="btn-verify-add" (click)="saveEditedAccount()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Account Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showDeleteAccountModal" (click)="closeDeleteAccountModal()">
+    <div class="delete-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Delete Account</h3>
+        <button class="btn-close" (click)="closeDeleteAccountModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body-delete">
+        <div class="delete-icon">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="8" x2="12" y2="12"></line>
+            <line x1="12" y1="16" x2="12.01" y2="16"></line>
+          </svg>
+        </div>
+        <h4>Are you sure you want to delete this account?</h4>
+        <p *ngIf="deletingAccount">{{deletingAccount.type}}: {{deletingAccount.name}} - {{deletingAccount.accountNumber}}</p>
+        <p class="warning-text">This action cannot be undone. All withdrawal history associated with this account will remain, but you won't be able to use this account for future withdrawals.</p>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeDeleteAccountModal()">Cancel</button>
+        <button class="btn-delete-confirm" (click)="confirmDeleteAccount()">Yes, Delete</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Bank Account Modal -->
+  <div class="modal-overlay" *ngIf="showAddBankAccountModal" (click)="closeAddBankAccountModal()">
+    <div class="account-modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add New Bank Account</h3>
+        <button class="btn-close" (click)="closeAddBankAccountModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form class="account-form">
+          <div class="form-group">
+            <label>Account Type</label>
+            <select [(ngModel)]="selectedAccountType" name="accountType" class="form-select" (ngModelChange)="onAccountTypeChange($event)">
+              <option value="bank">Bank Account</option>
+              <option value="">Select account type</option>
+              <option value="mobile">Mobile Banking</option>
+              <option value="paypal">Paypal</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Bank Name</label>
+            <select [(ngModel)]="bankAccountForm.bankName" name="bankName" class="form-select">
+              <option value="">Select your bank</option>
+              <option value="KCB">KCB Bank</option>
+              <option value="Equity">Equity Bank</option>
+              <option value="Cooperative">Cooperative Bank</option>
+              <option value="NCBA">NCBA Bank</option>
+              <option value="Absa">Absa Bank</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Account Number</label>
+            <input 
+              type="text" 
+              [(ngModel)]="bankAccountForm.accountNumber"
+              name="accountNumber"
+              class="form-input"
+              placeholder="Account number">
+          </div>
+
+          <div class="form-group">
+            <label>Account Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="bankAccountForm.accountName"
+              name="accountName"
+              class="form-input"
+              placeholder="Account holder name">
+          </div>
+
+          <div class="form-group">
+            <label>Branch Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="bankAccountForm.branchName"
+              name="branchName"
+              class="form-input"
+              placeholder="e.g Nairobi Branch">
+          </div>
+
+          <div class="form-group">
+            <label>Swift Code (Optional)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="bankAccountForm.swiftCode"
+              name="swiftCode"
+              class="form-input"
+              placeholder="For International Transfers">
+          </div>
+
+          <div class="form-group">
+            <label>Nickname (Optional)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="bankAccountForm.nickname"
+              name="nickname"
+              class="form-input"
+              placeholder="e.g Main Account, Partner Account, Venue Account">
+            <p class="input-note">Give this account a memorable name</p>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToAccountTypeSelection()">Back</button>
+        <button class="btn-verify-add" (click)="verifyAndAddBankAccount()">Verify & Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Mobile Banking Modal -->
+  <div class="modal-overlay" *ngIf="showAddMobileAccountModal" (click)="closeAddMobileAccountModal()">
+    <div class="account-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add new Mobile Banking Account</h3>
+        <button class="btn-close" (click)="closeAddMobileAccountModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form class="account-form">
+          <div class="form-group">
+            <label>Account Type</label>
+            <select [(ngModel)]="selectedAccountType" name="accountType" class="form-select" (ngModelChange)="onAccountTypeChange($event)">
+              <option value="mobile">Mobile Banking</option>
+              <option value="">Select account type</option>
+              <option value="bank">Bank Account</option>
+              <option value="paypal">Paypal</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Service Provider</label>
+            <select [(ngModel)]="mobileAccountForm.provider" name="provider" class="form-select">
+              <option value="">Select provider</option>
+              <option value="mpesa">M-Pesa (Safaricom)</option>
+              <option value="airtel">Airtel Money</option>
+              <option value="tkash">T-Kash (Telkom)</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input 
+              type="tel" 
+              [(ngModel)]="mobileAccountForm.phoneNumber"
+              name="phoneNumber"
+              class="form-input"
+              placeholder="254712345678">
+          </div>
+
+          <div class="form-group">
+            <label>Account Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="mobileAccountForm.accountName"
+              name="accountName"
+              class="form-input"
+              placeholder="Full name registered on M-pesa">
+          </div>
+
+          <div class="form-group">
+            <label>Nickname (Optional)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="mobileAccountForm.nickname"
+              name="nickname"
+              class="form-input"
+              placeholder="e.g Main Account, Partner Account, Venue Account">
+            <p class="input-note">You will receive a prompt to enter your pin on this number</p>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToAccountTypeSelection()">Back</button>
+        <button class="btn-verify-add" (click)="verifyAndAddMobileAccount()">Verify & Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add PayPal Account Modal -->
+  <div class="modal-overlay" *ngIf="showAddPaypalAccountModal" (click)="closeAddPaypalAccountModal()">
+    <div class="account-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Add New PayPal Account</h3>
+        <button class="btn-close" (click)="closeAddPaypalAccountModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form class="account-form">
+          <div class="form-group">
+            <label>Account Type</label>
+            <select [(ngModel)]="selectedAccountType" name="accountType" class="form-select" (ngModelChange)="onAccountTypeChange($event)">
+              <option value="paypal">Paypal</option>
+              <option value="">Select account type</option>
+              <option value="bank">Bank Account</option>
+              <option value="mobile">Mobile Banking</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>PayPal Email Address</label>
+            <input 
+              type="email" 
+              [(ngModel)]="paypalAccountForm.email"
+              name="email"
+              class="form-input"
+              placeholder="e.g johndoe@gmail.com">
+            <p class="input-note">Use the email registered with PayPal</p>
+          </div>
+
+          <div class="info-banner-paypal">
+            <h4>Important Information</h4>
+            <p>Note: PayPal withdrawals may incur additional fees. Funds typically arrive in 1-3 business days.</p>
+          </div>
+
+          <div class="form-group">
+            <label>Nickname (Optional)</label>
+            <input 
+              type="text" 
+              [(ngModel)]="paypalAccountForm.nickname"
+              name="nickname"
+              class="form-input"
+              placeholder="e.g Main Account, Partner Account, Venue Account">
+            <p class="input-note">Give this account a memorable name</p>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToAccountTypeSelection()">Back</button>
+        <button class="btn-verify-add" (click)="verifyAndAddPaypalAccount()">Verify & Add</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Verify Account OTP Modal -->
+  <div class="modal-overlay" *ngIf="showVerifyAccountModal" (click)="closeVerifyAccountModal()">
+    <div class="verify-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Verify Your Identity</h3>
+        <button class="btn-close" (click)="closeVerifyAccountModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="verify-instruction">Enter the 6-digit code sent to:</p>
+        <p class="verify-destination">{{accountVerificationDestination}}</p>
+
+        <input 
+          type="text" 
+          maxlength="6"
+          [(ngModel)]="accountOtpCode"
+          class="otp-input"
+          placeholder="Enter 6-digit OTP">
+
+        <p class="otp-timer">Code expires in 10 minutes</p>
+        <button class="btn-resend" (click)="resendAccountOTP()">Resend OTP</button>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeVerifyAccountModal()">Cancel</button>
+        <button class="btn-verify" (click)="verifyAccountOTP()">Verify</button>
       </div>
     </div>
   </div>

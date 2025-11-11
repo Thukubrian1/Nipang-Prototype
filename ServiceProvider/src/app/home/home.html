@@ -233,4 +233,413 @@
     (close)="closeAddEventModal()"
     (submit)="handleEventSubmit($event)">
   </app-add-event>
+
+
+  <!-- Select Event to Sponsor Modal -->
+  <div class="modal-overlay" *ngIf="showSponsorEventModal" (click)="closeSponsorEventModal()">
+    <div class="sponsor-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Select Event to Sponsor</h3>
+        <button class="btn-close" (click)="closeSponsorEventModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <p class="modal-subtitle">Select an active event you would like to sponsor for $10</p>
+        
+        <div class="event-list">
+          <label class="event-option" *ngFor="let event of availableSponsorEvents">
+            <input 
+              type="radio" 
+              name="sponsorEvent" 
+              [value]="event.id"
+              [(ngModel)]="selectedEventId"
+              (change)="selectSponsorEvent(event.id)">
+            <div class="event-option-content">
+              <div class="event-option-header">
+                <h4>{{ event.title }}</h4>
+                <span class="event-status-badge">Active</span>
+              </div>
+              <p class="event-category">{{ event.category }}</p>
+              <div class="event-details">
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-icon">
+                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                  </svg>
+                  {{ event.date }}
+                </span>
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-icon">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  {{ event.time }}
+                </span>
+                <span class="event-detail">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="detail-icon">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                    <circle cx="9" cy="7" r="4"></circle>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                  </svg>
+                  {{ event.booked }}/{{ event.capacity }} booked
+                </span>
+                <span class="event-detail price">Ksh {{ event.price | number:'1.0-0' }}</span>
+              </div>
+            </div>
+          </label>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeSponsorEventModal()">Cancel</button>
+        <button class="btn-continue" (click)="continueToPayment()">Continue to Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Select Payment Method Modal -->
+  <div class="modal-overlay" *ngIf="showPaymentMethodModal" (click)="closePaymentMethodModal()">
+    <div class="payment-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Select Payment Method</h3>
+        <button class="btn-close" (click)="closePaymentMethodModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="event-summary" *ngIf="selectedSponsorEvent">
+          <h4>{{ selectedSponsorEvent.title }}</h4>
+          <div class="summary-details">
+            <span class="summary-detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="summary-icon">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                <line x1="16" y1="2" x2="16" y2="6"></line>
+                <line x1="8" y1="2" x2="8" y2="6"></line>
+                <line x1="3" y1="10" x2="21" y2="10"></line>
+              </svg>
+              {{ selectedSponsorEvent.date }}
+            </span>
+            <span class="summary-detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="summary-icon">
+                <circle cx="12" cy="12" r="10"></circle>
+                <polyline points="12 6 12 12 16 14"></polyline>
+              </svg>
+              {{ selectedSponsorEvent.time }}
+            </span>
+            <span class="summary-detail">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="summary-icon">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+              {{ selectedSponsorEvent.booked }}/{{ selectedSponsorEvent.capacity }} booked
+            </span>
+          </div>
+        </div>
+
+        <div class="sponsorship-fee-banner">
+          <span>Sponsorship Fee</span>
+          <span class="fee-amount">$ {{ sponsorshipFee }}</span>
+        </div>
+
+        <div class="payment-methods">
+          <div class="payment-method" (click)="selectPaymentMethod('mobile')">
+            <div class="payment-method-icon">📱</div>
+            <div class="payment-method-info">
+              <h4>Mobile Banking</h4>
+              <p>Pay via M-pesa, T-Kash, Airtel Money etc</p>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+
+          <div class="payment-method" (click)="selectPaymentMethod('card')">
+            <div class="payment-method-icon">🏦</div>
+            <div class="payment-method-info">
+              <h4>Card</h4>
+              <p>Pay via your Bank Account Card</p>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+
+          <div class="payment-method" (click)="selectPaymentMethod('wallet')">
+            <div class="payment-method-icon"><svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+      </svg>
+    </div>
+            <div class="payment-method-info">
+              <h4>Wallet</h4>
+              <p>Pay via your wallet</p>
+            </div>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="arrow-icon">
+              <polyline points="9 18 15 12 9 6"></polyline>
+            </svg>
+          </div>
+        </div>
+
+        <button class="btn-back-text" (click)="backToEventSelection()">Back to Event Selection</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Mobile Banking Payment Modal -->
+  <div class="modal-overlay" *ngIf="showMobileBankingModal" (click)="closeMobileBankingModal()">
+    <div class="payment-form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Mobile Banking Payment</h3>
+        <button class="btn-close" (click)="closeMobileBankingModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="amount-banner">
+          <span>Amount to Pay</span>
+          <span class="amount">$ {{ sponsorshipFee }}</span>
+        </div>
+
+        <form class="payment-form">
+          <div class="form-group">
+            <label>Select Payment Mode</label>
+            <select [(ngModel)]="mobileBankingForm.paymentMode" name="paymentMode" class="form-select">
+              <option value="">Select your payment mode</option>
+              <option value="mpesa">M-pesa</option>
+              <option value="airtel">Airtel Money</option>
+              <option value="tkash">T-Kash</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Phone number</label>
+            <input 
+              type="tel" 
+              [(ngModel)]="mobileBankingForm.phoneNumber"
+              name="phoneNumber"
+              class="form-input"
+              placeholder="0712345678">
+            <p class="input-note">You will receive a prompt to enter your pin on this number</p>
+          </div>
+
+          <div class="form-group-checkbox">
+            <input 
+              type="checkbox" 
+              id="mobileTerms"
+              [(ngModel)]="mobileBankingForm.agreeToTerms"
+              name="agreeToTerms">
+            <label for="mobileTerms">I agree to the terms & conditions. The $10 sponsorship fee is no-refundable</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToPaymentMethod()">Back</button>
+        <button class="btn-pay" (click)="processMobileBankingPayment()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Card Payment Modal -->
+  <div class="modal-overlay" *ngIf="showCardPaymentModal" (click)="closeCardPaymentModal()">
+    <div class="payment-form-modal-large" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Bank Transfer</h3>
+        <button class="btn-close" (click)="closeCardPaymentModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="amount-banner">
+          <span>Amount to Pay</span>
+          <span class="amount">$ {{ sponsorshipFee }}</span>
+        </div>
+
+        <form class="payment-form">
+          <div class="form-group">
+            <label>Full Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.fullName"
+              name="fullName"
+              class="form-input"
+              placeholder="Enter your full name">
+          </div>
+
+          <div class="form-group">
+            <label>Country or Region</label>
+            <select [(ngModel)]="cardPaymentForm.country" name="country" class="form-select">
+              <option value="">Select your country or region</option>
+              <option value="kenya">Kenya</option>
+              <option value="uganda">Uganda</option>
+              <option value="tanzania">Tanzania</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Address line 1</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.addressLine1"
+              name="addressLine1"
+              class="form-input"
+              placeholder="Enter your address">
+          </div>
+
+          <div class="form-group">
+            <label>City</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.city"
+              name="city"
+              class="form-input"
+              placeholder="Enter City">
+          </div>
+
+          <div class="form-group">
+            <label>Postal Code</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.postalCode"
+              name="postalCode"
+              class="form-input"
+              placeholder="Enter Postal Code">
+          </div>
+
+          <div class="form-group">
+            <label>Card Number</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.cardNumber"
+              name="cardNumber"
+              class="form-input"
+              placeholder="1234 1234 1234 1234"
+              maxlength="19">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Expiration Date</label>
+              <input 
+                type="text" 
+                [(ngModel)]="cardPaymentForm.expirationDate"
+                name="expirationDate"
+                class="form-input"
+                placeholder="MM/YY"
+                maxlength="5">
+            </div>
+
+            <div class="form-group">
+              <label>Security Code</label>
+              <input 
+                type="text" 
+                [(ngModel)]="cardPaymentForm.securityCode"
+                name="securityCode"
+                class="form-input"
+                placeholder="CVC"
+                maxlength="3">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Account Name</label>
+            <input 
+              type="text" 
+              [(ngModel)]="cardPaymentForm.accountName"
+              name="accountName"
+              class="form-input"
+              placeholder="Account holder name">
+          </div>
+
+          <div class="form-group-checkbox">
+            <input 
+              type="checkbox" 
+              id="cardTerms"
+              [(ngModel)]="cardPaymentForm.agreeToTerms"
+              name="agreeToTerms">
+            <label for="cardTerms">I agree to the terms & conditions. The $10 sponsorship fee is no-refundable</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToPaymentMethod()">Back</button>
+        <button class="btn-pay" (click)="processCardPayment()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Wallet Payment Modal -->
+  <div class="modal-overlay" *ngIf="showWalletPaymentModal" (click)="closeWalletPaymentModal()">
+    <div class="payment-form-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Wallet Payment</h3>
+        <button class="btn-close" (click)="closeWalletPaymentModal()">
+          <svg class="nav-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12V7H5a2 2 0 0 1 0-4h14v4"></path>
+        <path d="M3 5v14a2 2 0 0 0 2 2h16v-5"></path>
+        <path d="M18 12a2 2 0 0 0 0 4h4v-4Z"></path>
+      </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <div class="amount-banner">
+          <span>Amount to Pay</span>
+          <span class="amount">$ {{ sponsorshipFee }}</span>
+        </div>
+
+        <form class="payment-form">
+          <div class="form-group">
+            <label>Wallet Password</label>
+            <input 
+              type="password" 
+              [(ngModel)]="walletPaymentForm.walletPassword"
+              name="walletPassword"
+              class="form-input"
+              placeholder="Enter your wallet password to pay">
+            <p class="input-note">You will be deducted the amount from your wallet</p>
+          </div>
+
+          <div class="form-group-checkbox">
+            <input 
+              type="checkbox" 
+              id="walletTerms"
+              [(ngModel)]="walletPaymentForm.agreeToTerms"
+              name="agreeToTerms">
+            <label for="walletTerms">I agree to the terms & conditions. The $10 sponsorship fee is no-refundable</label>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-back" (click)="backToPaymentMethod()">Back</button>
+        <button class="btn-pay" (click)="processWalletPayment()">Pay Now</button>
+      </div>
+    </div>
+  </div>
+  
 </div>

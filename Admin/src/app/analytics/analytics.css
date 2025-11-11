@@ -1317,3 +1317,368 @@
     page-break-inside: avoid;
   }
 }
+/* AI-Powered Insights Section */
+.ai-insights-section {
+  background-color: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+
+.ai-insights-header {
+  background: linear-gradient(135deg, #7c93ff 0%, #5b7cff 100%);
+  padding: 24px 28px;
+  color: white;
+}
+
+.ai-insights-header h3 {
+  font-size: 20px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: white;
+}
+
+.ai-insights-header p {
+  font-size: 14px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.95);
+  font-weight: 400;
+}
+
+.ai-insights-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  padding: 0;
+}
+
+.ai-insight-card {
+  padding: 24px;
+  border-bottom: 1px solid #e0e0e0;
+  background-color: #fff;
+  transition: all 0.2s;
+  display: flex;
+  flex-direction: column;
+}
+
+.ai-insight-card:last-child {
+  border-bottom: none;
+}
+
+.ai-insight-card:hover {
+  background-color: #f8f9fa;
+}
+
+.ai-insight-card h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 8px 0;
+  color: #1a1a1a;
+}
+
+.ai-insight-card p {
+  font-size: 13px;
+  color: #666;
+  margin: 0 0 12px 0;
+  line-height: 1.5;
+  flex: 1;
+}
+
+.insight-link {
+  font-size: 13px;
+  color: #5b7cff;
+  text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-block;
+}
+
+.insight-link:hover {
+  color: #4a6aee;
+  text-decoration: none;
+}
+
+/* Modal Overlay */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  animation: fadeIn 0.2s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Scheduled Reports Modal */
+.scheduled-reports-modal {
+  background-color: white;
+  border-radius: 12px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  width: 90%;
+  max-width: 600px;
+  max-height: 80vh;
+  overflow: hidden;
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e0e0e0;
+}
+
+.modal-header h3 {
+  font-size: 18px;
+  font-weight: 600;
+  margin: 0;
+  color: #1a1a1a;
+}
+
+.modal-close-btn {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.modal-close-btn:hover {
+  background-color: #f0f0f0;
+}
+
+.modal-close-btn svg {
+  width: 20px;
+  height: 20px;
+  color: #666;
+}
+
+.modal-content {
+  padding: 24px;
+  max-height: calc(80vh - 80px);
+  overflow-y: auto;
+}
+
+.scheduled-report-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  transition: all 0.2s;
+}
+
+.scheduled-report-item:last-child {
+  margin-bottom: 0;
+}
+
+.scheduled-report-item:hover {
+  background-color: #e9ecef;
+}
+
+.scheduled-report-info {
+  flex: 1;
+}
+
+.scheduled-report-info h4 {
+  font-size: 15px;
+  font-weight: 600;
+  margin: 0 0 6px 0;
+  color: #1a1a1a;
+}
+
+.scheduled-report-meta {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: #666;
+}
+
+.frequency-badge {
+  background-color: #e3e9ff;
+  color: #5b7cff;
+  padding: 2px 10px;
+  border-radius: 12px;
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.next-run {
+  color: #666;
+}
+
+.delete-scheduled-btn {
+  background: none;
+  border: 1px solid #fcc;
+  padding: 8px;
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  margin-left: 12px;
+}
+
+.delete-scheduled-btn:hover {
+  background-color: #fee;
+}
+
+.delete-scheduled-btn svg {
+  width: 18px;
+  height: 18px;
+  color: #dc3545;
+}
+
+.btn-icon-simple {
+  background: none;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.2s;
+}
+
+.btn-icon-simple:hover {
+  background-color: #f0f0f0;
+}
+
+.btn-icon-simple svg {
+  color: #666;
+}
+
+.btn-icon-simple.delete-icon:hover {
+  background-color: #fee;
+}
+
+.btn-icon-simple.delete-icon svg {
+  color: #dc3545;
+}
+
+/* Responsive Adjustments for AI Insights */
+@media (max-width: 768px) {
+  .ai-insights-header {
+    padding: 20px 24px;
+  }
+  
+  .ai-insights-header h3 {
+    font-size: 18px;
+  }
+  
+  .ai-insights-header p {
+    font-size: 13px;
+  }
+  
+  .ai-insight-card {
+    padding: 20px;
+  }
+  
+  .scheduled-reports-modal {
+    width: 95%;
+    margin: 20px;
+  }
+  
+  .modal-header {
+    padding: 16px;
+  }
+  
+  .modal-content {
+    padding: 16px;
+  }
+}
+
+/* Calendar Icon Button */
+.btn-icon-calendar {
+  padding: 10px;
+  background: none;
+  border: 1px solid #e0e0e0;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 12px;
+}
+
+.btn-icon-calendar svg {
+  width: 20px;
+  height: 20px;
+  color: #666;
+}
+
+.btn-icon-calendar:hover {
+  background-color: #f8f9fa;
+  border-color: #5b7cff;
+}
+
+.btn-icon-calendar:hover svg {
+  color: #5b7cff;
+}
+
+/* Export Button */
+.btn-export {
+  padding: 10px 20px;
+  background-color: #5b7cff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-export:hover {
+  background-color: #4a6aee;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(91, 124, 255, 0.3);
+}
+
+.export-icon-btn {
+  width: 16px;
+  height: 16px;
+  color: white;
+  flex-shrink: 0;
+}

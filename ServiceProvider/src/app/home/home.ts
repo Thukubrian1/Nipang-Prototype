@@ -7,10 +7,45 @@ import { AddEvent } from '../add-event/add-event';  // FIXED: Import AddEvent co
 import { EventFormData } from '../models/eventmodel';
 
 
+interface SponsorEvent {
+  id: number;
+  title: string;
+  category: string;
+  date: string;
+  time: string;
+  booked: number;
+  capacity: number;
+  price: number;
+  status: 'Active';
+}
+interface MobileBankingPaymentForm {
+  paymentMode: string;
+  phoneNumber: string;
+  agreeToTerms: boolean;
+}
+
+interface CardPaymentForm {
+  fullName: string;
+  country: string;
+  addressLine1: string;
+  city: string;
+  postalCode: string;
+  cardNumber: string;
+  expirationDate: string;
+  securityCode: string;
+  accountName: string;
+  agreeToTerms: boolean;
+}
+
+interface WalletPaymentForm {
+  walletPassword: string;
+  agreeToTerms: boolean;
+}
+
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [CommonModule, Sidebar, Topbar, AddEvent],  // FIXED: Use AddEvent component
+  imports: [CommonModule, Sidebar, Topbar, AddEvent],
   templateUrl: './home.html',
   styleUrls: ['./home.css']
 })
@@ -37,6 +72,82 @@ export class Home implements OnInit {
   pendingBalance: number = 22500;
   totalEarnings: number = 68300;
   
+  // Sponsor Event Modals
+  showSponsorEventModal: boolean = false;
+  showPaymentMethodModal: boolean = false;
+  showMobileBankingModal: boolean = false;
+  showCardPaymentModal: boolean = false;
+  showWalletPaymentModal: boolean = false;
+
+  // Selected Event Data
+  selectedSponsorEvent: SponsorEvent | null = null;
+  selectedEventId: number = 0;
+  selectedPaymentMethod: string = '';
+  sponsorshipFee: number = 10;
+  deletingEvent: Event | null = null;
+
+  // Payment Forms
+  mobileBankingForm: MobileBankingPaymentForm = {
+    paymentMode: '',
+    phoneNumber: '',
+    agreeToTerms: false
+  };
+  
+  cardPaymentForm: CardPaymentForm = {
+    fullName: '',
+    country: '',
+    addressLine1: '',
+    city: '',
+    postalCode: '',
+    cardNumber: '',
+    expirationDate: '',
+    securityCode: '',
+    accountName: '',
+    agreeToTerms: false
+  };
+  
+  walletPaymentForm: WalletPaymentForm = {
+    walletPassword: '',
+    agreeToTerms: false
+  };
+  
+  // Available events for sponsorship
+  availableSponsorEvents: SponsorEvent[] = [
+    {
+      id: 1,
+      title: 'Hiking at Karura',
+      category: 'Outdoor Adventures - Hiking',
+      date: '20/10/2025',
+      time: '19:00',
+      booked: 45,
+      capacity: 100,
+      price: 22500,
+      status: 'Active'
+    },
+    {
+      id: 2,
+      title: 'Hiking at Karura',
+      category: 'Outdoor Adventures - Hiking',
+      date: '20/10/2025',
+      time: '19:00',
+      booked: 45,
+      capacity: 100,
+      price: 22500,
+      status: 'Active'
+    },
+    {
+      id: 3,
+      title: 'Hiking at Karura',
+      category: 'Outdoor Adventures - Hiking',
+      date: '20/10/2025',
+      time: '19:00',
+      booked: 45,
+      capacity: 100,
+      price: 22500,
+      status: 'Active'
+    }
+  ];
+
   // AI Insights
   insights = [
     {
@@ -125,6 +236,132 @@ export class Home implements OnInit {
     this.isAddEventModalOpen = true;
   }
 
+    // Sponsor Event Journey
+  sponsorEvent(): void {
+    this.showSponsorEventModal = true;
+  }
+
+  closeSponsorEventModal(): void {
+    this.showSponsorEventModal = false;
+    this.selectedEventId = 0;
+  }
+
+  selectSponsorEvent(eventId: number): void {
+    this.selectedEventId = eventId;
+  }
+
+  continueToPayment(): void {
+    if (this.selectedEventId === 0) {
+      alert('Please select an event to sponsor');
+      return;
+    }
+    this.selectedSponsorEvent = this.availableSponsorEvents.find(e => e.id === this.selectedEventId) || null;
+    this.closeSponsorEventModal();
+    this.showPaymentMethodModal = true;
+  }
+
+  // Payment Method Selection
+  closePaymentMethodModal(): void {
+    this.showPaymentMethodModal = false;
+    this.selectedPaymentMethod = '';
+  }
+
+  selectPaymentMethod(method: string): void {
+    this.selectedPaymentMethod = method;
+    this.closePaymentMethodModal();
+    
+    if (method === 'mobile') {
+      this.mobileBankingForm = {
+        paymentMode: '',
+        phoneNumber: '',
+        agreeToTerms: false
+      };
+      this.showMobileBankingModal = true;
+    } else if (method === 'card') {
+      this.cardPaymentForm = {
+        fullName: '',
+        country: '',
+        addressLine1: '',
+        city: '',
+        postalCode: '',
+        cardNumber: '',
+        expirationDate: '',
+        securityCode: '',
+        accountName: '',
+        agreeToTerms: false
+      };
+      this.showCardPaymentModal = true;
+    } else if (method === 'wallet') {
+      this.walletPaymentForm = {
+        walletPassword: '',
+        agreeToTerms: false
+      };
+      this.showWalletPaymentModal = true;
+    }
+  }
+
+  backToEventSelection(): void {
+    this.closePaymentMethodModal();
+    this.showSponsorEventModal = true;
+  }
+
+  // Mobile Banking Payment
+  closeMobileBankingModal(): void {
+    this.showMobileBankingModal = false;
+  }
+
+  backToPaymentMethod(): void {
+    this.closeMobileBankingModal();
+    this.closeCardPaymentModal();
+    this.closeWalletPaymentModal();
+    this.showPaymentMethodModal = true;
+  }
+
+  processMobileBankingPayment(): void {
+    if (!this.mobileBankingForm.paymentMode || !this.mobileBankingForm.phoneNumber || !this.mobileBankingForm.agreeToTerms) {
+      alert('Please fill in all required fields and agree to terms');
+      return;
+    }
+    console.log('Processing mobile banking payment:', this.mobileBankingForm);
+    // TODO: Integrate with payment API
+    alert('Sponsorship payment successful!');
+    this.closeMobileBankingModal();
+  }
+
+  // Card Payment
+  closeCardPaymentModal(): void {
+    this.showCardPaymentModal = false;
+  }
+
+  processCardPayment(): void {
+    if (!this.cardPaymentForm.fullName || !this.cardPaymentForm.cardNumber || 
+        !this.cardPaymentForm.expirationDate || !this.cardPaymentForm.securityCode || 
+        !this.cardPaymentForm.agreeToTerms) {
+      alert('Please fill in all required fields and agree to terms');
+      return;
+    }
+    console.log('Processing card payment:', this.cardPaymentForm);
+    // TODO: Integrate with payment API
+    alert('Sponsorship payment successful!');
+    this.closeCardPaymentModal();
+  }
+
+  // Wallet Payment
+  closeWalletPaymentModal(): void {
+    this.showWalletPaymentModal = false;
+  }
+
+  processWalletPayment(): void {
+    if (!this.walletPaymentForm.walletPassword || !this.walletPaymentForm.agreeToTerms) {
+      alert('Please enter your wallet password and agree to terms');
+      return;
+    }
+    console.log('Processing wallet payment:', this.walletPaymentForm);
+    // TODO: Integrate with payment API
+    alert('Sponsorship payment successful!');
+    this.closeWalletPaymentModal();
+  }
+
   closeAddEventModal(): void {
     this.isAddEventModalOpen = false;
   }
@@ -172,15 +409,11 @@ export class Home implements OnInit {
     this.isAddEventModalOpen = true;
   }
 
-  sponsorEvent(): void {
-    this.router.navigate(['/home/events/sponsor']);
-  }
-
   createSupportTicket(): void {
-    this.router.navigate(['/home/support']);
+    this.router.navigate(['/support']);
   }
 
   viewAnalytics(): void {
-    this.router.navigate(['/home/analytics']);
+    this.router.navigate(['/analytics']);
   }
 }

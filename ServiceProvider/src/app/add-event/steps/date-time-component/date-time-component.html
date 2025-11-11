@@ -116,24 +116,74 @@
           (ngModelChange)="emitChange()"
           name="recurrencePattern"
           class="form-select">
-          <option value="daily">Daily</option>
           <option value="weekly">Weekly</option>
-          <option value="monthly">Monthly</option>
         </select>
       </div>
 
-      <!-- Select Days (for weekly) -->
-      <div class="form-group" *ngIf="localData.recurrencePattern === 'weekly'">
-        <label>Select Days</label>
-        <div class="days-selector">
-          <button 
-            *ngFor="let day of daysOfWeek"
-            type="button"
-            class="day-btn"
-            [class.selected]="isDaySelected(day)"
-            (click)="toggleDay(day)">
-            {{ day }}
-          </button>
+      <!-- Select Days Section -->
+      <div class="days-section">
+        <div class="section-header">
+          <h3>Select Days</h3>
+          <p class="section-description">Check days and set individual opening and closing hours for each day</p>
+        </div>
+
+        <button 
+          type="button"
+          class="apply-same-time-btn"
+          (click)="applySameTimeToAll()">
+          Apply Same time to all selected days
+        </button>
+
+        <div class="days-list">
+          <div class="day-item" *ngFor="let daySchedule of daysOfWeek">
+            <div class="day-header">
+              <label class="day-checkbox-label">
+                <input 
+                  type="checkbox"
+                  [checked]="daySchedule.selected"
+                  (change)="toggleDay(daySchedule)">
+                <span>{{ daySchedule.day }}</span>
+              </label>
+            </div>
+
+            <div class="day-times" *ngIf="daySchedule.selected">
+              <div class="time-group">
+                <label>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  Opening Time
+                </label>
+                <input 
+                  type="time"
+                  [(ngModel)]="daySchedule.openingTime"
+                  (ngModelChange)="onDayTimeChange()"
+                  [name]="'opening-' + daySchedule.day"
+                  class="form-input time-input"
+                  placeholder="--:--">
+              </div>
+
+              <span class="time-separator">to</span>
+
+              <div class="time-group">
+                <label>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                  </svg>
+                  Closing Time
+                </label>
+                <input 
+                  type="time"
+                  [(ngModel)]="daySchedule.closingTime"
+                  (ngModelChange)="onDayTimeChange()"
+                  [name]="'closing-' + daySchedule.day"
+                  class="form-input time-input"
+                  placeholder="--:--">
+              </div>
+            </div>
+          </div>
         </div>
       </div>
 

@@ -21,7 +21,7 @@
       <!-- Header -->
       <div class="users-header">
         <h1>Admins</h1>
-        <button class="btn-add-admin" (click)="addAdmin()">
+        <button class="btn-add-admin" (click)="openAddAdminModal()">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
@@ -59,8 +59,8 @@
                 </span>
               </td>
               <td class="actions-cell">
-                <button class="action-link edit" (click)="editUser(user.id)">Edit</button>
-                <button class="action-link delete" (click)="deleteUser(user.id)">Delete</button>
+                <button class="action-link edit" (click)="openEditAdminModal(user)">Edit</button>
+                <button class="action-link delete" (click)="openDeleteAdminModal(user)">Delete</button>
               </td>
             </tr>
             <tr *ngIf="filteredUsers.length === 0">
@@ -79,4 +79,247 @@
       </div>
     </div>
   </main>
+
+  <!-- Add Admin Modal -->
+  <div class="modal-overlay" *ngIf="showAddAdminModal" (click)="closeAddAdminModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add Admin</h2>
+        <button class="modal-close" (click)="closeAddAdminModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="admin-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" [(ngModel)]="newAdmin.name" name="name" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="newAdmin.email" name="email" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" [(ngModel)]="newAdmin.phoneNumber" name="phoneNumber" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" [(ngModel)]="newAdmin.password" name="password" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input type="password" [(ngModel)]="newAdmin.confirmPassword" name="confirmPassword" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              <select [(ngModel)]="newAdmin.gender" name="gender" class="form-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Role</label>
+              <select [(ngModel)]="newAdmin.role" name="role" class="form-select">
+                <option value="Super admin">Super Admin</option>
+                <option value="Moderator">Moderator</option>
+                <option value="Data Analyst">Data Analyst</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select [(ngModel)]="newAdmin.status" name="status" class="form-select">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group-full">
+            <label class="permissions-label">Permissions</label>
+            <div class="permissions-grid">
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="newAdmin.permissions.manageUsers" name="manageUsers" />
+                <span>Manage Users</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="newAdmin.permissions.manageEvents" name="manageEvents" />
+                <span>Manage Events</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="newAdmin.permissions.viewAnalytics" name="viewAnalytics" />
+                <span>View Analytics</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="newAdmin.permissions.systemSettings" name="systemSettings" />
+                <span>System Settings</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="newAdmin.permissions.createEvents" name="createEvents" />
+                <span>Create Events</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="newAdmin.permissions.editEvents" name="editEvents" />
+                <span>Edit Events</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="newAdmin.permissions.viewAllEvents" name="viewAllEvents" />
+                <span>View All Events</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="newAdmin.permissions.accessAnalytics" name="accessAnalytics" />
+                <span>Access Analytics</span>
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-save" (click)="saveNewAdmin()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Admin Modal -->
+  <div class="modal-overlay" *ngIf="showEditAdminModal" (click)="closeEditAdminModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Edit Admin</h2>
+        <button class="modal-close" (click)="closeEditAdminModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form class="admin-form">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Name</label>
+              <input type="text" [(ngModel)]="editingAdmin.name" name="editName" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Email</label>
+              <input type="email" [(ngModel)]="editingAdmin.email" name="editEmail" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Phone Number</label>
+              <input type="tel" [(ngModel)]="editingAdmin.phoneNumber" name="editPhoneNumber" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Password</label>
+              <input type="password" [(ngModel)]="editingAdmin.password" name="editPassword" class="form-input" />
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Confirm Password</label>
+              <input type="password" [(ngModel)]="editingAdmin.confirmPassword" name="editConfirmPassword" class="form-input" />
+            </div>
+            <div class="form-group">
+              <label>Gender</label>
+              <select [(ngModel)]="editingAdmin.gender" name="editGender" class="form-select">
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label>Role</label>
+              <select [(ngModel)]="editingAdmin.role" name="editRole" class="form-select">
+                <option value="Super admin">Super Admin</option>
+                <option value="Moderator">Moderator</option>
+                <option value="Data Analyst">Data Analyst</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Status</label>
+              <select [(ngModel)]="editingAdmin.status" name="editStatus" class="form-select">
+                <option value="Active">Active</option>
+                <option value="Inactive">Inactive</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group-full">
+            <label class="permissions-label">Permissions</label>
+            <div class="permissions-grid">
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="editingAdmin.permissions.manageUsers" name="editManageUsers" />
+                <span>Manage Users</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="editingAdmin.permissions.manageEvents" name="editManageEvents" />
+                <span>Manage Events</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="editingAdmin.permissions.viewAnalytics" name="editViewAnalytics" />
+                <span>View Analytics</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="editingAdmin.permissions.systemSettings" name="editSystemSettings" />
+                <span>System Settings</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="editingAdmin.permissions.createEvents" name="editCreateEvents" />
+                <span>Create Events</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="editingAdmin.permissions.editEvents" name="editEditEvents" />
+                <span>Edit Events</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="editingAdmin.permissions.viewAllEvents" name="editViewAllEvents" />
+                <span>View All Events</span>
+              </label>
+              <label class="permission-item">
+                <input type="checkbox" [(ngModel)]="editingAdmin.permissions.accessAnalytics" name="editAccessAnalytics" />
+                <span>Access Analytics</span>
+              </label>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-update" (click)="updateAdmin()">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Admin Modal -->
+  <div class="modal-overlay" *ngIf="showDeleteAdminModal" (click)="closeDeleteAdminModal()">
+    <div class="modal-container-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Delete Admin</h2>
+        <button class="modal-close" (click)="closeDeleteAdminModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body-small">
+        <p class="delete-message">Are you sure you want to Delete this Admin?</p>
+        <p class="delete-warning">On deleting the admin, the admin can't be retrieved</p>
+      </div>
+      <div class="modal-footer-small">
+        <button class="btn-no" (click)="closeDeleteAdminModal()">NO</button>
+        <button class="btn-yes" (click)="confirmDeleteAdmin()">YES</button>
+      </div>
+    </div>
+  </div>
 </div>

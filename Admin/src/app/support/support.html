@@ -126,7 +126,7 @@
 
             <div class="ticket-actions">
               <button class="btn-view" (click)="viewAndRespond(ticket)">View & Respond</button>
-              <button class="btn-resolve" (click)="markResolved(ticket)">Mark Resolved</button>
+              <button class="btn-resolve" (click)="markResolved(ticket)" *ngIf="ticket.status !== 'Resolved'">Mark Resolved</button>
               <button class="btn-progress" *ngIf="ticket.status === 'Open'" (click)="markInProgress(ticket)">In Progress</button>
             </div>
           </div>
@@ -135,5 +135,164 @@
 
     </div>
   </main>
+
+  <!-- Add FAQ Modal -->
+  <div class="modal-overlay" *ngIf="showAddFaqModal" (click)="closeAddFaqModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Add FAQ</h2>
+        <button class="modal-close" (click)="closeAddFaqModal()">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Questions</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            [(ngModel)]="newFaq.question"
+            placeholder="Enter the question">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Response</label>
+          <textarea 
+            class="form-textarea" 
+            [(ngModel)]="newFaq.answer"
+            placeholder="Enter the response"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeAddFaqModal()">Cancel</button>
+        <button class="btn-save" (click)="saveFaq()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit FAQ Modal -->
+  <div class="modal-overlay" *ngIf="showEditFaqModal" (click)="closeEditFaqModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Edit FAQ</h2>
+        <button class="modal-close" (click)="closeEditFaqModal()">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Questions</label>
+          <input 
+            type="text" 
+            class="form-input" 
+            [(ngModel)]="editingFaq.question"
+            placeholder="Enter the question">
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Response</label>
+          <textarea 
+            class="form-textarea" 
+            [(ngModel)]="editingFaq.answer"
+            placeholder="Enter the response"></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeEditFaqModal()">Cancel</button>
+        <button class="btn-save" (click)="updateFaq()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Remove FAQ Confirmation Modal -->
+  <div class="modal-overlay" *ngIf="showRemoveFaqModal" (click)="closeRemoveFaqModal()">
+    <div class="modal-container modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Remove FAQ</h2>
+        <button class="modal-close" (click)="closeRemoveFaqModal()">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <p class="modal-message">Are you sure you want to remove this FAQ?</p>
+        <p class="modal-warning">This action cannot be undone and the FAQ will be permanently deleted from the system.</p>
+        
+        <div class="faq-preview">
+          <div class="faq-preview-label">Question:</div>
+          <div class="faq-preview-text">{{faqToRemove?.question}}</div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeRemoveFaqModal()">Cancel</button>
+        <button class="btn-delete" (click)="confirmRemoveFaq()">Remove FAQ</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Details Modal -->
+  <div class="modal-overlay" *ngIf="showTicketModal" (click)="closeTicketModal()">
+    <div class="modal-container" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2 class="modal-title">Ticket Details</h2>
+        <button class="modal-close" (click)="closeTicketModal()">×</button>
+      </div>
+      
+      <div class="modal-body">
+        <div class="ticket-detail-header">
+          <span class="ticket-detail-id">{{selectedTicket?.id}}</span>
+          <span class="ticket-detail-status" [ngClass]="getStatusClass(selectedTicket?.status || '')">
+            {{selectedTicket?.status}}
+          </span>
+        </div>
+
+        <h3 class="ticket-detail-title">{{selectedTicket?.title}}</h3>
+
+        <div class="ticket-detail-meta">
+          <span class="ticket-detail-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            {{selectedTicket?.date}}
+          </span>
+          <span class="ticket-detail-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+              <circle cx="9" cy="7" r="4"></circle>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+            </svg>
+            {{selectedTicket?.organization}}
+          </span>
+          <span class="ticket-detail-meta-item">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+              <polyline points="22,6 12,13 2,6"></polyline>
+            </svg>
+            {{selectedTicket?.email}}
+          </span>
+        </div>
+
+        <div class="ticket-description-box">
+          {{selectedTicket?.description}}
+        </div>
+
+        <div class="response-section">
+          <label class="response-label">Response</label>
+          <textarea 
+            class="form-textarea" 
+            [(ngModel)]="ticketResponse"
+            placeholder="Type the response here ..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeTicketModal()">Cancel</button>
+        <button class="btn-send" (click)="sendResponse()">Send Response</button>
+      </div>
+    </div>
+  </div>
   
 </div>

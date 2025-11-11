@@ -108,4 +108,155 @@
       </div>
     </div>
   </main>
+
+  <!-- Create Ticket Modal -->
+  <div class="modal-overlay" *ngIf="isCreateTicketModalOpen" (click)="closeCreateTicketModal()">
+    <div class="create-ticket-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h3>Create Ticket</h3>
+        <button class="btn-close" (click)="closeCreateTicketModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body">
+        <form class="ticket-form">
+          
+          <div class="form-group">
+            <label>Category</label>
+            <select 
+              [(ngModel)]="ticketForm.category" 
+              name="category" 
+              class="form-select">
+              <option value="" disabled>Select a category</option>
+              <option *ngFor="let category of ticketCategories" [value]="category">
+                {{ category }}
+              </option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Subject</label>
+            <input 
+              type="text" 
+              [(ngModel)]="ticketForm.subject"
+              name="subject"
+              class="form-input"
+              placeholder="Brief description of your issue">
+          </div>
+
+          <div class="form-group">
+            <label>Message</label>
+            <textarea 
+              [(ngModel)]="ticketForm.message"
+              name="message"
+              class="form-textarea"
+              rows="6"
+              placeholder="Describe the question or issue in details..."></textarea>
+          </div>
+        </form>
+      </div>
+
+      <div class="modal-footer">
+        <button class="btn-cancel" (click)="closeCreateTicketModal()">Cancel</button>
+        <button class="btn-submit" (click)="submitTicket()">Submit Ticket</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Ticket Detail Modal -->
+  <div class="modal-overlay" *ngIf="isTicketDetailModalOpen && selectedTicket" (click)="closeTicketDetailModal()">
+    <div class="ticket-detail-modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <div class="ticket-header-info">
+          <h3>{{ selectedTicket.id }}</h3>
+          <span class="ticket-status" [ngClass]="getTicketStatusClass(selectedTicket.status)">
+            {{ selectedTicket.status }}
+          </span>
+        </div>
+        <button class="btn-close" (click)="closeTicketDetailModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+
+      <div class="modal-body-ticket">
+        <!-- Ticket Details -->
+        <div class="ticket-info-section">
+          <div class="ticket-detail-item">
+            <span class="detail-label">Subject:</span>
+            <span class="detail-value">{{ selectedTicket.subject }}</span>
+          </div>
+          <div class="ticket-detail-item">
+            <span class="detail-label">Category:</span>
+            <span class="detail-value">{{ selectedTicket.category }}</span>
+          </div>
+          <div class="ticket-detail-item">
+            <span class="detail-label">Created:</span>
+            <span class="detail-value">{{ selectedTicket.date }}</span>
+          </div>
+        </div>
+
+        <!-- Conversation Thread -->
+        <div class="ticket-messages">
+          <div class="message-item" 
+               *ngFor="let message of selectedTicket.messages"
+               [ngClass]="message.sender === 'user' ? 'message-user' : 'message-support'">
+            <div class="message-header">
+              <div class="message-avatar" [ngClass]="message.sender">
+                {{ message.sender === 'user' ? 'Y' : 'S' }}
+              </div>
+              <div class="message-meta">
+                <span class="message-sender">{{ message.senderName }}</span>
+                <span class="message-timestamp">{{ message.date }} at {{ message.timestamp }}</span>
+              </div>
+            </div>
+            <div class="message-content">
+              <p>{{ message.message }}</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Reply Section -->
+        <div class="reply-section" *ngIf="selectedTicket.status !== 'Closed'">
+          <textarea 
+            [(ngModel)]="replyMessage"
+            name="replyMessage"
+            class="reply-textarea"
+            rows="4"
+            placeholder="Type your reply here..."></textarea>
+        </div>
+      </div>
+
+      <div class="modal-footer-ticket">
+        <button 
+          class="btn-close-ticket" 
+          (click)="closeTicketAsResolved()"
+          *ngIf="selectedTicket.status !== 'Closed'">
+          Close Ticket
+        </button>
+        <button 
+          class="btn-send-reply" 
+          (click)="sendReply()"
+          *ngIf="selectedTicket.status !== 'Closed'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+          Send Reply
+        </button>
+        <div class="ticket-closed-message" *ngIf="selectedTicket.status === 'Closed'">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="20 6 9 17 4 12"></polyline>
+          </svg>
+          <span>This ticket has been closed</span>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>

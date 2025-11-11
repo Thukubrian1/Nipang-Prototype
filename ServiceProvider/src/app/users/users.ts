@@ -14,6 +14,27 @@ interface User {
   status: 'Active' | 'Inactive';
 }
 
+interface AdminForm {
+  name: string;
+  email: string;
+  phoneNumber: string;
+  password: string;
+  confirmPassword: string;
+  gender: string;
+  role: string;
+  status: string;
+  permissions: {
+    manageUsers: boolean;
+    manageEvents: boolean;
+    viewAnalytics: boolean;
+    systemSettings: boolean;
+    createEvents: boolean;
+    editEvents: boolean;
+    viewAllEvents: boolean;
+    accessAnalytics: boolean;
+  };
+}
+
 @Component({
   selector: 'app-users',
   standalone: true,
@@ -33,6 +54,16 @@ export class Users implements OnInit {
   
   // Search
   searchQuery: string = '';
+  
+  // Modal States
+  showAddAdminModal: boolean = false;
+  showEditAdminModal: boolean = false;
+  showDeleteAdminModal: boolean = false;
+  
+  // Admin Forms
+  newAdmin: AdminForm = this.getEmptyAdminForm();
+  editingAdmin: AdminForm & { id?: number } = this.getEmptyAdminForm();
+  deletingAdminId: number = 0;
   
   // Users/Admins Data
   users: User[] = [
@@ -126,6 +157,30 @@ export class Users implements OnInit {
     this.filteredUsers = [...this.users];
   }
 
+  // Helper method to get empty admin form
+  getEmptyAdminForm(): AdminForm {
+    return {
+      name: '',
+      email: '',
+      phoneNumber: '',
+      password: '',
+      confirmPassword: '',
+      gender: 'Male',
+      role: 'Super admin',
+      status: 'Active',
+      permissions: {
+        manageUsers: false,
+        manageEvents: false,
+        viewAnalytics: false,
+        systemSettings: false,
+        createEvents: false,
+        editEvents: false,
+        viewAllEvents: false,
+        accessAnalytics: false
+      }
+    };
+  }
+
   handleSidebarToggle(): void {
     this.isSidebarOpen = !this.isSidebarOpen;
   }
@@ -150,24 +205,153 @@ export class Users implements OnInit {
     );
   }
 
+  // Add Admin Modal Methods
+  openAddAdminModal(): void {
+    this.newAdmin = this.getEmptyAdminForm();
+    this.showAddAdminModal = true;
+  }
+
+  closeAddAdminModal(): void {
+    this.showAddAdminModal = false;
+    this.newAdmin = this.getEmptyAdminForm();
+  }
+
+  saveNewAdmin(): void {
+    // Validation
+    if (!this.newAdmin.name || !this.newAdmin.email) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    if (this.newAdmin.password !== this.newAdmin.confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    // Generate new ID
+    const newId = Math.max(...this.users.map(u => u.id), 0) + 1;
+
+    // Create new user
+    const newUser: User = {
+      id: newId,
+      name: this.newAdmin.name,
+      email: this.newAdmin.email,
+      lastLogin: 'Just now',
+      role: this.newAdmin.role as 'Super admin' | 'Moderator' | 'Data Analyst',
+      status: this.newAdmin.status as 'Active' | 'Inactive'
+    };
+
+    this.users.push(newUser);
+    this.filterUsers();
+    
+    console.log('New admin created:', newUser);
+    console.log('Permissions:', this.newAdmin.permissions);
+    
+    this.closeAddAdminModal();
+    alert('Admin added successfully!');
+  }
+
+  // Edit Admin Modal Methods
+  openEditAdminModal(user: User): void {
+    this.editingAdmin = {
+      id: user.id,
+      name: user.name,
+      email: user.email,
+      phoneNumber: '+254 712345789', // Default phone
+      password: 'brian@123', // Default password for demo
+      confirmPassword: 'brian@123',
+      gender: 'Male',
+      role: user.role,
+      status: user.status,
+      permissions: {
+        manageUsers: true,
+        manageEvents: true,
+        viewAnalytics: true,
+        systemSettings: true,
+        createEvents: true,
+        editEvents: true,
+        viewAllEvents: true,
+        accessAnalytics: true
+      }
+    };
+    this.showEditAdminModal = true;
+  }
+
+  closeEditAdminModal(): void {
+    this.showEditAdminModal = false;
+    this.editingAdmin = this.getEmptyAdminForm();
+  }
+
+  updateAdmin(): void {
+    // Validation
+    if (!this.editingAdmin.name || !this.editingAdmin.email) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    if (this.editingAdmin.password !== this.editingAdmin.confirmPassword) {
+      alert('Passwords do not match');
+      return;
+    }
+
+    // Find and update user
+    const userIndex = this.users.findIndex(u => u.id === this.editingAdmin.id);
+    if (userIndex !== -1) {
+      this.users[userIndex] = {
+        ...this.users[userIndex],
+        name: this.editingAdmin.name,
+        email: this.editingAdmin.email,
+        role: this.editingAdmin.role as 'Super admin' | 'Moderator' | 'Data Analyst',
+        status: this.editingAdmin.status as 'Active' | 'Inactive'
+      };
+      
+      this.filterUsers();
+      
+      console.log('Admin updated:', this.users[userIndex]);
+      console.log('Permissions:', this.editingAdmin.permissions);
+      
+      this.closeEditAdminModal();
+      alert('Admin updated successfully!');
+    }
+  }
+
+  // Delete Admin Modal Methods
+  openDeleteAdminModal(user: User): void {
+    this.deletingAdminId = user.id;
+    this.showDeleteAdminModal = true;
+  }
+
+  closeDeleteAdminModal(): void {
+    this.showDeleteAdminModal = false;
+    this.deletingAdminId = 0;
+  }
+
+  confirmDeleteAdmin(): void {
+    this.users = this.users.filter(u => u.id !== this.deletingAdminId);
+    this.filterUsers();
+    
+    console.log('Admin deleted:', this.deletingAdminId);
+    
+    this.closeDeleteAdminModal();
+    alert('Admin deleted successfully!');
+  }
+
+  // Legacy methods (kept for backwards compatibility)
   addAdmin(): void {
-    console.log('Add admin clicked');
-    // TODO: Open add admin modal or navigate to add admin page
-    // this.router.navigate(['/home/users/add']);
+    this.openAddAdminModal();
   }
 
   editUser(userId: number): void {
-    console.log('Edit user:', userId);
-    // TODO: Open edit user modal or navigate to edit page
-    // this.router.navigate(['/home/users/edit', userId]);
+    const user = this.users.find(u => u.id === userId);
+    if (user) {
+      this.openEditAdminModal(user);
+    }
   }
 
   deleteUser(userId: number): void {
     const user = this.users.find(u => u.id === userId);
-    if (confirm(`Are you sure you want to delete ${user?.name}?`)) {
-      console.log('Delete user:', userId);
-      this.users = this.users.filter(u => u.id !== userId);
-      this.filterUsers();
+    if (user) {
+      this.openDeleteAdminModal(user);
     }
   }
 

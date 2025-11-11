@@ -124,7 +124,8 @@
 
 /* Metrics Grid */
 .metrics-grid {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 20px;
   margin-bottom: 30px;
@@ -187,6 +188,9 @@
 /* AI-Powered Insights */
 .ai-insights-section {
   margin-bottom: 30px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 20px;
 }
 
 .ai-insights-header {
@@ -211,7 +215,8 @@
 }
 
 .insights-grid {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   gap: 20px;
 }

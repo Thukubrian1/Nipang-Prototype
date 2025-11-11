@@ -212,6 +212,9 @@
 /* Insights Section */
 .insights-section {
   margin-bottom: 25px;
+  padding: 20px;
+  background-color: white;
+  border-radius: 20px;
 }
 
 .section-header {
@@ -238,7 +241,8 @@
 }
 
 .insights-grid {
-  display: grid;
+  display: flex;
+  flex-direction: column;
   grid-template-columns: repeat(2, 1fr);
   gap: 20px;
 }

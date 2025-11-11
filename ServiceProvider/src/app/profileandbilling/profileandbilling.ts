@@ -27,6 +27,18 @@ interface Category {
   selected: boolean;
 }
 
+interface PaymentFormData {
+  fullName: string;
+  country: string;
+  address: string;
+  city: string;
+  postalCode: string;
+  cardNumber: string;
+  expirationDate: string;
+  securityCode: string;
+  accountName: string;
+}
+
 @Component({
   selector: 'app-profileandbilling',
   standalone: true,
@@ -45,6 +57,27 @@ export class Profileandbilling implements OnInit {
   isSidebarOpen: boolean = true;
   notificationCount: number = 3;
   activeTab: 'profile' | 'billing' = 'profile';
+  
+  // Modal States
+  showCancelPlanModal: boolean = false;
+  showPaymentMethodModal: boolean = false;
+  
+  // Cancel Plan Form
+  cancelReason: string = '';
+  cancelDescription: string = '';
+  
+  // Payment Form
+  paymentForm: PaymentFormData = {
+    fullName: '',
+    country: '',
+    address: '',
+    city: '',
+    postalCode: '',
+    cardNumber: '',
+    expirationDate: '',
+    securityCode: '',
+    accountName: ''
+  };
   
   // Payment Info
   paymentMethod: string = 'Visa •••• 6265';
@@ -211,22 +244,119 @@ export class Profileandbilling implements OnInit {
     this.activeTab = tab;
   }
 
-  // Billing Actions
-  updatePaymentMethod(): void {
-    console.log('Update payment method');
-    // TODO: Open payment method update modal
+  // Helper Methods
+  getCurrentPlanPrice(): number {
+    const currentPlanObj = this.plans.find(p => p.isCurrent);
+    return currentPlanObj ? currentPlanObj.price : 0;
   }
 
+  getCurrentPlanFeatures(): string[] {
+    const currentPlanObj = this.plans.find(p => p.isCurrent);
+    return currentPlanObj ? currentPlanObj.features.slice(0, 4) : [];
+  }
+
+  // Cancel Plan Modal Methods
+  openCancelPlanModal(): void {
+    this.cancelReason = '';
+    this.cancelDescription = '';
+    this.showCancelPlanModal = true;
+  }
+
+  closeCancelPlanModal(): void {
+    this.showCancelPlanModal = false;
+    this.cancelReason = '';
+    this.cancelDescription = '';
+  }
+
+  confirmCancelPlan(): void {
+    if (!this.cancelReason) {
+      alert('Please select a reason for cancelling');
+      return;
+    }
+
+    if (!this.cancelDescription.trim()) {
+      alert('Please provide a description');
+      return;
+    }
+
+    console.log('Cancelling plan with reason:', this.cancelReason);
+    console.log('Description:', this.cancelDescription);
+    
+    // TODO: Implement actual cancellation logic
+    this.closeCancelPlanModal();
+    alert('Your subscription has been cancelled. You can continue using the service until Nov 14, 2025.');
+  }
+
+  // Payment Method Modal Methods
+  openPaymentMethodModal(): void {
+    // Pre-fill with existing data if available
+    this.paymentForm = {
+      fullName: '',
+      country: '',
+      address: '',
+      city: '',
+      postalCode: '',
+      cardNumber: '',
+      expirationDate: '',
+      securityCode: '',
+      accountName: ''
+    };
+    this.showPaymentMethodModal = true;
+  }
+
+  closePaymentMethodModal(): void {
+    this.showPaymentMethodModal = false;
+  }
+
+  updatePaymentMethod(): void {
+    // Validation
+    if (!this.paymentForm.fullName || !this.paymentForm.country || 
+        !this.paymentForm.address || !this.paymentForm.city || 
+        !this.paymentForm.postalCode || !this.paymentForm.cardNumber || 
+        !this.paymentForm.expirationDate || !this.paymentForm.securityCode || 
+        !this.paymentForm.accountName) {
+      alert('Please fill in all required fields');
+      return;
+    }
+
+    // Card number validation (basic)
+    const cardNumber = this.paymentForm.cardNumber.replace(/\s/g, '');
+    if (cardNumber.length < 13 || cardNumber.length > 19) {
+      alert('Please enter a valid card number');
+      return;
+    }
+
+    // Expiration date validation (basic MM/YY format)
+    if (!/^\d{2}\/\d{2}$/.test(this.paymentForm.expirationDate)) {
+      alert('Please enter expiration date in MM/YY format');
+      return;
+    }
+
+    // Security code validation
+    if (this.paymentForm.securityCode.length < 3 || this.paymentForm.securityCode.length > 4) {
+      alert('Please enter a valid security code');
+      return;
+    }
+
+    console.log('Updating payment method:', this.paymentForm);
+    
+    // Update the displayed payment method
+    const lastFour = cardNumber.slice(-4);
+    this.paymentMethod = `Visa •••• ${lastFour}`;
+    
+    // TODO: Implement actual payment method update logic
+    this.closePaymentMethodModal();
+    alert('Payment method updated successfully!');
+  }
+
+  // Billing Actions
   viewInvoice(invoiceId: number): void {
     console.log('View invoice:', invoiceId);
     // TODO: Navigate to invoice detail or open modal
   }
 
   cancelPlan(): void {
-    if (confirm('Are you sure you want to cancel your subscription?')) {
-      console.log('Cancelling plan');
-      // TODO: Implement plan cancellation
-    }
+    this.openCancelPlanModal();
   }
 
   selectPlan(planId: string): void {
@@ -235,9 +365,17 @@ export class Profileandbilling implements OnInit {
       if (planId === 'enterprise') {
         console.log('Contact sales for enterprise plan');
         // TODO: Open contact sales modal or form
+        alert('Thank you for your interest in our Enterprise plan. Our sales team will contact you shortly.');
       } else {
         console.log('Selecting plan:', planId);
         // TODO: Navigate to payment or confirm plan change
+        if (confirm(`Are you sure you want to ${plan.price > this.getCurrentPlanPrice() ? 'upgrade' : 'downgrade'} to the ${plan.name} plan?`)) {
+          // Update current plan
+          this.plans.forEach(p => p.isCurrent = false);
+          plan.isCurrent = true;
+          this.currentPlan = plan.name;
+          alert(`Successfully ${plan.price > this.getCurrentPlanPrice() ? 'upgraded' : 'downgraded'} to ${plan.name} plan!`);
+        }
       }
     }
   }
@@ -268,12 +406,27 @@ export class Profileandbilling implements OnInit {
   }
 
   updatePassword(): void {
-    if (this.newPassword !== this.confirmPassword) {
-      alert('Passwords do not match');
+    if (!this.currentPassword || !this.newPassword || !this.confirmPassword) {
+      alert('Please fill in all password fields');
       return;
     }
+
+    if (this.newPassword !== this.confirmPassword) {
+      alert('New passwords do not match');
+      return;
+    }
+
+    if (this.newPassword.length < 8) {
+      alert('Password must be at least 8 characters long');
+      return;
+    }
+
     console.log('Updating password');
     // TODO: Implement password update
+    this.currentPassword = '';
+    this.newPassword = '';
+    this.confirmPassword = '';
+    alert('Password updated successfully!');
   }
 
   saveChanges(): void {
@@ -286,13 +439,17 @@ export class Profileandbilling implements OnInit {
     if (confirm('Are you sure you want to reset all settings to default?')) {
       console.log('Resetting to defaults');
       // TODO: Implement reset functionality
+      alert('Settings reset to defaults!');
     }
   }
 
   deleteAccount(): void {
     if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      console.log('Deleting account');
-      // TODO: Implement account deletion
+      if (confirm('Please confirm again. This will permanently delete all your data.')) {
+        console.log('Deleting account');
+        // TODO: Implement account deletion
+        alert('Account deletion initiated. You will receive a confirmation email.');
+      }
     }
   }
 

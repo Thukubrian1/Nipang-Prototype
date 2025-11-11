@@ -159,7 +159,7 @@
                   <td>{{provider.name}}</td>
                   <td>{{provider.email}}</td>
                   <td>{{provider.phone}}</td>
-                  <td>{{provider.categories}}</td>
+                  <td>{{getCategoriesDisplay(provider.categories)}}</td>
                   <td>{{provider.events}}</td>
                   <td>
                     <span class="status-badge" [class]="provider.status.toLowerCase()">
@@ -289,4 +289,592 @@
       </div>
     </div>
   </main>
+
+  <!-- Add Admin Modal -->
+  <div class="modal-overlay" *ngIf="showAddAdminModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add Admin</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" [(ngModel)]="adminForm.name" placeholder="Enter name">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="adminForm.email" placeholder="Enter email">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" [(ngModel)]="adminForm.phone" placeholder="Enter phone number">
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select [(ngModel)]="adminForm.gender">
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="adminForm.password" placeholder="Enter password">
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" placeholder="Confirm password">
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select [(ngModel)]="adminForm.role">
+              <option value="Super Admin">Super Admin</option>
+              <option value="Moderator">Moderator</option>
+              <option value="Data Analyst">Data Analyst</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Actions</label>
+            <select [(ngModel)]="adminForm.action">
+              <option value="Activate">Activate</option>
+              <option value="Deactivate">Deactivate</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="saveAdmin()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Admin Modal -->
+  <div class="modal-overlay" *ngIf="showEditAdminModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Edit Admin</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" [(ngModel)]="adminForm.name">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="adminForm.email">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" [(ngModel)]="adminForm.phone">
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select [(ngModel)]="adminForm.gender">
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="adminForm.password">
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password">
+          </div>
+          <div class="form-group">
+            <label>Role</label>
+            <select [(ngModel)]="adminForm.role">
+              <option value="Super Admin">Super Admin</option>
+              <option value="Moderator">Moderator</option>
+              <option value="Data Analyst">Data Analyst</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Actions</label>
+            <select [(ngModel)]="adminForm.action">
+              <option value="Activate">Activate</option>
+              <option value="Deactivate">Deactivate</option>
+            </select>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="updateAdmin()">Update</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Admin Modal -->
+  <div class="modal-overlay" *ngIf="showDeleteAdminModal" (click)="closeModal()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Delete Admin</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">Are you sure you want to Delete this Admin?</p>
+        <p class="modal-warning">On deleting the admin, the admin can't be retrieved</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">NO</button>
+        <button class="btn-primary" (click)="confirmDeleteAdmin()">YES</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add Service Provider Modal -->
+  <div class="modal-overlay" *ngIf="showAddProviderModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add Service Provider</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Service Provider</label>
+            <input type="text" [(ngModel)]="providerForm.name" placeholder="Enter provider name">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="providerForm.email" placeholder="Enter email">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" [(ngModel)]="providerForm.phone" placeholder="Enter phone number">
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea [(ngModel)]="providerForm.description" placeholder="Enter description" rows="3"></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>Categories (Select multiple)</label>
+            <div class="checkbox-grid">
+              <label *ngFor="let category of categories" class="checkbox-label">
+                <input type="checkbox" 
+                       [checked]="isCategorySelected(category.name, 'provider')"
+                       (change)="onCategoryChange(category.name, $any($event.target).checked, 'provider')">
+                <span>{{category.name}}</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group full-width" *ngIf="availableSubcategories.length > 0">
+            <label>Subcategories (Select multiple)</label>
+            <div class="checkbox-grid">
+              <label *ngFor="let subcategory of availableSubcategories" class="checkbox-label">
+                <input type="checkbox" 
+                       [checked]="isSubcategorySelected(subcategory)"
+                       (change)="onSubcategoryChange(subcategory, $any($event.target).checked)">
+                <span>{{subcategory}}</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="providerForm.password" placeholder="Enter password">
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" placeholder="Confirm password">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="saveServiceProvider()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View Service Provider Modal -->
+  <div class="modal-overlay" *ngIf="showViewProviderModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>View Service Provider</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Service Provider</label>
+            <input type="text" [(ngModel)]="providerForm.name" readonly>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="providerForm.email" readonly>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" [(ngModel)]="providerForm.phone" readonly>
+          </div>
+          <div class="form-group">
+            <label>Description</label>
+            <textarea [(ngModel)]="providerForm.description" readonly rows="3"></textarea>
+          </div>
+          <div class="form-group full-width">
+            <label>Categories</label>
+            <div class="checkbox-grid">
+              <label *ngFor="let category of categories" class="checkbox-label">
+                <input type="checkbox" 
+                       [checked]="isCategorySelected(category.name, 'provider')"
+                       disabled>
+                <span>{{category.name}}</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" value="********" readonly>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="providerForm.password" readonly>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="closeModal()">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suspend Provider Modal -->
+  <div class="modal-overlay" *ngIf="showSuspendProviderModal" (click)="closeModal()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Suspend Service Provider</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">Are you sure you want to Suspend this Service Provider?</p>
+        <p class="modal-warning">On suspending the service provider, they won't access the service providers dashboard</p>
+        <div class="form-group">
+          <label>Reason for suspension <span class="required">*</span></label>
+          <select [(ngModel)]="suspensionReason">
+            <option value="">Select Reason...</option>
+            <option value="Policy Violation">Policy Violation</option>
+            <option value="Quality Issues">Quality Issues</option>
+            <option value="Customer Complaints">Customer Complaints</option>
+            <option value="Fraud">Fraud</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">NO</button>
+        <button class="btn-primary" (click)="confirmSuspendProvider()">YES</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reject Provider Modal -->
+  <div class="modal-overlay" *ngIf="showRejectProviderModal" (click)="closeModal()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Reject Service Provider</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">Are you sure you want to reject this Service Provider?</p>
+        <p class="modal-warning">On rejecting the service provider, they won't access the service providers dashboard.</p>
+        <div class="form-group">
+          <label>Reason for rejection <span class="required">*</span></label>
+          <select [(ngModel)]="rejectionReason">
+            <option value="">Select Reason...</option>
+            <option value="Incomplete Application">Incomplete Application</option>
+            <option value="Does Not Meet Requirements">Does Not Meet Requirements</option>
+            <option value="Invalid Information">Invalid Information</option>
+            <option value="Duplicate Account">Duplicate Account</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">NO</button>
+        <button class="btn-primary" (click)="confirmRejectProvider()">YES</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Approve Provider Modal -->
+  <div class="modal-overlay" *ngIf="showApproveProviderModal" (click)="closeModal()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Approve Service Provider</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">Are you sure you want to approve this Service Provider?</p>
+        <p class="modal-warning">On approving the service provider, they will access the service providers dashboard.</p>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">NO</button>
+        <button class="btn-primary" (click)="confirmApproveProvider()">YES</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reinstate Provider Modal -->
+  <div class="modal-overlay" *ngIf="showReinstateProviderModal" (click)="closeModal()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Reinstate Service Provider</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">Are you sure you want to reinstate this Service Provider?</p>
+        <p class="modal-warning">On reinstating the service provider, they will access the service providers dashboard again.</p>
+        <div class="form-group">
+          <label>Reason for reinstating <span class="required">*</span></label>
+          <select [(ngModel)]="reinstatementReason">
+            <option value="">Select Reason...</option>
+            <option value="Issue Resolved">Issue Resolved</option>
+            <option value="Appeal Approved">Appeal Approved</option>
+            <option value="Corrective Action Taken">Corrective Action Taken</option>
+            <option value="Administrative Error">Administrative Error</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">NO</button>
+        <button class="btn-primary" (click)="confirmReinstateProvider()">YES</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Add App User Modal -->
+  <div class="modal-overlay" *ngIf="showAddUserModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Add App User</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" [(ngModel)]="userForm.name" placeholder="Enter name">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="userForm.email" placeholder="Enter email">
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" [(ngModel)]="userForm.phone" placeholder="Enter phone number">
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select [(ngModel)]="userForm.gender">
+              <option value="">Select Gender</option>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" [(ngModel)]="userForm.dateOfBirth">
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <select [(ngModel)]="userForm.location">
+              <option value="">Select Location</option>
+              <option value="Nairobi">Nairobi</option>
+              <option value="Mombasa">Mombasa</option>
+              <option value="Kisumu">Kisumu</option>
+              <option value="Nakuru">Nakuru</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>Category Preference (Select multiple)</label>
+            <div class="checkbox-grid">
+              <label *ngFor="let category of categories" class="checkbox-label">
+                <input type="checkbox" 
+                       [checked]="isCategorySelected(category.name, 'user')"
+                       (change)="onCategoryChange(category.name, $any($event.target).checked, 'user')">
+                <span>{{category.name}}</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Budget Tier</label>
+            <select [(ngModel)]="userForm.budgetTier">
+              <option value="">Select Budget Tier</option>
+              <option value="Low-Budget">Low-Budget</option>
+              <option value="Mid-Budget">Mid-Budget</option>
+              <option value="High-Budget">High-Budget</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="userForm.password" placeholder="Enter password">
+          </div>
+          <div class="form-group">
+            <label>User Type</label>
+            <select [(ngModel)]="userForm.userType">
+              <option value="Standard">Standard</option>
+              <option value="Premium">Premium</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" placeholder="Confirm password">
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="saveAppUser()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- View App User Modal -->
+  <div class="modal-overlay" *ngIf="showViewUserModal" (click)="closeModal()">
+    <div class="modal" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>View Normal User</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group">
+            <label>Name</label>
+            <input type="text" [(ngModel)]="userForm.name" readonly>
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" [(ngModel)]="userForm.email" readonly>
+          </div>
+          <div class="form-group">
+            <label>Phone Number</label>
+            <input type="tel" [(ngModel)]="userForm.phone" readonly>
+          </div>
+          <div class="form-group">
+            <label>Gender</label>
+            <select [(ngModel)]="userForm.gender" disabled>
+              <option value="Male">Male</option>
+              <option value="Female">Female</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Date of Birth</label>
+            <input type="date" [(ngModel)]="userForm.dateOfBirth" readonly>
+          </div>
+          <div class="form-group">
+            <label>Location</label>
+            <select [(ngModel)]="userForm.location" disabled>
+              <option value="Nairobi">Nairobi</option>
+              <option value="Mombasa">Mombasa</option>
+              <option value="Kisumu">Kisumu</option>
+            </select>
+          </div>
+          <div class="form-group full-width">
+            <label>Category Preference</label>
+            <div class="checkbox-grid">
+              <label *ngFor="let category of categories" class="checkbox-label">
+                <input type="checkbox" 
+                       [checked]="isCategorySelected(category.name, 'user')"
+                       disabled>
+                <span>{{category.name}}</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Budget Tier</label>
+            <select [(ngModel)]="userForm.budgetTier" disabled>
+              <option value="Low-Budget">Low-Budget</option>
+              <option value="Mid-Budget">Mid-Budget</option>
+              <option value="High-Budget">High-Budget</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Password</label>
+            <input type="password" [(ngModel)]="userForm.password" readonly>
+          </div>
+          <div class="form-group">
+            <label>User Type</label>
+            <select [(ngModel)]="userForm.userType" disabled>
+              <option value="Standard">Standard</option>
+              <option value="Premium">Premium</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Confirm Password</label>
+            <input type="password" [(ngModel)]="userForm.password" readonly>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-primary" (click)="closeModal()">Edit</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Suspend App User Modal -->
+  <div class="modal-overlay" *ngIf="showSuspendUserModal" (click)="closeModal()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Suspend App User</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">Are you sure you want to suspend this App User?</p>
+        <p class="modal-warning">On suspending the app user, they won't access the app.</p>
+        <div class="form-group">
+          <label>Reason for suspension <span class="required">*</span></label>
+          <select [(ngModel)]="suspensionReason">
+            <option value="">Select Reason...</option>
+            <option value="Terms of Service Violation">Terms of Service Violation</option>
+            <option value="Inappropriate Behavior">Inappropriate Behavior</option>
+            <option value="Fraudulent Activity">Fraudulent Activity</option>
+            <option value="Payment Issues">Payment Issues</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">NO</button>
+        <button class="btn-primary" (click)="confirmSuspendUser()">YES</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Reactivate App User Modal -->
+  <div class="modal-overlay" *ngIf="showReactivateUserModal" (click)="closeModal()">
+    <div class="modal modal-small" (click)="$event.stopPropagation()">
+      <div class="modal-header">
+        <h2>Reinstate App User</h2>
+        <button class="modal-close" (click)="closeModal()">×</button>
+      </div>
+      <div class="modal-body">
+        <p class="modal-message">Are you sure you want to reinstate this App User?</p>
+        <p class="modal-warning">On reinstating the app user, they will access the app again.</p>
+        <div class="form-group">
+          <label>Reason for reinstating <span class="required">*</span></label>
+          <select [(ngModel)]="reinstatementReason">
+            <option value="">Select Reason...</option>
+            <option value="Issue Resolved">Issue Resolved</option>
+            <option value="Appeal Approved">Appeal Approved</option>
+            <option value="Misunderstanding Cleared">Misunderstanding Cleared</option>
+            <option value="Payment Received">Payment Received</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" (click)="closeModal()">NO</button>
+        <button class="btn-primary" (click)="confirmReactivateUser()">YES</button>
+      </div>
+    </div>
+  </div>
+
 </div>
